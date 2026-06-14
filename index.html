@@ -580,7 +580,7 @@ function clickFlat(ctx,dest,when,accent){
   // claqueta de TIMBRE UNIFORME: misma frecuencia siempre; el acento solo cambia el volumen
   const o=ctx.createOscillator(),g=ctx.createGain();
   o.frequency.value=1100;
-  g.gain.setValueAtTime(accent?0.7:0.34,when);
+  g.gain.setValueAtTime(accent?0.7:0.22,when);
   g.gain.exponentialRampToValueAtTime(0.001,when+0.05);
   o.connect(g).connect(dest);o.start(when);o.stop(when+0.06);
 }
@@ -2073,10 +2073,16 @@ function playTonCompleto(idx){
   let t=ctx.currentTime+0.25;
   // dictado directo (sin cuenta atrás): piano (saltando silencios) + claqueta de timbre uniforme
   const tStart=t;
+  let pulsosAcum=0;   // posición del evento dentro del dictado, en pulsos
   ex.dict.events.forEach(ev=>{
     if(!ev.rest && ev.midi!=null){
-      pianoPlay(ctx,tonMaster,t,ev.midi, Math.max(0.22, ev.dur*pulseSec*0.92), 0.95);
+      // ¿esta nota cae en el primer pulso de un compás? -> acento
+      const posEnCompas = pulsosAcum % ppc;
+      const enCabeza = Math.abs(posEnCompas) < 0.01 || Math.abs(posEnCompas-ppc) < 0.01;
+      const gain = enCabeza ? 1.25 : 0.95;
+      pianoPlay(ctx,tonMaster,t,ev.midi, Math.max(0.22, ev.dur*pulseSec*0.92), gain);
     }
+    pulsosAcum += ev.dur;
     t+=ev.dur*pulseSec;   // los silencios solo avanzan el tiempo
   });
   // claqueta acompañando todo el dictado: mismo timbre; acento (más fuerte) en el 1er pulso del compás
