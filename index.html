@@ -16,7 +16,7 @@
     --gold:#f0a93b; --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 50px rgba(0,0,0,.45);
     --rit:#22c98a; --rit-soft:rgba(34,201,138,.14);
     --mel:#5b9dff; --mel-soft:rgba(91,157,255,.14);
-    --ton:#ff9a3d; --ton-soft:rgba(255,154,61,.14);
+    --ton:#e08537; --ton-soft:rgba(224,133,55,.14);
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -70,11 +70,12 @@
   .backbar{display:flex;align-items:center;gap:14px;margin-bottom:18px}
   .btn-back{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:border-color .15s,color .15s}
   .btn-back:hover{border-color:var(--accent);color:var(--ink)}
-  .ex-meta{font-size:12px;letter-spacing:.04em;color:var(--muted2)}
+  .ex-meta{font-size:15px;letter-spacing:.01em;color:var(--ink);font-weight:500}
 
   /* bloque autónomo */
   .exo{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:26px}
   .exo-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .exo-head-right{display:flex;align-items:center;gap:12px}
   .exo-title{display:flex;align-items:baseline;gap:12px}
   .exo-num{font-size:11px;font-weight:800;letter-spacing:.18em;color:#fff;background:var(--accent);border-radius:4px;padding:3px 9px}
   #ritmicaView .exo-num{background:var(--rit)}
@@ -92,21 +93,23 @@
 
   .exo-main{display:grid;grid-template-columns:1fr 230px;gap:16px;align-items:stretch}
   .board{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;overflow-x:auto;display:flex;align-items:center;min-height:150px}
-  .exo-side{display:flex;flex-direction:column;gap:10px}
-  .play-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 13px;position:relative;overflow:hidden}
-  .play-row .pr-edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
-  .play-row .pr-label{font-size:12px;color:var(--muted);letter-spacing:.04em;padding-left:6px}
-  .play-row .pr-right{display:flex;align-items:center;gap:10px}
-  .listens{display:flex;gap:5px}
-  .listens .dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--accent);opacity:.9}
+  .exo-side{display:flex;flex-direction:column}
+  .play-row{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:20px 16px;position:relative;overflow:hidden;height:100%;box-sizing:border-box}
+  .play-row .pr-edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
+  .play-row .pr-label{font-size:12px;color:var(--muted2);letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+  .play-row .pr-right{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .listens{display:flex;gap:7px}
+  .listens .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--accent);opacity:.9}
   .listens .dot.used{background:var(--accent);opacity:.35;border-color:transparent}
-  .play-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;display:grid;place-items:center;transition:background .15s,transform .05s}
+  .play-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:64px;height:64px;cursor:pointer;display:grid;place-items:center;transition:background .15s,transform .05s;box-shadow:0 6px 20px rgba(20,40,120,.35)}
   .play-btn:hover{background:var(--accent2)} .play-btn:active{transform:scale(.94)}
   .play-btn:disabled{opacity:.4;cursor:not-allowed}
-  .play-btn svg{width:14px;height:14px;fill:#fff}
+  .play-btn svg{width:26px;height:26px;fill:#fff}
   .play-btn svg rect{fill:#fff}
   .play-row.playing .pr-edge{animation:pulse 1s ease infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  #ritmicaView .play-row .pr-edge{background:var(--rit)} #ritmicaView .play-btn{background:var(--rit)} #ritmicaView .play-btn:hover{background:#14a06a} #ritmicaView .listens .dot{border-color:var(--rit)} #ritmicaView .listens .dot.used{background:var(--rit);border-color:transparent}
+  #melodicaView .play-row .pr-edge{background:var(--mel)} #melodicaView .play-btn{background:var(--mel)} #melodicaView .play-btn:hover{background:#3f7fe0} #melodicaView .listens .dot{border-color:var(--mel)} #melodicaView .listens .dot.used{background:var(--mel);border-color:transparent}
 
   .btn-undo{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:11px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
   .btn-undo:hover{border-color:var(--accent);color:var(--ink)}
@@ -115,6 +118,10 @@
   .btn-main:hover{background:var(--accent2)} .btn-main:active{transform:translateY(1px)}
   .btn-main:disabled{opacity:.45;cursor:not-allowed}
   .btn-check{background:var(--green)} .btn-check:hover{background:#1bb87b}
+  #ritmicaView .btn-check{background:var(--rit)} #ritmicaView .btn-check:hover{background:#14a06a}
+  #melodicaView .btn-check{background:var(--mel)} #melodicaView .btn-check:hover{background:#3f7fe0}
+  #toncomView .btn-check{background:var(--ton)} #toncomView .btn-check:hover{background:#e07d1c}
+  .exo-head-right .btn-check{font-size:12px;font-weight:800;letter-spacing:.04em;padding:7px 14px;border-radius:8px}
   .score-line{font-size:12px;color:var(--muted);text-align:center;min-height:16px;margin-top:2px}
   .score-line b{color:var(--ink)}
 
@@ -141,8 +148,8 @@
   .palette-head{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 9px;flex-wrap:wrap;gap:6px}
   .palette-head h3{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);margin:0;font-weight:700}
   .palette-head .hint{font-size:12px;color:var(--muted)}
-  .palette{display:flex;flex-wrap:wrap;gap:9px}
-  .cell-card{background:var(--paper);border:1px solid var(--line);border-radius:9px;cursor:pointer;width:104px;height:66px;padding:8px 8px 6px;transition:transform .08s,box-shadow .12s;display:flex;align-items:center;justify-content:center}
+  .palette{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+  .cell-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;cursor:pointer;width:100%;height:80px;padding:9px;transition:transform .08s,box-shadow .12s;display:flex;align-items:center;justify-content:center}
   .cell-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.4)}
   .cell-card:active{transform:translateY(0)}
   .cell-card svg{display:block;max-width:100%;max-height:100%}
@@ -165,6 +172,7 @@
   @media (max-width:860px){
     .exo-main{grid-template-columns:1fr}
     .home-grid{grid-template-columns:1fr}
+    .palette{grid-template-columns:repeat(4,1fr)}
   }
   /* ---- melódico ---- */
   .mel-ilayer{position:absolute;left:0;top:0;right:0;bottom:0;z-index:5;cursor:crosshair}
@@ -176,7 +184,7 @@
   /* ---- TonCom ---- */
   .ton-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .ton-head-right{display:flex;align-items:center;gap:10px}
-  .ton-checkbtn{padding:9px 18px;font-size:13px;white-space:nowrap}
+  .ton-checkbtn{font-size:12px;font-weight:800;letter-spacing:.04em;padding:7px 14px;border-radius:8px;white-space:nowrap}
   .ton-pts{font-size:15px;color:var(--ton);background:var(--ton-soft);border:1px solid var(--ton);border-radius:999px;padding:5px 14px;font-weight:700}
   .ton-pts b{font-size:18px}
   .ico-audio{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ton);color:#1a1205;font-size:10px;flex:0 0 auto}
@@ -284,7 +292,7 @@
     <div class="backbar">
       <button class="btn-back" id="backBtn">← Modos</button>
       <span class="now-tag">PreDict · Rítmico</span>
-      <span class="ex-meta">escucha cada ejercicio (máx. 3 veces) y reconstrúyelo</span>
+      <span class="ex-meta">Escucha cada ejercicio (máx. 3 veces) y reconstrúyelo</span>
       <button class="btn-back" id="regenBtn" style="margin-left:auto">↻ Nuevos ejercicios</button>
     </div>
     <div id="exoContainer"></div>
@@ -296,7 +304,7 @@
     <div class="backbar">
       <button class="btn-back" id="backBtnMel">← Modos</button>
       <span class="now-tag">PreDict · Melódico</span>
-      <span class="ex-meta">escucha (máx. 3 veces) y coloca las 10 notas en el pentagrama</span>
+      <span class="ex-meta">Escucha (máx. 2 veces) y coloca las 10 notas en el pentagrama</span>
       <button class="btn-back" id="regenBtnMel" style="margin-left:auto">↻ Nuevos ejercicios</button>
     </div>
     <div id="melContainer"></div>
@@ -308,7 +316,7 @@
     <div class="backbar">
       <button class="btn-back" id="backBtnTon">← Modos</button>
       <span class="now-tag">PreDict · TonCom</span>
-      <span class="ex-meta">escucha cada dictado y deduce su tonalidad y su compás</span>
+      <span class="ex-meta">Escucha cada dictado y deduce su tonalidad y su compás</span>
       <button class="btn-back" id="regenBtnTon" style="margin-left:auto">↻ Nuevos ejercicios</button>
     </div>
     <div id="tonContainer"></div>
@@ -485,11 +493,22 @@ function endDrag(){
   document.querySelectorAll('.board').forEach(b=>b.classList.remove('drop-active'));
   document.querySelectorAll('.dropzone.over').forEach(d=>d.classList.remove('over'));
 }
+function startsWithRest(compases){
+  // ¿la primera figura del primer compás es un silencio?
+  if(!compases.length || !compases[0].length) return false;
+  const firstCell=compases[0][0];
+  if(!firstCell || !firstCell.notes || !firstCell.notes.length) return false;
+  const n0=firstCell.notes[0];
+  return !!(n0.rest || /r$/.test(n0.dur));
+}
 function buildExos(){
   exos=SPECS.map(spec=>{
-    const compases=spec.compound?genPentagramaCompound():genPentagramaSimple(spec.pulsos);
+    let compases, tries=0;
+    do{
+      compases=spec.compound?genPentagramaCompound():genPentagramaSimple(spec.pulsos);
+      tries++;
+    }while(startsWithRest(compases) && tries<40);   // que no empiece por silencio
     const flat=[]; compases.forEach(c=>c.forEach(cell=>flat.push(cell)));
-    // answer: una casilla por pulso (longitud = nº de pulsos), null = vacío
     const slots=new Array(flat.length).fill(null);
     return {spec,compases,flatSolution:flat,slots,nslots:flat.length,listens:0,checked:false,revealed:false,_pool:paletteForSpec(spec)};
   });
@@ -557,6 +576,14 @@ function clickSound(ctx,dest,when,accent){
   g.gain.exponentialRampToValueAtTime(0.001,when+0.05);
   o.connect(g).connect(dest);o.start(when);o.stop(when+0.06);
 }
+function clickFlat(ctx,dest,when,accent){
+  // claqueta de TIMBRE UNIFORME: misma frecuencia siempre; el acento solo cambia el volumen
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.frequency.value=1100;
+  g.gain.setValueAtTime(accent?0.7:0.34,when);
+  g.gain.exponentialRampToValueAtTime(0.001,when+0.05);
+  o.connect(g).connect(dest);o.start(when);o.stop(when+0.06);
+}
 function tickSound(ctx,dest,when,accent){
   // claqueta suave para acompañar (no tapar el piano)
   const o=ctx.createOscillator(),g=ctx.createGain();
@@ -569,7 +596,7 @@ function woodSound(ctx,dest,when){
   const o=ctx.createOscillator(),g=ctx.createGain(),lp=ctx.createBiquadFilter();
   lp.type='lowpass';lp.frequency.value=900;o.type='sine';o.frequency.value=480;
   g.gain.setValueAtTime(0.0001,when);
-  g.gain.exponentialRampToValueAtTime(0.32,when+0.01);
+  g.gain.exponentialRampToValueAtTime(0.45,when+0.01);
   g.gain.exponentialRampToValueAtTime(0.0001,when+0.12);
   o.connect(lp);lp.connect(g);g.connect(dest);o.start(when);o.stop(when+0.13);
 }
@@ -608,7 +635,7 @@ function playExo(idx){
   for(let p=0;p<pulsosCompas;p++) clickSound(ctx,dest,start+p*pulseSec,p===0);
   const rStart=start+pulsosCompas*pulseSec;
   const totalPulsos=pulsosCompas*4;
-  for(let p=0;p<totalPulsos;p++) clickSound(ctx,dest,rStart+p*pulseSec,(p%pulsosCompas)===0);
+  for(let p=0;p<totalPulsos;p++) tickSound(ctx,dest,rStart+p*pulseSec,(p%pulsosCompas)===0);
   let t=rStart;
   ex.compases.forEach(compas=>compas.forEach(cell=>{
     const weights=cell.notes.map(n=>{let f=durFraction(n.dur);if(n.dots){let a=f;for(let d=0;d<n.dots;d++){a/=2;f+=a;}}return f;});
@@ -890,7 +917,10 @@ function renderExos(){
         '<h2>'+ex.spec.ts+'</h2>'+
         '<span class="ts">'+(ex.spec.compound?'negra con puntillo = '+ex.spec.bpm:'negra = '+ex.spec.bpm)+'</span>'+
       '</div>'+
-      '<div class="beatmon" id="beatmon-'+idx+'"></div>'+
+      '<div class="exo-head-right">'+
+        '<div class="beatmon" id="beatmon-'+idx+'"></div>'+
+        '<button class="btn-main btn-check" id="check-'+idx+'">¿Qué tal fue?</button>'+
+      '</div>'+
       '</div>'+
       '<div class="exo-main">'+
         '<div class="board" id="board-'+idx+'"></div>'+
@@ -898,12 +928,11 @@ function renderExos(){
           '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
             '<div class="pr-right"><div class="listens" id="listens-'+idx+'"></div>'+
             '<button class="play-btn" id="play-'+idx+'" title="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>'+
+            '<div class="score-line" id="score-'+idx+'"></div>'+
           '</div>'+
-          '<button class="btn-main btn-check" id="check-'+idx+'">¿Qué tal fue?</button>'+
-          '<div class="score-line" id="score-'+idx+'"></div>'+
         '</div>'+
       '</div>'+
-      '<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Clica para añadir por orden · arrastra para soltar en un pulso concreto · pasa el ratón sobre una figura y pulsa la × para quitarla</span></div>'+
+      '<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Clica para añadir por orden · arrastra para soltar en un pulso concreto · pasa el ratón sobre una figura y pulsa la × para quitarla · cuando termines, pulsa <b>¿Qué tal fue?</b> (arriba a la derecha) para corregir</span></div>'+
       '<div class="palette" id="palette-'+idx+'"></div>';
     cont.appendChild(block);
 
@@ -1204,7 +1233,7 @@ function playMel(idx){
   melMaster=ctx.createGain();melMaster.gain.value=1;melMaster.connect(ctx.destination);
   let t=ctx.currentTime+0.15;
   const step=MEL_NOTE_SEC+MEL_GAP_SEC;
-  ex.midis.forEach((m,i)=>{ pianoPlay(ctx,melMaster,t+i*step,m,MEL_NOTE_SEC,0.9); });
+  ex.midis.forEach((m,i)=>{ pianoPlay(ctx,melMaster,t+i*step,m,MEL_NOTE_SEC,1.4); });
   melCurrentPlaying=idx;
   setMelPlayIcon(idx,true);
   const row=document.querySelector('#melexo-'+idx+' .play-row'); if(row) row.classList.add('playing');
@@ -1482,19 +1511,19 @@ function renderMelExos(){
         '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
         '<h2>'+altTxt+'</h2>'+
         '<span class="ts">tónica dada · 10 notas</span>'+
-      '</div><div class="beatmon" id="melbeat-'+idx+'"></div></div>'+
+      '</div><div class="exo-head-right"><div class="beatmon" id="melbeat-'+idx+'"></div>'+
+        '<button class="btn-main btn-check" id="melcheck-'+idx+'">¿Qué tal fue?</button></div></div>'+
       '<div class="exo-main">'+
         '<div class="board" id="melboard-'+idx+'" style="min-height:200px"></div>'+
         '<div class="exo-side">'+
           '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
             '<div class="pr-right"><div class="listens" id="mellistens-'+idx+'"></div>'+
             '<button class="play-btn" id="melplay-'+idx+'" title="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>'+
+            '<div class="score-line" id="melscore-'+idx+'"></div>'+
           '</div>'+
-          '<button class="btn-main btn-check" id="melcheck-'+idx+'">¿Qué tal fue?</button>'+
-          '<div class="score-line" id="melscore-'+idx+'"></div>'+
         '</div>'+
       '</div>'+
-      '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Acerca el ratón al pentagrama: la redonda salta de nota en nota. Clic izquierdo coloca · clic derecho quita. Tras "¿Qué tal fue?" puedes escuchar de nuevo y corregir las falladas; la nota se recalcula.</span></div>';
+      '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Acerca el ratón al pentagrama: la redonda salta de nota en nota. Clic izquierdo coloca · clic derecho quita · cuando termines, pulsa <b>¿Qué tal fue?</b> (arriba a la derecha) para corregir. Después puedes escuchar de nuevo y corregir las falladas; la nota se recalcula.</span></div>';
     cont.appendChild(block);
     block.querySelector('#melplay-'+idx).addEventListener('click',()=>playMel(idx));
     block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
@@ -2041,22 +2070,8 @@ function playTonCompleto(idx){
   const bpm=ex.compas.bpm;
   const pulseSec=60/bpm;
   const ppc=ex.dict.pulsosPorCompas;
-  let t=ctx.currentTime+0.2;
-  // 1) cuenta atrás 5·4·3·2·1: claqueta (acento en el 1º) + número en pantalla
-  const cd=document.getElementById('countdown'), cdNum=document.getElementById('countdownNum');
-  tonCountdownTimers=[];
-  for(let k=0;k<5;k++){ clickSound(ctx,tonMaster,t, k===0); t+=pulseSec; }
-  // sincronizar los números con el tiempo real (desde ahora)
-  if(cd&&cdNum){
-    cd.classList.add('on');
-    for(let k=0;k<5;k++){
-      const num=5-k;
-      tonCountdownTimers.push(setTimeout(()=>{ cdNum.textContent=num; }, Math.round((0.2+k*pulseSec)*1000)));
-    }
-    tonCountdownTimers.push(setTimeout(()=>{ cd.classList.remove('on'); cdNum.textContent=''; }, Math.round((0.2+5*pulseSec)*1000)));
-  }
-  // SIN hueco extra: el dictado entra justo en el pulso 6, sin "momento de duda"
-  // 2) dictado: piano (saltando silencios) + claqueta en cada pulso (fuerte) con acento por compás
+  let t=ctx.currentTime+0.25;
+  // dictado directo (sin cuenta atrás): piano (saltando silencios) + claqueta de timbre uniforme
   const tStart=t;
   ex.dict.events.forEach(ev=>{
     if(!ev.rest && ev.midi!=null){
@@ -2064,10 +2079,10 @@ function playTonCompleto(idx){
     }
     t+=ev.dur*pulseSec;   // los silencios solo avanzan el tiempo
   });
-  // claqueta acompañando todo el dictado, MÁS FUERTE: acento en el primer pulso de cada compás
+  // claqueta acompañando todo el dictado: mismo timbre; acento (más fuerte) en el 1er pulso del compás
   const totalPulsos=8*ppc;
   for(let p=0;p<totalPulsos;p++){
-    clickSound(ctx,tonMaster, tStart + p*pulseSec, (p%ppc===0));
+    clickFlat(ctx,tonMaster, tStart + p*pulseSec, (p%ppc===0));
   }
   ex.usesCompleto++;
   markTonPlaying(idx,'completo');
