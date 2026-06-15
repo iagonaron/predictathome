@@ -56,6 +56,9 @@
   .mode-card.m3 .edge{background:linear-gradient(var(--ton),#e07d1c)}
   .mode-card .mc-kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
   .mode-card h2{font-size:40px;margin:18px 0 12px;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
+  .card-title{letter-spacing:.01em}
+  .card-title .hl{font-weight:900}
+  .card-title .dim{font-weight:300;color:var(--muted2);opacity:.65}
   .mode-card[disabled] h2{color:var(--muted)}
   .mode-card p{font-size:15px;line-height:1.5;color:var(--muted);margin:0}
   .mode-card .go{margin-top:28px;font-size:14px;font-weight:700;color:var(--accent2);letter-spacing:.02em}
@@ -71,8 +74,24 @@
   .btn-back{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:border-color .15s,color .15s}
   .btn-back:hover{border-color:var(--accent);color:var(--ink)}
   .ex-meta{font-size:15px;letter-spacing:.01em;color:var(--ink);font-weight:500}
-  .section-title{font-size:54px;font-weight:900;letter-spacing:-.03em;margin:4px 0 22px;line-height:1}
-  .section-title.rit{color:var(--rit)} .section-title.mel{color:var(--mel)} .section-title.ton{color:var(--ton)}
+  .section-title{font-size:54px;font-weight:900;letter-spacing:-.02em;margin:4px 0 22px;line-height:1}
+  .section-title .hl{font-weight:900}
+  .section-title .dim{font-weight:300;color:var(--muted2);opacity:.65}
+  .section-title.rit .hl{color:var(--rit)} .section-title.mel .hl{color:var(--mel)} .section-title.ton .hl{color:var(--ton)}
+  .tempo-ctl{display:flex;align-items:center;gap:8px;margin-top:4px}
+  .tempo-ctl .ts{margin:0}
+  .tempo-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);font-size:16px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center;transition:border-color .15s,background .15s}
+  .tempo-btn:hover{border-color:var(--rit);background:var(--rit-soft)}
+  .tempo-btn:disabled{opacity:.35;cursor:not-allowed}
+  .tempo-val{min-width:30px;text-align:center;font-size:15px;font-weight:800;color:var(--rit);font-variant-numeric:tabular-nums}
+  .metro-ctl{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:4px}
+  .metro-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2)}
+  .metro-row{display:flex;align-items:center;gap:8px}
+  .melspeed-ctl{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:6px}
+  .melspeed-row{display:flex;gap:5px}
+  .melspeed-btn{border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.03);color:var(--muted);font-size:11px;font-weight:700;padding:5px 9px;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+  .melspeed-btn:hover{border-color:var(--mel)}
+  .melspeed-btn.sel{border-color:var(--mel);background:var(--mel-soft);color:var(--mel)}
 
   /* bloque autónomo */
   .exo{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:26px}
@@ -220,12 +239,14 @@
   .ton-playcard:disabled{opacity:.4;cursor:not-allowed}
   .ton-playcard .pr-edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--ton)}
   .ton-playcard .tpc-label{font-size:12px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;font-weight:700;text-align:center;padding:0 4px}
+  .ton-playcard .tpc-label .tw{transition:color .12s}
+  .ton-playcard .tpc-label .tw.on{color:#fff}
   .ton-playcard .uses{display:flex;gap:7px}
   .ton-playcard .uses .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ton);opacity:.9}
   .ton-playcard .uses .dot.used{background:var(--ton);opacity:.35;border-color:transparent}
-  .ton-playcard .tpc-play{background:var(--ton);color:#fff;border-radius:50%;width:56px;height:56px;display:grid;place-items:center;box-shadow:0 6px 20px rgba(224,133,55,.35)}
+  .ton-playcard .tpc-play{background:var(--ton);color:#fff;border-radius:50%;width:56px;height:56px;display:grid;place-items:center}
   .ton-playcard .tpc-play .ico-audio{font-size:22px;line-height:1}
-  .ton-playcard.playing .pr-edge{animation:pulse 1s ease infinite}
+  .ton-playcard.playing .pr-edge{background:var(--ton)}
   .ton-playcard.beat{animation:tonbeat .35s ease-out}
   .ton-playcard.beat-strong{animation:tonbeatStrong .45s ease-out}
   @keyframes tonbeat{0%{box-shadow:0 0 0 0 var(--ton-soft);border-color:var(--ton)}100%{box-shadow:0 0 0 6px transparent;border-color:var(--line)}}
@@ -266,29 +287,83 @@
   .countdown .cd-inner{display:flex;align-items:center;justify-content:center}
   .countdown span{font-size:min(42vw,360px);font-weight:900;letter-spacing:-.04em;color:#fff;text-shadow:0 6px 50px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;line-height:1}
   .countdown.rit span{color:var(--rit)} .countdown.mel span{color:var(--mel)} .countdown.ton span{color:var(--ton)}
+  .home2,.ath{color:var(--muted2);font-weight:500}
+  .home2{font-size:.62em;font-style:italic;font-family:Georgia,'Times New Roman',serif;letter-spacing:.01em;color:#aeb6d6;transform:rotate(-3deg);display:inline-block}
+  .ath{font-size:.5em;font-style:italic;font-family:Georgia,'Times New Roman',serif;font-weight:500;color:#9aa3c4;transform:rotate(-3deg);display:inline-block}
+  .brand-sub{font-size:13px;color:var(--muted2);margin-top:2px;letter-spacing:.01em}
+  /* hero del inicio */
+  .opt-top{display:block;width:max-content;margin:18px auto 0}
+  .eva-hero{text-align:center;margin:90px 0 56px}
+  .eva-big{font-size:72px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1}
+  .eva-big .pre{color:var(--ink);font-weight:300;opacity:.6}
+  .eva-big .dict{color:var(--ink);font-weight:900}
+  .eva-big .home2{font-size:.5em;color:#aeb6d6}
+  .eva-tag{font-size:16px;color:var(--muted);margin:14px 0 0}
+  .eva-hero .opt-banner{margin:0 auto}
+  /* tarjetas apaisadas */
+  .eva-stack{display:flex;flex-direction:column;gap:18px;max-width:1000px;margin:0 auto}
+  .eva-card{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:28px 32px;text-align:left;width:100%;cursor:default;transition:border-color .15s,box-shadow .15s}
+  .eva-card .edge{position:absolute;left:0;top:0;bottom:0;width:6px}
+  .eva-card.mel .edge{background:linear-gradient(var(--mel),#3f7fe0)}
+  .eva-card.rit .edge{background:linear-gradient(var(--rit),#14a06a)}
+  .eva-card.ton .edge{background:linear-gradient(var(--ton),#e07d1c)}
+  .eva-card-head{display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .eva-card h2{font-size:34px;margin:8px 0 10px;font-weight:800;letter-spacing:-.4px;color:var(--ink)}
+  .eva-card .mc-kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
+  .eva-card p{font-size:15px;color:var(--muted);margin:0;max-width:620px;line-height:1.5}
+  .eva-card.soon{cursor:not-allowed}
+  .eva-card.soon h2{color:var(--muted)}
+  .eva-enter{background:var(--mel);color:#fff;border:none;border-radius:12px;padding:14px 26px;font-size:15px;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .15s,transform .05s}
+  .eva-enter:hover{background:#3f7fe0} .eva-enter:active{transform:scale(.97)}
+  .soon-tag{color:var(--muted2);font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px;white-space:nowrap}
+  /* despliegue de PreDict */
+  .eva-reveal{max-height:0;overflow:hidden;transition:max-height .45s ease, margin-top .45s ease;margin-top:0}
+  .eva-card.open .eva-reveal{max-height:520px;margin-top:24px}
+  .reveal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .eva-foot{text-align:center;margin:34px 0 0}
+  .maint-link{background:none;border:none;color:var(--muted2);font-size:12px;letter-spacing:.08em;cursor:pointer;opacity:.5;transition:opacity .15s}
+  .maint-link:hover{opacity:1;color:var(--muted)}
+  .mode-card.soon{opacity:.55;cursor:not-allowed}
+  .mode-card.soon:hover{transform:none;border-color:var(--line);box-shadow:none}
+  .soon-tag{color:var(--muted2)!important;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px}
+  /* overlay selección de nivel */
+  .level-backdrop{position:fixed;inset:0;background:rgba(4,8,20,.65);z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+  .level-backdrop.open{display:flex}
+  .level-modal{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:26px;max-width:720px;width:100%;box-shadow:var(--shadow);text-align:center}
+  .level-modal h3{margin:0 0 4px;font-size:20px;font-weight:800}
+  .level-sub{font-size:13px;color:var(--muted);margin:0 0 18px}
+  .level-grid{display:flex;align-items:stretch;justify-content:center;gap:10px}
+  .level-btn{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03);color:var(--ink);font-size:15px;font-weight:800;padding:22px 4px;cursor:pointer;transition:transform .08s,border-color .15s,background .15s;white-space:nowrap}
+  .level-btn:not(.locked):hover{transform:translateY(-2px);border-color:var(--mel);background:var(--mel-soft)}
+  .level-btn.locked{opacity:.32;cursor:not-allowed}
+  .level-divider{width:1px;background:var(--line);margin:4px 6px;flex:0 0 1px}
+  .level-soon{display:none;margin-top:16px;font-size:13px;color:var(--ton);background:var(--ton-soft);border:1px solid var(--ton);border-radius:10px;padding:10px}
+  .level-soon.show{display:block}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header class="top">
-    <div class="brand">
-      <h1><span class="a">Pre</span><span class="b">Dict</span></h1>
-      <span class="home">at home</span>
+    <div class="brand" id="brandHome" style="cursor:pointer">
+      <h1><span class="a">LM</span> <span class="home2">at home</span></h1>
+      <div class="brand-sub">Recursos interactivos LM y EAV desde tu casa</div>
     </div>
-    <div class="tagline">Trabajo auditivo · versión alumno</div>
+    <div class="tagline">by Iago González Alonso</div>
   </header>
 
-  <div class="home-view" id="homeView">
-    <div class="opt-banner">Versión optimizada para ordenador</div>
-    <p class="home-prof">Profesor: Iago González Alonso</p>
-    <p class="home-sub">¿Qué quieres mejorar?</p>
+  <!-- PORTADA: PreDict con los 3 tipos de ejercicio -->
+  <div class="home-view" id="evaHome">
+    <div class="opt-banner opt-top">Versión optimizada para ordenador y tablet</div>
+    <div class="eva-hero">
+      <h1 class="eva-big"><span class="pre">PRE</span><span class="dict">DICT</span> <span class="home2">at home</span></h1>
+      <p class="eva-tag">Ejercicios específicos que entrenan tu oído y mejoran tus dictados</p>
+    </div>
     <div class="home-grid">
       <button class="mode-card m1" data-mode="ritmica">
         <div class="edge"></div>
         <div>
-          <div class="mc-kicker">Trabajo auditivo</div>
-          <h2>Rítmico</h2>
+          <h2 class="card-title"><span class="hl" style="color:var(--rit)">RÍT</span><span class="dim">MICO</span></h2>
           <p>Solo el ritmo. Escucha cada ejercicio y reconstrúyelo célula a célula.</p>
         </div>
         <div class="go" style="color:var(--rit)">Empezar →</div>
@@ -296,8 +371,7 @@
       <button class="mode-card m2" data-mode="melodica">
         <div class="edge"></div>
         <div>
-          <div class="mc-kicker">Trabajo auditivo</div>
-          <h2>Melódico</h2>
+          <h2 class="card-title"><span class="hl" style="color:var(--mel)">MEL</span><span class="dim">ÓDICO</span></h2>
           <p>Alturas de las notas. Escucha y coloca cada nota en el pentagrama.</p>
         </div>
         <div class="go" style="color:var(--mel)">Empezar →</div>
@@ -305,13 +379,13 @@
       <button class="mode-card m3" data-mode="toncom">
         <div class="edge"></div>
         <div>
-          <div class="mc-kicker">Trabajo auditivo</div>
-          <h2>TonCom</h2>
-          <p>Saca la tonalidad y el compás de cada dictado.</p>
+          <h2 class="card-title"><span class="hl" style="color:var(--ton)">TON</span><span class="dim">COM</span></h2>
+          <p>Saca la tonalidad, la armadura y el compás de cada dictado.</p>
         </div>
         <div class="go" style="color:var(--ton)">Empezar →</div>
       </button>
     </div>
+    <div class="eva-foot"><button class="maint-link" id="maintLink">Mantenimiento</button></div>
   </div>
 
   <div class="ex-view" id="ritmicaView">
@@ -321,7 +395,7 @@
       <span class="ex-meta">Escucha cada ejercicio (máx. 3 veces) y reconstrúyelo</span>
       <button class="btn-back" id="regenBtn" style="margin-left:auto">↻ Nuevos ejercicios</button>
     </div>
-    <h1 class="section-title rit">Rítmico</h1>
+    <h1 class="section-title rit"><span class="hl">RÍT</span><span class="dim">MICO</span></h1>
     <div id="exoContainer"></div>
     <div class="global-score" id="globalScore"></div>
   </div>
@@ -334,7 +408,7 @@
       <span class="ex-meta">Escucha (máx. 2 veces) y coloca las 10 notas en el pentagrama</span>
       <button class="btn-back" id="regenBtnMel" style="margin-left:auto">↻ Nuevos ejercicios</button>
     </div>
-    <h1 class="section-title mel">Melódico</h1>
+    <h1 class="section-title mel"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h1>
     <div id="melContainer"></div>
     <div class="global-score" id="globalScoreMel"></div>
   </div>
@@ -347,7 +421,7 @@
       <span class="ex-meta">Escucha cada dictado y deduce su tonalidad y su compás</span>
       <button class="btn-back" id="regenBtnTon" style="margin-left:auto">↻ Nuevos ejercicios</button>
     </div>
-    <h1 class="section-title ton">TonCom</h1>
+    <h1 class="section-title ton"><span class="hl">TON</span><span class="dim">COM</span></h1>
     <div id="tonContainer"></div>
     <div class="global-score" id="globalScoreTon"></div>
   </div>
@@ -357,6 +431,35 @@
 <div class="toast" id="toast"></div>
 
 <div class="countdown" id="countdown"><div class="cd-inner"><span id="countdownNum"></span></div></div>
+
+<!-- Mantenimiento -->
+<div class="level-backdrop" id="maintBackdrop">
+  <div class="level-modal" style="max-width:460px">
+    <h3>Mantenimiento</h3>
+    <p class="level-sub">Panel del profesor</p>
+    <div class="level-soon show" style="color:var(--mel);background:var(--mel-soft);border-color:var(--mel)">Próximamente: aquí podrás activar/desactivar niveles, ajustar dificultades y exportar el contexto.</div>
+    <button class="road-close" id="maintClose" style="margin-top:16px">Cerrar</button>
+  </div>
+</div>
+
+<!-- Selección de nivel (pantalla intermedia) -->
+<div class="level-backdrop" id="levelBackdrop">
+  <div class="level-modal">
+    <h3>Elige el nivel</h3>
+    <p class="level-sub">Selecciona el curso para este ejercicio</p>
+    <div class="level-grid">
+      <button class="level-btn locked" data-level="1GE">1º GE</button>
+      <button class="level-btn locked" data-level="2GE">2º GE</button>
+      <button class="level-btn locked" data-level="3GE">3º GE</button>
+      <button class="level-btn" data-level="4GE">4º GE</button>
+      <div class="level-divider"></div>
+      <button class="level-btn locked" data-level="1GP">1º GP</button>
+      <button class="level-btn locked" data-level="2GP">2º GP</button>
+    </div>
+    <div class="level-soon" id="levelSoon">Estamos trabajando en el resto de cursos.</div>
+    <button class="road-close" id="levelCancel">Cancelar</button>
+  </div>
+</div>
 
 <div class="road-backdrop" id="roadBackdrop">
   <div class="road">
@@ -539,7 +642,7 @@ function buildExos(){
     }while(startsWithRest(compases) && tries<40);   // que no empiece por silencio
     const flat=[]; compases.forEach(c=>c.forEach(cell=>flat.push(cell)));
     const slots=new Array(flat.length).fill(null);
-    return {spec,compases,flatSolution:flat,slots,nslots:flat.length,listens:0,checked:false,revealed:false,_pool:paletteForSpec(spec)};
+    return {spec,compases,flatSolution:flat,slots,nslots:flat.length,listens:0,checked:false,revealed:false,tempoOffset:0,_pool:paletteForSpec(spec)};
   });
 }
 
@@ -617,7 +720,7 @@ function tickSound(ctx,dest,when,accent){
   // claqueta suave para acompañar (no tapar el piano)
   const o=ctx.createOscillator(),g=ctx.createGain();
   o.frequency.value=accent?1400:880;
-  g.gain.setValueAtTime(accent?0.22:0.11,when);
+  g.gain.setValueAtTime(accent?0.14:0.07,when);
   g.gain.exponentialRampToValueAtTime(0.001,when+0.04);
   o.connect(g).connect(dest);o.start(when);o.stop(when+0.05);
 }
@@ -625,7 +728,7 @@ function woodSound(ctx,dest,when){
   const o=ctx.createOscillator(),g=ctx.createGain(),lp=ctx.createBiquadFilter();
   lp.type='lowpass';lp.frequency.value=900;o.type='sine';o.frequency.value=480;
   g.gain.setValueAtTime(0.0001,when);
-  g.gain.exponentialRampToValueAtTime(0.45,when+0.01);
+  g.gain.exponentialRampToValueAtTime(0.6,when+0.01);
   g.gain.exponentialRampToValueAtTime(0.0001,when+0.12);
   o.connect(lp);lp.connect(g);g.connect(dest);o.start(when);o.stop(when+0.13);
 }
@@ -685,7 +788,7 @@ function _playExoAudio(idx){
   const ctx=getCtx();if(ctx.state==='suspended')ctx.resume();
   masterGain=ctx.createGain(); masterGain.gain.value=1; masterGain.connect(ctx.destination);
   const dest=masterGain;
-  const pulseSec=60/ex.spec.bpm;
+  const pulseSec=60/(ex.spec.bpm+(ex.tempoOffset||0));
   const pulsosCompas=ex.spec.pulsos;
   // sin cuenta de entrada: el ritmo entra directo (el 3·2·1 ya dio el tempo)
   const rStart=ctx.currentTime+0.12;
@@ -743,15 +846,27 @@ function startBeatMonitor(idx, pulseSec, pulsosCompas, audioStart, ctx){
   const boardH = board ? board.clientHeight : 130;
   const hlH = Math.min(96, boardH-24);
   const hlTop = Math.round((boardH - hlH)/2);
-  // ejercicio: 4 compases (sin fase "Preparados")
+  // ejercicio: 4 compases, marcando PULSO A PULSO dentro de cada compás
   const exStart = delayToStart;
+  const firstExtra=66; // espacio de clave/compás al inicio (solo compás 1)
   for(let bar=0;bar<4;bar++){
+    const r=ranges[bar];
     for(let p=0;p<pulsosCompas;p++){
       const when = exStart + (bar*pulsosCompas+p)*pulseSec*1000;
       beatTimers.push(setTimeout(()=>{
         mon.innerHTML='<span class="bm-label">Compás</span><span class="bm-count">'+(bar+1)+'</span>'+
                       '<span class="bm-label" style="margin-left:8px">Pulso</span><span class="bm-count">'+(p+1)+'</span>';
-        if(marker && ranges[bar]){ marker.style.display='block'; marker.style.left=ranges[bar].x+'px'; marker.style.top=hlTop+'px'; marker.style.width=ranges[bar].w+'px'; marker.style.height=hlH+'px'; }
+        if(marker && r){
+          // ancho útil del compás (en el 1º se descuenta el espacio de clave)
+          const usableX = (bar===0) ? r.x+firstExtra : r.x;
+          const usableW = (bar===0) ? r.w-firstExtra : r.w;
+          const pw = usableW/pulsosCompas;
+          marker.style.display='block';
+          marker.style.left=(usableX + p*pw)+'px';
+          marker.style.top=hlTop+'px';
+          marker.style.width=pw+'px';
+          marker.style.height=hlH+'px';
+        }
       }, when));
     }
   }
@@ -968,7 +1083,6 @@ function renderExos(){
       '<div class="exo-head"><div class="exo-title">'+
         '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
         '<h2>'+ex.spec.ts+'</h2>'+
-        '<span class="ts">'+(ex.spec.compound?'negra con puntillo = '+ex.spec.bpm:'negra = '+ex.spec.bpm)+'</span>'+
       '</div>'+
       '<div class="exo-head-right">'+
         '<div class="beatmon" id="beatmon-'+idx+'"></div>'+
@@ -981,11 +1095,19 @@ function renderExos(){
           '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
             '<div class="pr-right"><div class="listens" id="listens-'+idx+'"></div>'+
             '<button class="play-btn" id="play-'+idx+'" title="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>'+
+            '<div class="metro-ctl">'+
+              '<span class="metro-lbl">velocidad metrónomo</span>'+
+              '<div class="metro-row">'+
+                '<button class="tempo-btn" id="tempo-down-'+idx+'" title="Más lento" '+((ex.tempoOffset<=-10)?'disabled':'')+'>−</button>'+
+                '<span class="tempo-val" id="tempo-val-'+idx+'">'+(ex.spec.bpm+(ex.tempoOffset||0))+'</span>'+
+                '<button class="tempo-btn" id="tempo-up-'+idx+'" title="Más rápido" '+((ex.tempoOffset>=10)?'disabled':'')+'>+</button>'+
+              '</div>'+
+            '</div>'+
             '<div class="score-line" id="score-'+idx+'"></div>'+
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Clica para añadir por orden · arrastra para soltar en un pulso concreto · pasa el ratón sobre una figura y pulsa la × para quitarla · cuando termines, pulsa <b>¿Qué tal fue?</b> (arriba a la derecha) para corregir</span></div>'+
+      '<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Pulsa para añadir por orden · mantén y arrastra para soltar en un pulso concreto · cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir</span></div>'+
       '<div class="palette" id="palette-'+idx+'"></div>';
     cont.appendChild(block);
 
@@ -1004,9 +1126,20 @@ function renderExos(){
     });
     block.querySelector('#play-'+idx).addEventListener('click',()=>playExo(idx));
     block.querySelector('#check-'+idx).addEventListener('click',()=>onCheck(idx));
+    const td=block.querySelector('#tempo-down-'+idx), tu=block.querySelector('#tempo-up-'+idx);
+    if(td) td.addEventListener('click',()=>{ ex.tempoOffset=Math.max(-10,(ex.tempoOffset||0)-5); updateTempo(idx); });
+    if(tu) tu.addEventListener('click',()=>{ ex.tempoOffset=Math.min(10,(ex.tempoOffset||0)+5); updateTempo(idx); });
 
     drawBoard(idx);refreshPlay(idx);refreshControls(idx);
   });
+}
+function updateTempo(idx){
+  const ex=exos[idx];
+  const val=document.getElementById('tempo-val-'+idx);
+  if(val) val.textContent=ex.spec.bpm+(ex.tempoOffset||0);
+  const td=document.getElementById('tempo-down-'+idx), tu=document.getElementById('tempo-up-'+idx);
+  if(td) td.disabled=(ex.tempoOffset<=-10);
+  if(tu) tu.disabled=(ex.tempoOffset>=10);
 }
 function refreshPlay(idx){
   const ex=exos[idx];
@@ -1228,7 +1361,7 @@ function buildMelExos(){
     const sigPCs=keySigPCs(key.sig);
     const slots=new Array(10).fill(null);
     slots[0]=mel.midis[0]; // tónica inicial dada
-    return {key, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false};
+    return {key, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1};
   });
 }
 
@@ -1289,8 +1422,10 @@ function _playMelAudio(idx){
   const ctx=getCtx();if(ctx.state==='suspended')ctx.resume();
   melMaster=ctx.createGain();melMaster.gain.value=1;melMaster.connect(ctx.destination);
   let t=ctx.currentTime+0.15;
-  const step=MEL_NOTE_SEC+MEL_GAP_SEC;
-  ex.midis.forEach((m,i)=>{ pianoPlay(ctx,melMaster,t+i*step,m,MEL_NOTE_SEC,1.4); });
+  const sp=ex.melSpeed||1;
+  const noteSec=MEL_NOTE_SEC*sp;
+  const step=(MEL_NOTE_SEC+MEL_GAP_SEC)*sp;
+  ex.midis.forEach((m,i)=>{ pianoPlay(ctx,melMaster,t+i*step,m,noteSec,1.4); });
   melCurrentPlaying=idx;
   setMelPlayIcon(idx,true);
   const row=document.querySelector('#melexo-'+idx+' .play-row'); if(row) row.classList.add('playing');
@@ -1317,9 +1452,9 @@ function setMelPlayIcon(idx,playing){
 function startMelMonitor(idx,audioStart,ctx){
   const mon=document.getElementById('melbeat-'+idx);if(!mon)return;
   mon.classList.remove('idle');
-  const step=MEL_NOTE_SEC+MEL_GAP_SEC;
-  const delay=Math.max(0,(audioStart-ctx.currentTime))*1000;
   const ex=melExos[idx];
+  const step=(MEL_NOTE_SEC+MEL_GAP_SEC)*(ex&&ex.melSpeed?ex.melSpeed:1);
+  const delay=Math.max(0,(audioStart-ctx.currentTime))*1000;
   const board=document.getElementById('melboard-'+idx);
   const marker=document.getElementById('melhl-'+idx);
   const xs=(ex&&ex._geom&&ex._geom.noteXs)?ex._geom.noteXs:null;
@@ -1601,14 +1736,31 @@ function renderMelExos(){
           '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
             '<div class="pr-right"><div class="listens" id="mellistens-'+idx+'"></div>'+
             '<button class="play-btn" id="melplay-'+idx+'" title="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>'+
+            '<div class="melspeed-ctl">'+
+              '<span class="metro-lbl">velocidad</span>'+
+              '<div class="melspeed-row">'+
+                ['Lento','Normal','Rápido'].map((lab,si)=>{
+                  const val=[2,1,0.5][si];
+                  const sel=(ex.melSpeed||1)===val?' sel':'';
+                  return '<button class="melspeed-btn'+sel+'" data-sp="'+val+'" id="melsp-'+idx+'-'+si+'">'+lab+'</button>';
+                }).join('')+
+              '</div>'+
+            '</div>'+
             '<div class="score-line" id="melscore-'+idx+'"></div>'+
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Acerca el ratón al pentagrama: la redonda salta de nota en nota. Clic izquierdo coloca · clic derecho quita · cuando termines, pulsa <b>¿Qué tal fue?</b> (arriba a la derecha) para corregir. Después puedes escuchar de nuevo y corregir las falladas; la nota se recalcula.</span></div>';
+      '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Mueve sobre el pentagrama y la redonda salta de nota en nota: colócala donde corresponda. En tablet puedes ampliar si necesitas más precisión, y pulsar otra vez para reescribir. Para borrar una nota: clic derecho (ordenador) o dos dedos (tablet). Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.</span></div>';
     cont.appendChild(block);
     block.querySelector('#melplay-'+idx).addEventListener('click',()=>playMel(idx));
     block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
+    block.querySelectorAll('.melspeed-btn').forEach(b=>{
+      b.addEventListener('click',()=>{
+        ex.melSpeed=parseFloat(b.dataset.sp);
+        block.querySelectorAll('.melspeed-btn').forEach(x=>x.classList.remove('sel'));
+        b.classList.add('sel');
+      });
+    });
     drawMelBoard(idx); refreshMelPlay(idx); refreshMelControls(idx);
   });
 }
@@ -1660,7 +1812,7 @@ function maybeShowMelGlobal(){
 function openMelodica(){
   setMode('mel');
   loadPiano();
-  document.getElementById('homeView').classList.add('hidden');
+  document.getElementById('evaHome').classList.add('hidden');
   document.getElementById('melodicaView').classList.add('active');
   startMelodica();
 }
@@ -1669,7 +1821,7 @@ function goHomeMel(){
   setMode(null);
   stopMelAudio();
   document.getElementById('melodicaView').classList.remove('active');
-  document.getElementById('homeView').classList.remove('hidden');
+  document.getElementById('evaHome').classList.remove('hidden');
 }
 
 
@@ -2062,6 +2214,7 @@ function stopTonAudio(){
   if(tonCountdownTimers&&tonCountdownTimers.length){ tonCountdownTimers.forEach(clearTimeout); tonCountdownTimers=[]; }
   if(tonBeatTimers&&tonBeatTimers.length){ tonBeatTimers.forEach(clearTimeout); tonBeatTimers=[]; }
   document.querySelectorAll('.ton-playcard.beat,.ton-playcard.beat-strong').forEach(c=>c.classList.remove('beat','beat-strong'));
+  document.querySelectorAll('.tpc-label .tw.on').forEach(w=>w.classList.remove('on'));
   const cd=document.getElementById('countdown'); if(cd){ cd.classList.remove('on'); const n=document.getElementById('countdownNum'); if(n)n.textContent=''; }
   document.querySelectorAll('.ton-playcard.playing').forEach(b=>{ b.classList.remove('playing'); const ic=b.querySelector('.ico-audio'); if(ic) ic.textContent='▶'; });
   tonPlaying=-1; tonPlayingWhich=null;
@@ -2141,6 +2294,15 @@ function playTonAcordes(idx){
   });
   ex.usesAcordes++;
   markTonPlaying(idx,'acordes');
+  // resaltar en BLANCO la palabra que suena: La -> tónica -> acordes
+  const base=ctx.currentTime;
+  const tLa=0.2, tTon=0.2+1.9, tAcc=0.2+1.9+1.9;
+  const words=['tw-la-'+idx,'tw-ton-'+idx,'tw-acc-'+idx];
+  const clearW=()=>words.forEach(w=>{const el=document.getElementById(w);if(el)el.classList.remove('on');});
+  tonBeatTimers.push(setTimeout(()=>{clearW();const el=document.getElementById('tw-la-'+idx);if(el)el.classList.add('on');}, tLa*1000));
+  tonBeatTimers.push(setTimeout(()=>{clearW();const el=document.getElementById('tw-ton-'+idx);if(el)el.classList.add('on');}, tTon*1000));
+  tonBeatTimers.push(setTimeout(()=>{clearW();const el=document.getElementById('tw-acc-'+idx);if(el)el.classList.add('on');}, tAcc*1000));
+  tonBeatTimers.push(setTimeout(clearW, (t-base)*1000));
   const totalMs=(t-ctx.currentTime)*1000+200;
   tonStopTimer=setTimeout(()=>stopTonAudio(),totalMs);
   renderTonAudioButtons(idx);
@@ -2258,10 +2420,10 @@ function renderTonExos(){
     const checkBtn = ex.checked
       ? '<span class="ton-pts" id="tonscore-'+idx+'"></span>'
       : '<button class="btn-main btn-check ton-checkbtn" id="toncheck-'+idx+'">¿Qué tal fue?</button>';
-    const armOpts=[{v:0,t:'—'},{v:1,t:'1♯'},{v:2,t:'2♯'},{v:-1,t:'1♭'},{v:-2,t:'2♭'}];
+    const armOpts=[{v:0,t:'Sin armadura'},{v:1,t:'1♯'},{v:2,t:'2♯'},{v:-1,t:'1♭'},{v:-2,t:'2♭'}];
     block.innerHTML=
       '<div class="exo-head ton-head"><div class="exo-title">'+
-        '<span class="exo-num">Dictado '+(idx+1)+'</span>'+
+        '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
         '<h2>Tonalidad, armadura y compás</h2>'+
       '</div><div class="ton-head-right">'+checkBtn+'</div></div>'+
       '<div class="ton-row">'+
@@ -2269,7 +2431,7 @@ function renderTonExos(){
         '<div class="ton-pick">'+
           '<h4>Tonalidad</h4>'+
           '<input class="ton-input '+(ex.checked?(keyOk?'ok':'bad'):'')+'" id="tonkey-'+idx+'" type="text" '+
-            'placeholder="ej. La M" value="'+(ex.chosenKey?ex.chosenKey.replace(/"/g,'&quot;'):'')+'" '+(ex.checked?'disabled':'')+' autocomplete="off" spellcheck="false">'+
+            'placeholder="ej. Do m  ·  Lab M" value="'+(ex.chosenKey?ex.chosenKey.replace(/"/g,'&quot;'):'')+'" '+(ex.checked?'disabled':'')+' autocomplete="off" spellcheck="false">'+
           (ex.checked&&!keyOk?'<div class="ton-correct">Correcta: '+ex.key.name+'</div>':'')+
         '</div>'+
         // 2) ARMADURA (selector)
@@ -2287,7 +2449,7 @@ function renderTonExos(){
         // 3) tarjeta LA + TÓNICA + ACORDES
         '<button class="ton-playcard" id="ton-acordes-'+idx+'">'+
           '<div class="pr-edge"></div>'+
-          '<div class="tpc-label">La + tónica + acordes</div>'+
+          '<div class="tpc-label"><span class="tw" id="tw-la-'+idx+'">La</span> + <span class="tw" id="tw-ton-'+idx+'">tónica</span> + <span class="tw" id="tw-acc-'+idx+'">acordes</span></div>'+
           '<span class="uses">'+[0,1].map(d=>'<span class="dot '+(ex.usesAcordes>d?'used':'')+'"></span>').join('')+'</span>'+
           '<div class="tpc-play">'+audioIcon()+'</div>'+
         '</button>'+
@@ -2369,12 +2531,12 @@ function maybeShowTonGlobal(){
 function openToncom(){
   setMode('ton');
   loadPiano();
-  document.getElementById('homeView').classList.add('hidden');
+  document.getElementById('evaHome').classList.add('hidden');
   document.getElementById('toncomView').classList.add('active');
   startToncom();
 }
 function startToncom(){ stopTonAudio(); buildTonExos(); renderTonExos(); const g=document.getElementById('globalScoreTon'); if(g){g.style.display='none';g.innerHTML='';} }
-function goHomeTon(){ setMode(null); stopTonAudio(); document.getElementById('toncomView').classList.remove('active'); document.getElementById('homeView').classList.remove('hidden'); }
+function goHomeTon(){ setMode(null); stopTonAudio(); document.getElementById('toncomView').classList.remove('active'); document.getElementById('evaHome').classList.remove('hidden'); }
 
 
 /* ====== NAV + TOAST ====== */
@@ -2384,7 +2546,7 @@ function setMode(m){
 }
 function openRitmica(){
   setMode('rit');
-  document.getElementById('homeView').classList.add('hidden');
+  document.getElementById('evaHome').classList.add('hidden');
   document.getElementById('ritmicaView').classList.add('active');
   startRitmica();
 }
@@ -2392,7 +2554,7 @@ function startRitmica(){buildExos();renderExos();const g=document.getElementById
 function goHome(){
   setMode(null);
   document.getElementById('ritmicaView').classList.remove('active');
-  document.getElementById('homeView').classList.remove('hidden');
+  document.getElementById('evaHome').classList.remove('hidden');
 }
 let toastT=null;
 function toast(msg){
@@ -2400,7 +2562,42 @@ function toast(msg){
   el.textContent=msg;el.classList.add('show');
   clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1900);
 }
-document.querySelectorAll('.mode-card').forEach(card=>{card.addEventListener('click',()=>{if(card.dataset.mode==='ritmica')openRitmica();else if(card.dataset.mode==='melodica')openMelodica();else if(card.dataset.mode==='toncom')openToncom();});});
+// --- portada PreDict: las tarjetas de apartado abren la pantalla de NIVEL ---
+let pendingMode=null;
+document.querySelectorAll('.mode-card[data-mode]').forEach(card=>{
+  card.addEventListener('click',(e)=>{ e.stopPropagation(); pendingMode=card.dataset.mode; openLevel(); });
+});
+function openLevel(){ const b=document.getElementById('levelBackdrop'); document.getElementById('levelSoon').classList.remove('show'); b.classList.add('open'); }
+function closeLevel(){ document.getElementById('levelBackdrop').classList.remove('open'); }
+document.querySelectorAll('.level-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(btn.classList.contains('locked')){ document.getElementById('levelSoon').classList.add('show'); return; }
+    closeLevel();
+    if(pendingMode==='ritmica')openRitmica();
+    else if(pendingMode==='melodica')openMelodica();
+    else if(pendingMode==='toncom')openToncom();
+  });
+});
+document.getElementById('levelCancel').addEventListener('click',closeLevel);
+document.getElementById('levelBackdrop').addEventListener('click',e=>{ if(e.target.id==='levelBackdrop') closeLevel(); });
+
+function backToEva(){
+  ['ritmicaView','melodicaView','toncomView'].forEach(v=>document.getElementById(v).classList.remove('active'));
+  setMode(null);
+  document.getElementById('evaHome').classList.remove('hidden');
+}
+document.getElementById('brandHome').addEventListener('click',backToEva);
+
+// --- mantenimiento ---
+document.getElementById('maintLink').addEventListener('click',()=>{
+  const pass=prompt('Acceso a mantenimiento — introduce la contraseña:');
+  if(pass===null) return;
+  if(pass==='010513'){ document.getElementById('maintBackdrop').classList.add('open'); }
+  else { toast('Contraseña incorrecta'); }
+});
+document.getElementById('maintClose').addEventListener('click',()=>document.getElementById('maintBackdrop').classList.remove('open'));
+document.getElementById('maintBackdrop').addEventListener('click',e=>{ if(e.target.id==='maintBackdrop') document.getElementById('maintBackdrop').classList.remove('open'); });
+
 document.getElementById('backBtn').addEventListener('click',goHome);
 document.getElementById('regenBtn').addEventListener('click',startRitmica);
 document.getElementById('backBtnMel').addEventListener('click',goHomeMel);
