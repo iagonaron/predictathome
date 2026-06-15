@@ -9,8 +9,8 @@
 <style>
   :root{
     --bg:#0a1028; --panel:#0d142e; --panel2:#111b3d; --line:#1e2a52;
-    --ink:#e9edff; --muted:#8b97c4; --muted2:#5e6a98; --paper:#ffffff;
-    --accent:#4f7cff; --accent2:#6b8cff;
+    --ink:#e9edff; --muted:#8b97c4; --muted2:#5e6a98; --paper:#f3f5ff;
+    --accent:#2a3a66; --accent2:#3a4f86;
     --green:#22c98a; --green-soft:rgba(34,201,138,.18);
     --red:#ff5c72; --red-soft:rgba(255,92,114,.18);
     --gold:#f0a93b; --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 50px rgba(0,0,0,.45);
@@ -33,7 +33,7 @@
 
   header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
   .brand{display:flex;align-items:baseline;gap:13px}
-  .brand h1{font-size:30px;font-weight:800;letter-spacing:-.6px;margin:0}
+  .brand h1{font-size:30px;font-weight:800;letter-spacing:-.6px;margin:0;line-height:1.1}
   .brand h1 .a{color:var(--ink);font-weight:900} .brand h1 .eav{color:var(--muted2);font-weight:300} .brand h1 .b{color:var(--muted2);transition:color .2s}
   body.mode-rit .brand h1 .b{color:var(--rit)}
   body.mode-mel .brand h1 .b{color:var(--mel)}
@@ -57,7 +57,7 @@
   .mode-card .mc-kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
   .mode-card h2{font-size:40px;margin:18px 0 12px;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
   .card-title{letter-spacing:.01em}
-  .card-title .hl{font-weight:900}
+  .card-title .hl{font-weight:900;color:var(--ink)}
   .card-title .dim{font-weight:300;color:var(--muted2);opacity:.65}
   .mode-card[disabled] h2{color:var(--muted)}
   .mode-card p{font-size:15px;line-height:1.5;color:var(--muted);margin:0}
@@ -75,9 +75,8 @@
   .btn-back:hover{border-color:var(--accent);color:var(--ink)}
   .ex-meta{font-size:15px;letter-spacing:.01em;color:var(--ink);font-weight:500}
   .section-title{font-size:54px;font-weight:900;letter-spacing:-.02em;margin:4px 0 22px;line-height:1}
-  .section-title .hl{font-weight:900}
+  .section-title .hl{font-weight:900;color:var(--ink)}
   .section-title .dim{font-weight:300;color:var(--muted2);opacity:.65}
-  .section-title.rit .hl{color:var(--rit)} .section-title.mel .hl{color:var(--mel)} .section-title.ton .hl{color:var(--ton)}
   .tempo-ctl{display:flex;align-items:center;gap:8px;margin-top:4px}
   .tempo-ctl .ts{margin:0}
   .tempo-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);font-size:16px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center;transition:border-color .15s,background .15s}
@@ -98,10 +97,7 @@
   .exo-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
   .exo-head-right{display:flex;align-items:center;gap:12px}
   .exo-title{display:flex;align-items:baseline;gap:12px}
-  .exo-num{font-size:11px;font-weight:800;letter-spacing:.18em;color:#fff;background:var(--accent);border-radius:4px;padding:3px 9px}
-  #ritmicaView .exo-num{background:var(--rit)}
-  #melodicaView .exo-num{background:var(--mel)}
-  #toncomView .exo-num{background:var(--ton)}
+  .exo-num{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--ink);background:rgba(233,237,255,.08);border:1px solid var(--line);border-radius:4px;padding:3px 9px}
   #ritmicaView .exo{border-color:var(--rit-soft)}
   #melodicaView .exo{border-color:var(--mel-soft)}
   #toncomView .exo{border-color:var(--ton-soft)}
@@ -113,24 +109,66 @@
   .exo-title .ts{font-size:13px;color:var(--muted);letter-spacing:.05em}
 
   .exo-main{display:grid;grid-template-columns:1fr 230px;gap:16px;align-items:stretch}
-  .board{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;overflow-x:auto;display:flex;align-items:center;min-height:150px}
-  .exo-side{display:flex;flex-direction:column}
-  .play-row{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:20px 16px;position:relative;overflow:hidden;height:100%;box-sizing:border-box}
+  .board{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:8px 14px;overflow-x:auto;display:flex;align-items:center;min-height:120px}
+  .exo-side{display:flex;flex-direction:column;gap:10px}
+  .play-row{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:14px 16px;position:relative;overflow:hidden;box-sizing:border-box}
   .play-row .pr-edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
   .play-row .pr-label{font-size:12px;color:var(--muted2);letter-spacing:.18em;text-transform:uppercase;font-weight:700}
   .play-row .pr-right{display:flex;flex-direction:column;align-items:center;gap:14px}
   .listens{display:flex;gap:7px}
   .listens .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--accent);opacity:.9}
   .listens .dot.used{background:var(--accent);opacity:.35;border-color:transparent}
-  .play-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:64px;height:64px;cursor:pointer;display:grid;place-items:center;transition:background .15s,transform .05s;box-shadow:0 6px 20px rgba(20,40,120,.35)}
+  .play-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:54px;height:54px;cursor:pointer;display:grid;place-items:center;transition:background .15s,transform .05s;box-shadow:0 6px 20px rgba(20,40,120,.35)}
   .play-btn:hover{background:var(--accent2)} .play-btn:active{transform:scale(.94)}
   .play-btn:disabled{opacity:.4;cursor:not-allowed}
   .play-btn svg{width:26px;height:26px;fill:#fff}
   .play-btn svg rect{fill:#fff}
+  /* botón dado: nuevo ejercicio (protagonista) */
+  .gen{display:flex;align-items:center;gap:11px}
+  .gen .dice-btn{border:1px solid rgba(233,237,255,.40);background:rgba(233,237,255,.10);color:var(--ink);border-radius:50%;width:58px;height:58px;flex:0 0 58px;cursor:pointer;display:grid;place-items:center;padding:0;transition:background .15s,transform .12s,border-color .15s}
+  .gen .dice-btn:hover{background:rgba(233,237,255,.22)}
+  .gen .dice-btn:active{transform:rotate(-18deg) scale(.94)}
+  .gen .dice-btn svg{width:30px;height:30px;display:block}
+  .gen .dice-label{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;line-height:1.1}
+  /* barra superior de la tarjeta Escuchar: ¿Qué tal fue? (texto) | Solución (botón) */
+  .check-bar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .check-link{background:none;border:none;padding:4px 2px;font-size:15px;font-weight:800;letter-spacing:.01em;color:var(--ink);cursor:pointer;transition:color .15s}
+  .check-link:disabled{color:var(--muted2);cursor:default}
+  .btn-sol{background:transparent;border:1px solid var(--line);border-radius:10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+  .btn-sol:disabled{opacity:.45;cursor:not-allowed}
+  /* parpadeo al pulso mientras suena; duración la fija el JS con --pulse-ms */
+  .play-btn.playing{animation:playPulse var(--pulse-ms,1000ms) ease-in-out infinite}
+  @keyframes playPulse{
+    0%{box-shadow:0 0 0 0 var(--pulse-color,rgba(255,255,255,.35))}
+    18%{box-shadow:0 0 0 9px transparent}
+    100%{box-shadow:0 0 0 0 transparent}
+  }
+  #ritmicaView .play-btn.playing{--pulse-color:rgba(34,201,138,.45)}
+  #melodicaView .play-btn.playing{--pulse-color:rgba(91,157,255,.45)}
   .play-row.playing .pr-edge{animation:pulse 1s ease infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  #ritmicaView .play-row .pr-edge{background:var(--rit)} #ritmicaView .play-btn{background:var(--rit)} #ritmicaView .play-btn:hover{background:#14a06a} #ritmicaView .listens .dot{border-color:var(--rit)} #ritmicaView .listens .dot.used{background:var(--rit);border-color:transparent}
-  #melodicaView .play-row .pr-edge{background:var(--mel)} #melodicaView .play-btn{background:var(--mel)} #melodicaView .play-btn:hover{background:#3f7fe0} #melodicaView .listens .dot{border-color:var(--mel)} #melodicaView .listens .dot.used{background:var(--mel);border-color:transparent}
+  /* en reposo el play es neutro; el color del apartado se revela al pasar el ratón y al sonar */
+  #ritmicaView .play-btn:hover{background:var(--rit)}
+  #ritmicaView .play-btn.playing{background:var(--rit);--pulse-color:rgba(34,201,138,.45)}
+  #ritmicaView .play-row.playing .pr-edge{background:var(--rit)}
+  #ritmicaView .listens .dot{border-color:var(--rit)} #ritmicaView .listens .dot.used{background:var(--rit);border-color:transparent}
+  #melodicaView .play-btn:hover{background:var(--mel)}
+  #melodicaView .play-btn.playing{background:var(--mel);--pulse-color:rgba(91,157,255,.45)}
+  #melodicaView .play-row.playing .pr-edge{background:var(--mel)}
+  #melodicaView .listens .dot{border-color:var(--mel)} #melodicaView .listens .dot.used{background:var(--mel);border-color:transparent}
+  /* Solución ya muestra su color; al pasar el ratón se recalca (fondo del color) */
+  #ritmicaView .btn-sol{color:var(--rit);border-color:var(--rit-soft)}
+  #ritmicaView .btn-sol:hover:not(:disabled){background:var(--rit);border-color:var(--rit);color:#fff}
+  #ritmicaView .check-link:hover:not(:disabled){color:var(--rit)}
+  #ritmicaView .dice-btn:hover{border-color:var(--rit);background:var(--rit-soft)}
+  #melodicaView .btn-sol{color:var(--mel);border-color:var(--mel-soft)}
+  #melodicaView .btn-sol:hover:not(:disabled){background:var(--mel);border-color:var(--mel);color:#fff}
+  #melodicaView .check-link:hover:not(:disabled){color:var(--mel)}
+  #melodicaView .dice-btn:hover{border-color:var(--mel);background:var(--mel-soft)}
+  #toncomView .btn-sol{color:var(--ton);border-color:var(--ton-soft)}
+  #toncomView .btn-sol:hover:not(:disabled){background:var(--ton);border-color:var(--ton);color:#fff}
+  #toncomView .check-link:hover:not(:disabled){color:var(--ton)}
+  #toncomView .dice-btn:hover{border-color:var(--ton);background:var(--ton-soft)}
 
   .btn-undo{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:11px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s}
   .btn-undo:hover{border-color:var(--accent);color:var(--ink)}
@@ -208,8 +246,11 @@
   .ton-head-right{display:flex;align-items:center;gap:10px}
   .ton-checkbtn{font-size:12px;font-weight:800;letter-spacing:.04em;padding:7px 14px;border-radius:8px;white-space:nowrap}
   .ton-pts{font-size:15px;color:var(--ton);background:var(--ton-soft);border:1px solid var(--ton);border-radius:999px;padding:5px 14px;font-weight:700}
+  .ton-pts-empty{font-size:12px;color:var(--muted2);letter-spacing:.04em}
+  .ton-check-bar{margin-top:8px;grid-column:5;align-self:start}
+  @media (max-width:980px){ .ton-check-bar{grid-column:auto} }
   .ton-pts b{font-size:18px}
-  .ico-audio{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--ton);color:#1a1205;font-size:10px;flex:0 0 auto}
+  .ico-audio{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:transparent;color:#fff;font-size:10px;flex:0 0 auto}
   .ton-abtn .lbl{flex:1;text-align:left}
   .ton-correct{font-size:12px;color:var(--green);margin-top:6px;text-align:center}
   .ton-stop{display:block;width:100%;margin-top:14px;background:transparent;border:1px solid var(--line);color:var(--muted2);border-radius:11px;padding:11px 0;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
@@ -226,25 +267,38 @@
   .ton-input.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
   .ton-correct{font-size:12px;color:var(--green);margin-top:8px;text-align:center}
   /* selector de armadura: cinco opciones apiladas */
-  .arm-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;align-content:center}
-  .arm-opt{border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.02);color:var(--ink);font-size:17px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:40px;transition:border-color .15s,background .15s}
-  .arm-opt:first-child{grid-column:1 / -1}
-  .arm-opt:hover{border-color:var(--ton)}
-  .arm-opt.sel{border-color:var(--ton);background:var(--ton-soft);color:var(--ton)}
-  .arm-opt.ok{border-color:var(--green);background:var(--green-soft);color:var(--green)}
-  .arm-opt.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+  /* selector de armadura tipo rueda (estilo cronómetro iOS) */
+  .arm-wheel{position:relative;flex:1;min-height:132px;display:flex;align-items:center;justify-content:center;cursor:ns-resize;outline:none;user-select:none;touch-action:none}
+  .arm-wheel.locked{cursor:default}
+  .arm-wheel-window{position:relative;height:132px;width:100%;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent)}
+  .arm-wheel-list{position:absolute;left:0;right:0;top:44px;transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+  .arm-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--muted2);opacity:.55;transition:color .15s,opacity .15s,font-size .15s}
+  .arm-item.on{color:var(--ink);opacity:1;font-size:19px;font-weight:900}
+  .arm-wheel:hover .arm-item.on{color:var(--ton)}
+  .arm-wheel.ok .arm-wheel-center{border-color:var(--green)}
+  .arm-wheel.ok .arm-item.on{color:var(--green)}
+  .arm-wheel.bad .arm-wheel-center{border-color:var(--red)}
+  .arm-wheel.bad .arm-item.on{color:var(--red)}
+  /* franja central que indica la selección */
+  .arm-wheel-center{position:absolute;left:8px;right:8px;top:50%;height:44px;transform:translateY(-50%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:8px;pointer-events:none}
+  .arm-wheel:hover .arm-wheel-center{border-color:var(--ton-soft)}
   /* tarjeta de play cuadrada, imita la tarjeta "Escuchar" del rítmico/melódico */
   .ton-playcard{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:14px;position:relative;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:160px;transition:border-color .15s,transform .05s}
   .ton-playcard:hover{border-color:var(--ton)} .ton-playcard:active{transform:scale(.99)}
   .ton-playcard:disabled{opacity:.4;cursor:not-allowed}
-  .ton-playcard .pr-edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--ton)}
+  .ton-playcard .pr-edge{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--line)}
+  .ton-playcard:hover .pr-edge{background:var(--ton)}
   .ton-playcard .tpc-label{font-size:12px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;font-weight:700;text-align:center;padding:0 4px}
   .ton-playcard .tpc-label .tw{transition:color .12s}
   .ton-playcard .tpc-label .tw.on{color:#fff}
   .ton-playcard .uses{display:flex;gap:7px}
-  .ton-playcard .uses .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ton);opacity:.9}
-  .ton-playcard .uses .dot.used{background:var(--ton);opacity:.35;border-color:transparent}
-  .ton-playcard .tpc-play{background:var(--ton);color:#fff;border-radius:50%;width:56px;height:56px;display:grid;place-items:center}
+  .ton-playcard .uses .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--muted2);opacity:.9}
+  .ton-playcard .uses .dot.used{background:var(--muted2);opacity:.35;border-color:transparent}
+  .ton-playcard:hover .uses .dot{border-color:var(--ton)}
+  .ton-playcard:hover .uses .dot.used{background:var(--ton)}
+  .ton-playcard .tpc-play{background:rgba(233,237,255,.10);border:1px solid rgba(233,237,255,.40);color:var(--ink);border-radius:50%;width:56px;height:56px;display:grid;place-items:center;transition:background .15s,border-color .15s}
+  .ton-playcard:hover .tpc-play{background:var(--ton);border-color:var(--ton);color:#fff}
+  .ton-playcard.playing .tpc-play{background:var(--ton);border-color:var(--ton);color:#fff}
   .ton-playcard .tpc-play .ico-audio{font-size:22px;line-height:1}
   .ton-playcard.playing .pr-edge{background:var(--ton)}
   .ton-playcard.beat{animation:tonbeat .35s ease-out}
@@ -254,6 +308,7 @@
 
   /* compás: tres opciones, cuadradas dentro del selector */
   .compas-opts{display:flex;flex-direction:column;gap:6px;flex:1}
+  .compas-opts.empty-bad{border:1px solid var(--red);background:var(--red-soft);border-radius:10px;padding:6px}
   .compas-opt{flex:1;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.02);color:var(--ink);font-size:18px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s}
   .compas-opt:hover{border-color:var(--ton)}
   .compas-opt.sel{border-color:var(--ton);background:var(--ton-soft);color:var(--ton)}
@@ -278,27 +333,28 @@
   .road-close:hover{border-color:var(--ton);color:var(--ink)}
   @media (max-width:980px){ .ton-row{grid-template-columns:1fr 1fr 1fr} }
   @media (max-width:820px){ .ton-row{grid-template-columns:1fr 1fr} .road-grid{grid-template-columns:repeat(5,1fr);font-size:12px} }
-  .countdown{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;pointer-events:none;background:transparent;transition:background .3s}
+  .countdown{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;pointer-events:none;background:rgba(6,10,24,0.55);transition:background .3s}
   .countdown.on{display:flex}
-  /* cortina semitransparente del color del apartado */
-  .countdown.rit{background:rgba(34,201,138,.22)}
-  .countdown.mel{background:rgba(91,157,255,.22)}
-  .countdown.ton{background:rgba(224,133,55,.22)}
+  .countdown.rit{background:rgba(34,201,138,.20)}
+  .countdown.mel{background:rgba(91,157,255,.20)}
+  .countdown.ton{background:rgba(224,133,55,.20)}
   .countdown .cd-inner{display:flex;align-items:center;justify-content:center}
-  .countdown span{font-size:min(42vw,360px);font-weight:900;letter-spacing:-.04em;color:#fff;text-shadow:0 6px 50px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;line-height:1}
+  .countdown span{font-size:min(42vw,360px);font-weight:900;letter-spacing:-.04em;color:#e9edff;text-shadow:0 6px 50px rgba(0,0,0,.45);font-variant-numeric:tabular-nums;line-height:1}
   .countdown.rit span{color:var(--rit)} .countdown.mel span{color:var(--mel)} .countdown.ton span{color:var(--ton)}
   .home2,.ath{color:var(--muted2);font-weight:500}
   .home2{font-size:.62em;font-style:italic;font-family:Georgia,'Times New Roman',serif;letter-spacing:.01em;color:#aeb6d6;transform:rotate(-3deg);display:inline-block}
   .ath{font-size:.5em;font-style:italic;font-family:Georgia,'Times New Roman',serif;font-weight:500;color:#9aa3c4;transform:rotate(-3deg);display:inline-block}
-  .brand-sub{font-size:13px;color:var(--muted2);margin-top:2px;letter-spacing:.01em}
+  .brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .brand-inline{font-size:13px;color:var(--muted2);letter-spacing:.01em}
   /* hero del inicio */
   .opt-top{display:block;width:max-content;margin:18px auto 0}
-  .eva-hero{text-align:center;margin:40px 0 48px}
-  .eva-big{font-size:72px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1}
+  .eva-hero{text-align:center;margin:18px 0 34px}
+  .eva-big{font-size:38px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1}
   .eva-big .pre{color:var(--ink);font-weight:300;opacity:.6}
   .eva-big .dict{color:var(--ink);font-weight:900}
   .eva-big .home2{font-size:.5em;color:#aeb6d6}
-  .eva-tag{font-size:16px;color:var(--muted);margin:14px 0 0}
+  .eva-tag{font-size:15px;color:var(--muted);margin:10px 0 0}
+  @media (max-width:1100px){ .eva-big{font-size:32px} }
   .eva-hero .opt-banner{margin:0 auto}
   /* tarjetas apaisadas */
   .eva-stack{display:flex;flex-direction:column;gap:18px;max-width:1000px;margin:0 auto}
@@ -347,7 +403,7 @@
   <header class="top">
     <div class="brand" id="brandHome" style="cursor:pointer">
       <h1><span class="a">LM</span><span class="eav">EAV</span> <span class="home2">at home</span></h1>
-      <div class="brand-sub">Recursos interactivos LM y EAV desde tu casa</div>
+      <span class="brand-inline">Recursos interactivos LM y EAV desde tu casa</span>
     </div>
     <div class="tagline">by Iago González Alonso</div>
   </header>
@@ -363,26 +419,26 @@
       <button class="mode-card m1" data-mode="ritmica">
         <div class="edge"></div>
         <div>
-          <h2 class="card-title"><span class="hl" style="color:var(--rit)">RÍT</span><span class="dim">MICO</span></h2>
+          <h2 class="card-title"><span class="hl">RÍT</span><span class="dim">MICO</span></h2>
           <p>Solo el ritmo. Escucha cada ejercicio y reconstrúyelo célula a célula.</p>
         </div>
-        <div class="go" style="color:var(--rit)">Empezar →</div>
+        <div class="go">Empezar →</div>
       </button>
       <button class="mode-card m2" data-mode="melodica">
         <div class="edge"></div>
         <div>
-          <h2 class="card-title"><span class="hl" style="color:var(--mel)">MEL</span><span class="dim">ÓDICO</span></h2>
+          <h2 class="card-title"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h2>
           <p>Alturas de las notas. Escucha y coloca cada nota en el pentagrama.</p>
         </div>
-        <div class="go" style="color:var(--mel)">Empezar →</div>
+        <div class="go">Empezar →</div>
       </button>
       <button class="mode-card m3" data-mode="toncom">
         <div class="edge"></div>
         <div>
-          <h2 class="card-title"><span class="hl" style="color:var(--ton)">TON</span><span class="dim">COM</span></h2>
+          <h2 class="card-title"><span class="hl">TON</span><span class="dim">COM</span></h2>
           <p>Saca la tonalidad, la armadura y el compás de cada dictado.</p>
         </div>
-        <div class="go" style="color:var(--ton)">Empezar →</div>
+        <div class="go">Empezar →</div>
       </button>
     </div>
     <div class="eva-foot"><button class="maint-link" id="maintLink">Mantenimiento</button></div>
@@ -393,7 +449,7 @@
       <button class="btn-back" id="backBtn">← Modos</button>
       <span class="now-tag">PreDict · Rítmico</span>
       <span class="ex-meta">Escucha cada ejercicio (máx. 3 veces) y reconstrúyelo</span>
-      <button class="btn-back" id="regenBtn" style="margin-left:auto">↻ Nuevos ejercicios</button>
+      <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtn" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
     </div>
     <h1 class="section-title rit"><span class="hl">RÍT</span><span class="dim">MICO</span></h1>
     <div id="exoContainer"></div>
@@ -406,7 +462,7 @@
       <button class="btn-back" id="backBtnMel">← Modos</button>
       <span class="now-tag">PreDict · Melódico</span>
       <span class="ex-meta">Escucha (máx. 2 veces) y coloca las 10 notas en el pentagrama</span>
-      <button class="btn-back" id="regenBtnMel" style="margin-left:auto">↻ Nuevos ejercicios</button>
+      <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtnMel" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
     </div>
     <h1 class="section-title mel"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h1>
     <div id="melContainer"></div>
@@ -419,7 +475,7 @@
       <button class="btn-back" id="backBtnTon">← Modos</button>
       <span class="now-tag">PreDict · TonCom</span>
       <span class="ex-meta">Escucha cada dictado y deduce su tonalidad y su compás</span>
-      <button class="btn-back" id="regenBtnTon" style="margin-left:auto">↻ Nuevos ejercicios</button>
+      <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtnTon" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
     </div>
     <h1 class="section-title ton"><span class="hl">TON</span><span class="dim">COM</span></h1>
     <div id="tonContainer"></div>
@@ -469,6 +525,1645 @@
     <button class="road-close" id="roadClose">Cancelar</button>
   </div>
 </div>
+
+<script>
+/* ===== MOTOR DE DICTADO MELÓDICO (DGEN) — trasplantado de Acceso Rítmico, leyes melódicas Iago ===== */
+/* Catálogo de células rítmicas para el motor */
+var CELLS_DGEN = 
+[
+  // ===== S. TERNARIO =====
+  {id:'t_3cor', name:"3 corcheas", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'bas', notes:['8','8','8']},
+  {id:'t_npunt', name:"Negra con puntillo", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'bas', notes:['qd']},
+  {id:'t_6semi', name:"Base 6 semicorcheas", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'rec', notes:['16','16','16','16','16','16']},
+  {id:'t_negcor_v1', name:"Negra-corchea (y síncopa) — Negra + corchea", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'rec', notes:['q','8']},
+  {id:'t_negcor_v2', name:"Negra-corchea (y síncopa) — Corchea + negra (síncopa ternaria)", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'oca', notes:['8','q']},
+  {id:'t_2semiA_v1', name:"Combi 2 semi A — C·C·2S", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'pun', notes:['8','8','16','16']},
+  {id:'t_2semiA_v2', name:"Combi 2 semi A — C·2S·C", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'oca', notes:['8','16','16','8']},
+  {id:'t_2semiA_v3', name:"Combi 2 semi A — 2S·C·C", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'oca', notes:['16','16','8','8']},
+  {id:'t_2semiA_v4', name:"Combi 2 semi A — 2S·C·2S", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','8','16','16']},
+  {id:'t_2semiB_v1', name:"Combi 2 semi B — 2S·N", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','q']},
+  {id:'t_2semiB_v2', name:"Combi 2 semi B — N·2S", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['q','16','16']},
+  {id:'t_2semiB_v3', name:"Combi 2 semi B — C·zC·2S", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['8','8r','16','16']},
+  {id:'t_4semi_v1', name:"Combi 4 semi — S·S·S·S·C", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','16','16','8']},
+  {id:'t_4semi_v2', name:"Combi 4 semi — C·S·S·S·S", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'oca', notes:['8','16','16','16','16']},
+  {id:'t_4semi_v3', name:"Combi 4 semi — S·S·C·S·S", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','8','16','16']},
+  {id:'t_4semi_v4', name:"Combi 4 semi — S·S·S·C·S", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','16','8','16']},
+  {id:'t_falsoNDP', name:"Falso NDP (S·Cp·C)", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','8d','8']},
+  {id:'t_sincDoble', name:"Síncopa doble (S·C·C·S)", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','8','8','16']},
+  {id:'t_bonus_v1', name:"Bonus final — C·S·C·S", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['8','16','8','16']},
+  {id:'t_bonus_v2', name:"Bonus final — S·C·S·C", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','8','16','8']},
+  {id:'t_3semi', name:"Corchea punteada + 3 semi (Cp·S·S·S)", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'pun', notes:['8d','16','16','16']},
+  {id:'t_ndp', name:"NDP (corchea punt. de paso)", block:'ternario', ts:'3/8', pulses:1, def:true, freq:'oca', notes:['8d','16','8']},
+  {id:'t_silS_v1', name:"Silencio de semicorchea — zS en 1ª", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16r','16','16','16','16','16']},
+  {id:'t_silS_v2', name:"Silencio de semicorchea — zS en 2ª", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16r','16','16','16','16']},
+  {id:'t_silS_v3', name:"Silencio de semicorchea — zS en 3ª", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','16r','16','16','16']},
+  {id:'t_silS_v4', name:"Silencio de semicorchea — zS en 4ª", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','16','16r','16','16']},
+  {id:'t_silS_v5', name:"Silencio de semicorchea — zS en 5ª", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'pun', notes:['16','16','16','16','16r','16']},
+  {id:'t_gve_v1', name:"GVE (grupos de valoración especial) — Dosillo de corcheas (2:3)", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'oca', notes:[{"d":"8","t":1},{"d":"8","t":1}], tuplet:{"first":2,"num":2,"notes":3}},
+  {id:'t_gve_v2', name:"GVE (grupos de valoración especial) — Cuatrillo de corcheas (4:3)", block:'ternario', ts:'3/8', pulses:1, def:false, freq:'oca', notes:[{"d":"8","t":1},{"d":"8","t":1},{"d":"8","t":1},{"d":"8","t":1}], tuplet:{"first":4,"num":4,"notes":3}},
+  // ===== S. BINARIO =====
+  {id:'b_negra', name:"Negra", block:'binario', ts:'2/4', pulses:1, def:true, freq:'bas', notes:['q']},
+  {id:'b_blanca34', name:"Blanca (solo 3/4)", block:'binario', ts:'3/4', pulses:2, def:true, freq:'oca', notes:['h'], onlyTS:'3/4'},
+  {id:'b_2cor', name:"2 corcheas", block:'binario', ts:'2/4', pulses:1, def:true, freq:'bas', notes:['8','8']},
+  {id:'b_npuntC', name:"Negra con puntillo + corchea", block:'binario', ts:'2/4', pulses:2, def:true, freq:'oca', notes:['qd','8']},
+  {id:'b_4semi', name:"Base 4 semicorcheas", block:'binario', ts:'2/4', pulses:1, def:true, freq:'oca', notes:['16','16','16','16']},
+  {id:'b_2semi_v1', name:"Combi 2 semi — C·S·S", block:'binario', ts:'2/4', pulses:1, def:true, freq:'oca', notes:['8','16','16']},
+  {id:'b_2semi_v2', name:"Combi 2 semi — S·S·C", block:'binario', ts:'2/4', pulses:1, def:true, freq:'pun', notes:['16','16','8']},
+  {id:'b_silenc1_v1', name:"Silencio semi — zS·S·S·S", block:'binario', ts:'2/4', pulses:1, def:false, freq:'oca', notes:['16r','16','16','16']},
+  {id:'b_silenc1_v2', name:"Silencio semi — S·zS·S·S", block:'binario', ts:'2/4', pulses:1, def:false, freq:'pun', notes:['16','16r','16','16']},
+  {id:'b_silenc1_v3', name:"Silencio semi — S·S·zS·S", block:'binario', ts:'2/4', pulses:1, def:false, freq:'pun', notes:['16','16','16r','16']},
+  {id:'b_silenc1_v4', name:"Silencio semi — S·S·S·zS", block:'binario', ts:'2/4', pulses:1, def:false, freq:'pun', notes:['16','16','16','16r']},
+  {id:'b_mix', name:"Combi mix (Cp·S)", block:'binario', ts:'2/4', pulses:1, def:true, freq:'oca', notes:['8d','16']},
+  {id:'b_sinc_v1', name:"Síncopas binarias — C·N·C", block:'binario', ts:'2/4', pulses:2, def:true, freq:'oca', notes:['8','q','8']},
+  {id:'b_sinc_v2', name:"Síncopa binaria — C·N·S·S", block:'binario', ts:'2/4', pulses:2, def:true, freq:'oca', notes:['8','q','16','16']},
+  {id:'b_sinc_v2', name:"Síncopas binarias — C·N·S·S", block:'binario', ts:'2/4', pulses:2, def:false, freq:'oca', notes:['8','q','16','16']},
+  {id:'b_sinc_v3', name:"Síncopas binarias — S·S·N·C", block:'binario', ts:'2/4', pulses:2, def:false, freq:'oca', notes:['16','16','q','8']},
+  {id:'b_sincBreve', name:"Síncopa breve (S·C·S)", block:'binario', ts:'2/4', pulses:1, def:false, freq:'pun', notes:['16','8','16']},
+  {id:'b_tresC', name:"Tresillo de corcheas (3:2)", block:'binario', ts:'2/4', pulses:1, def:true, freq:'oca', notes:[{"d":"8","t":1},{"d":"8","t":1},{"d":"8","t":1}], tuplet:{"first":3,"num":3,"notes":2}},
+  {id:'b_gve_v2', name:"Otros grupos de valoración especial — Seisillo de semis (6:4)", block:'binario', ts:'2/4', pulses:1, def:false, freq:'oca', notes:[{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1}], tuplet:{"first":6,"num":6,"notes":4}, notTS:'3/4'},
+  {id:'b_gve_v3', name:"Otros grupos de valoración especial — Tresillo de fracción (semis)", block:'binario', ts:'2/4', pulses:1, def:false, freq:'oca', notes:['8',{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1}], tuplet:{"first":3,"offset":1,"num":3,"notes":2}},
+  {id:'b_gve_v4', name:"Otros grupos de valoración especial — Cinquillo (5:4) — OFF", block:'binario', ts:'2/4', pulses:1, def:false, freq:'pun', notes:[{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1},{"d":"16","t":1}], tuplet:{"first":5,"num":5,"notes":4}},
+];
+;
+/* ====== MOTOR DE GENERACIÓN (incrustado) ====== */
+(function(){
+/* ============================================================
+   GENERADOR DE DICTADOS — motor melódico
+   Reglas (acordadas con Iago):
+   - 2 frases de 4 compases. Empieza y acaba en tónica.
+   - Tonalidad: 10 con <=2 alteraciones. Tónica La en 8va 4.
+   - Ámbito: La3 (57) .. Mi5 (76). Límite, no obligatorio tocarlo.
+   - Saltos permitidos: hasta 8ª. Compensación tras salto (grado conjunto contrario),
+     salvo arpegio (2 saltos misma dirección) -> luego 2ª contraria.
+   - Semicorcheas: siempre grado conjunto (2ª), nunca salto, ni al entrar/salir.
+   - Menor: sensible (VII#) subiendo a tónica; VI# junto a VII# en menor melódico
+     ascendente; al bajar, menor natural. (Armónico no por defecto.)
+   - Ritmo: del catálogo activo, con niveles de frecuencia y límites por sistema.
+   - Cierre frase 1 (c4): nota en pulso 1 + silencio el resto.
+   - Cierre dictado (c8): 40% tónica todo el compás / 40% tónica+8ª / 20% arpegio a tónica.
+   ============================================================ */
+
+// === escalas (semitonos desde tónica) ===
+const MAJOR=[0,2,4,5,7,9,11];
+const MINOR_NAT=[0,2,3,5,7,8,10];
+// grado diatónico (1..7, puede exceder con octavas) -> semitono
+function degSemi(g, mode){
+  const steps = mode==='minor'?MINOR_NAT:MAJOR;
+  const idx=((g-1)%7+7)%7; const oct=Math.floor((g-1)/7);
+  return steps[idx]+12*oct;
+}
+
+// Construye la escala de notas MIDI disponibles dentro del ámbito para una tónica/modo.
+// Devuelve array ordenado de {midi, deg} donde deg es el grado diatónico (1..7) sin octava.
+function scalePitches(tonicMidi, mode, lo, hi){
+  const steps = mode==='minor'?MINOR_NAT:MAJOR;
+  const out=[];
+  // recorremos varias octavas alrededor
+  for(let oct=-3; oct<=3; oct++){
+    for(let i=0;i<7;i++){
+      const midi=tonicMidi+steps[i]+12*oct;
+      if(midi>=lo && midi<=hi) out.push({midi, deg:i+1, oct});
+    }
+  }
+  out.sort((a,b)=>a.midi-b.midi);
+  return out;
+}
+
+// índice del grado más cercano a un midi dado dentro de la escala
+function nearestIdx(scale, midi){
+  let best=0, bd=Infinity;
+  scale.forEach((s,i)=>{ const d=Math.abs(s.midi-midi); if(d<bd){bd=d;best=i;} });
+  return best;
+}
+
+// === RNG ===
+function rng(seed){ let s=seed>>>0; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+
+// === aplicar sensible/menor melódico a una secuencia de notas (post-proceso) ===
+// notas: array de {midi, deg, oct} de escala natural. Detecta ascensos VI-VII-I y altera.
+function applyMinorLeading(seq, tonicMidi){
+  // SOLO altera VI y VII en menor. Limpia cualquier alteración previa espuria.
+  // VII natural = +10 semis; sensible = +11. VI natural = +8; VI# = +9.
+  // Regla: sensible sube a tónica (resuelve por 2ª menor). VI#-VII#-I = menor melódico ascendente.
+  // primero, eliminar cualquier alt previo (vamos a recalcular desde cero)
+  for(const n of seq){ if(!n.rest){ delete n.alt; delete n.altUp; } }
+  const reals=seq.filter(n=>!n.rest);
+  const rel=(n)=>((n.midi-tonicMidi)%12+12)%12;
+  // PASADA 1: sensible. VII natural que sube por grado conjunto a la tonica -> VII#
+  for(let i=0;i<reals.length-1;i++){
+    const n=reals[i], nx=reals[i+1];
+    if(rel(n)===10 && rel(nx)===0 && nx.midi>n.midi && (nx.midi-n.midi)<=2){
+      n.midi+=1; n.altUp=true;
+    }
+  }
+  // PASADA 2: menor melodico ascendente. VI natural seguido de VII# (ya alterado) -> VI#
+  // evita la 2a aumentada VI-VII#.
+  for(let i=0;i<reals.length-1;i++){
+    const n=reals[i], nx=reals[i+1];
+    if(rel(n)===8 && nx.altUp && rel(nx)===11 && nx.midi>n.midi){
+      n.midi+=1; n.altUp=true;
+    }
+  }
+  return seq;
+}
+function nextReal(seq,i){ for(let j=i+1;j<seq.length;j++){ if(!seq[j].rest) return seq[j]; } return null; }
+
+
+
+
+const DUR_BEATS = {'q':1,'8':0.5,'16':0.25,'h':2,'qd':1.5,'8d':0.75};
+
+/* ====== RITMO: elige células del catálogo para llenar un compás ====== */
+// catalog: array de tarjetas activas {id,block,ts,pulses,freq,notes,tuplet,...}
+// ts: compás objetivo. Devuelve array de figuras (tokens) que suman el compás.
+function pickRhythmForBar(catalog, ts, rnd, opts){
+  opts=opts||{};
+  const [num,den]=ts.split('/').map(n=>parseInt(n,10));
+  // pulsos del compás
+  const PULSES = {'2/4':2,'3/4':3,'4/4':4,'3/8':1,'6/8':2,'9/8':3}[ts];
+  const pulseBeats = (den===8)?1.5:1; // negra con puntillo vs negra (en "beats de negra")
+  // sección del compás
+  const SEC = {'2/4':'binario','3/4':'binario','4/4':'binario','3/8':'ternario','6/8':'ternario','9/8':'ternario'}[ts];
+  // candidatos de esta sección y compatibles
+  let pool = catalog.filter(c=> c.block===SEC);
+  // filtrar onlyTS/notTS
+  pool = pool.filter(c=> (!c.onlyTS || c.onlyTS===ts) && (!c.notTS || c.notTS!==ts));
+  // agrupar por nivel
+  const byFreq = f => pool.filter(c=>c.freq===f);
+  const bas=byFreq('bas'), rec=byFreq('rec'), oca=byFreq('oca'), pun=byFreq('pun');
+
+  // construir pulso a pulso (la mayoría de células son de 1 pulso; algunas 2)
+  const out=[];
+  let pulsesLeft = PULSES;
+  let ocaUsed=0, punUsed=0;
+  let isFirst=true;
+  while(pulsesLeft>0){
+    // primer pulso del compás (si opts.firstBasic) -> básico
+    let choices;
+    if(isFirst && opts.startBasic && bas.length){ choices=bas; }
+    else {
+      // mezcla ponderada: bas y rec frecuentes; oca limitado a 2; pun a 1
+      let bag=[];
+      bas.forEach(c=>{for(let k=0;k<4;k++)bag.push(c);});
+      rec.forEach(c=>{for(let k=0;k<3;k++)bag.push(c);});
+      if(ocaUsed<2) oca.forEach(c=>{for(let k=0;k<2;k++)bag.push(c);});
+      if(punUsed<1) pun.forEach(c=>{bag.push(c);});
+      if(!bag.length) bag=bas.concat(rec);
+      choices=bag;
+    }
+    // filtrar por pulsos que caben
+    choices=choices.filter(c=>c.pulses<=pulsesLeft);
+    if(!choices.length){ // fallback: básico de 1 pulso
+      choices=bas.filter(c=>c.pulses<=pulsesLeft);
+      if(!choices.length){ // meter negra/silencio según pueda
+        out.push({k:null, d: den===8?'qd':'q', _fill:true});
+        pulsesLeft-= pulseBeats/ (den===8?1.5:1) * (den===8?1.5:1); // 1 pulso
+        pulsesLeft = Math.max(0, pulsesLeft- (den===8?0:0)); // simplify below
+        pulsesLeft = pulsesLeft; break;
+      }
+    }
+    const c=choices[Math.floor(rnd()*choices.length)];
+    if(c.freq==='oca') ocaUsed++;
+    if(c.freq==='pun') punUsed++;
+    // añadir las figuras de la célula
+    c.notes.forEach(n=> out.push(typeof n==='object'? Object.assign({},n) : {d:n}) );
+    if(c.tuplet){ out[out.length-1]._tupletStart=true; out._tuplets=(out._tuplets||[]); }
+    pulsesLeft -= c.pulses;
+    isFirst=false;
+  }
+  return {tokens: out, ts, num, den, pulses:PULSES};
+}
+
+/* ====== contar pulsos "reales" para asignar notas ====== */
+function noteSlots(tokens){
+  // cada token no-silencio necesita una nota
+  return tokens.filter(t=> !( (t.d||'').includes('r') )).length;
+}
+
+/* ====== MELODÍA: asigna alturas a las figuras no-silencio con las reglas ====== */
+// Genera una secuencia de notas (midi) para una lista de "figuras" planas con sus duraciones.
+// Reglas: empieza/acaba donde se le diga; semicorcheas grado conjunto; saltos<=8va con compensación.
+function assignMelody(figs, scale, startMidi, rnd, prevWasSemi, regWindow){
+  // figs: [{dur, isRest, is16}]. Reglas:
+  //  - ninguna nota se repite respecto a la anterior (idx != prevIdx)
+  //  - semicorcheas: SIEMPRE grado conjunto (paso de 1 índice), incluida la nota
+  //    a la que entran y de la que salen; como mucho UN cambio de dirección por grupo de 16.
+  //  - saltos hasta 8ª con compensación (en notas no-semicorchea)
+  //  - prevWasSemi: si la ÚLTIMA nota del compás anterior fue semicorchea, la PRIMERA
+  //    nota de este compás debe estar a 2ª (grado conjunto) de startMidi. (regla de hierro)
+  const findIdx=(midi)=> nearestIdx(scale,midi);
+  const notes=[];
+  let prevIdx=null, lastLeapDir=0, leapStreak=0, cooldown=0;
+  // la primera nota real de este compás hereda la "obligación de conjunción" si venimos de semis
+  let pendingConjunctFromPrevBar = !!prevWasSemi;
+
+  // localizar "runs" de semicorcheas (índices de figs consecutivas con is16)
+  const isReal=(x)=>x && !x.isRest;
+  function clampIdx(idx){
+    if(idx<0) idx=Math.min(scale.length-1, -idx);
+    if(idx>=scale.length) idx=Math.max(0, 2*(scale.length-1)-idx);
+    return idx;
+  }
+  // Sesgo de registro: mínimo duro La3 (57). Empuje SUAVE hacia el centro Do4-Do5 (60-72):
+  // se mueve como mucho un grado por nota para no crear saltos (finalClean conserva la conjunción).
+  function antiGrave(idx){
+    let m=scale[idx].midi;
+    const wLo = (regWindow&&regWindow.lo)||60;
+    const wHi = (regWindow&&regWindow.hi)||72;
+    // mínimo duro La3
+    if(m<57){ let j=idx; while(j<scale.length && scale[j].midi<57) j++; return Math.min(scale.length-1,j); }
+    // por debajo de la ventana: subir hasta el borde inferior de la ventana (con alta prob)
+    if(m<wLo){
+      if(rnd()<0.9){ let j=idx; while(j+1<scale.length && scale[j].midi<wLo) j++; return j; }
+      return idx;
+    }
+    // por encima de la ventana: bajar hasta el borde superior (con alta prob)
+    if(m>wHi){
+      if(rnd()<0.9){ let j=idx; while(j-1>=0 && scale[j].midi>wHi && scale[j-1].midi>=57) j--; return j; }
+      return idx;
+    }
+    return idx;
+  }
+
+  let i=0;
+  while(i<figs.length){
+    const f=figs[i];
+    if(f.isRest){ notes.push({rest:true,dur:f.dur,d:f.d}); i++; continue; }
+
+    // ¿empieza aquí un grupo de semicorcheas?
+    if(f.is16){
+      let j=i; const group=[];
+      while(j<figs.length && figs[j].is16 && !figs[j].isRest){ group.push(j); j++; }
+      const n=group.length;
+      // Construir una "escalera" de índices: pasos de ±1 (grado conjunto) con UN solo cambio de dirección.
+      // Elegir índice inicial conjunto desde prevIdx.
+      let startIdxLocal;
+      if(prevIdx===null){
+        if(pendingConjunctFromPrevBar && startMidi!=null){
+          // venimos de una semicorchea en el compás anterior: la primera semi a 2ª de startMidi
+          const base=findIdx(startMidi);
+          let dir0=rnd()<0.5?-1:1;
+          startIdxLocal=clampIdx(base+dir0);
+          if(startIdxLocal===base || scale[startIdxLocal].midi<57) startIdxLocal=clampIdx(base-dir0);
+          if(scale[startIdxLocal].midi<57) startIdxLocal=clampIdx(base+1);
+        } else {
+          startIdxLocal = (startMidi!=null)? findIdx(startMidi) : findIdx(scale[Math.floor(scale.length/2)].midi);
+        }
+      } else {
+        let dir0=rnd()<0.5?-1:1;
+        startIdxLocal=clampIdx(prevIdx+dir0);
+        if(startIdxLocal===prevIdx) startIdxLocal=clampIdx(prevIdx-dir0);
+        if(scale[startIdxLocal].midi<57) startIdxLocal=clampIdx(prevIdx+1);
+      }
+      // construir secuencia de n índices empezando en startIdxLocal
+      const seqIdx=[startIdxLocal];
+      let dir = (startIdxLocal < scale.length-1)? 1 : -1;
+      if(prevIdx!==null && startIdxLocal<prevIdx) dir=-1; else if(prevIdx!==null && startIdxLocal>prevIdx) dir=1;
+      // punto de cambio de dirección:
+      //  - seisillo (n>=6): NUNCA cambia -> línea recta (monótono)
+      //  - grupos de 4 semis: giran a menudo (~70%) para no sonar a escala recta
+      //  - grupos de 2: pueden girar
+      let changePoint;
+      if(n>=6){ changePoint=-1; }
+      else if(n>=4){ changePoint = (rnd()<0.7)? (1+Math.floor(rnd()*(n-2))) : -1; }
+      else { changePoint = (n>=3 && rnd()<0.6)? (1+Math.floor(rnd()*(n-2))) : -1; }
+      let changed=false;
+      for(let g=1; g<n; g++){
+        if(g===changePoint && !changed){ dir=-dir; changed=true; }
+        let nx=seqIdx[g-1]+dir;
+        if(nx<0 || nx>=scale.length || scale[nx].midi<57){
+          // rebote forzado: invierte dir. Cuenta como el cambio si no se ha usado;
+          // si ya se usó, igualmente invertimos (prioridad: no salir de ámbito)
+          dir=-dir; if(!changed) changed=true;
+          nx=seqIdx[g-1]+dir;
+          if(nx<0||nx>=scale.length){ nx=seqIdx[g-1]; } // último recurso (no debería)
+        }
+        seqIdx.push(nx);
+      }
+      for(let g=0; g<n; g++){
+        const idx=seqIdx[g];
+        notes.push({midi:scale[idx].midi, deg:scale[idx].deg, dur:figs[group[g]].dur, d:figs[group[g]].d, _g16:true});
+        prevIdx=idx;
+      }
+      pendingConjunctFromPrevBar=false;
+      cooldown=Math.max(cooldown,1);
+      i=j; continue;
+    }
+
+    // nota normal (no semicorchea)
+    let idx;
+    if(prevIdx===null){
+      if(pendingConjunctFromPrevBar && startMidi!=null){
+        // venimos de semicorchea en el compás anterior: primera nota a 2ª de startMidi
+        const base=findIdx(startMidi);
+        let dir0=rnd()<0.5?-1:1;
+        idx=clampIdx(base+dir0);
+        if(idx===base || scale[idx].midi<57) idx=clampIdx(base-dir0);
+        if(scale[idx].midi<57) idx=clampIdx(base+1);
+      } else {
+        idx = (startMidi!=null)? findIdx(startMidi) : findIdx(scale[Math.floor(scale.length/2)].midi);
+      }
+    } else {
+      const conjunctForced = (i>0 && figs[i-1].is16); // venimos de semicorcheas -> grado conjunto
+      let step;
+      // Reglas de salto (Iago):
+      //  - máximo DOS saltos pequeños (3ª) encadenados en la misma dirección = arpegio de 3 notas.
+      //  - tras ese 2º salto, o tras CUALQUIER salto grande (>=4ª), COMPENSACIÓN INMEDIATA:
+      //    la nota siguiente va por 2ª en dirección contraria.
+      //  - la mayoría de pasos son de 2ª (conjuntos).
+      if(conjunctForced){
+        step = rnd()<0.5?-1:1;
+        leapStreak=0; lastLeapDir=0;
+      } else if(cooldown>0){
+        // COMPENSACIÓN INMEDIATA: 2ª en sentido contrario al último salto
+        step = -Math.sign(lastLeapDir||1)*1;
+        cooldown=0; leapStreak=0; lastLeapDir=0;
+      } else {
+        const r=rnd();
+        if(r<0.85){
+          // 2ª (mayoría). No es salto: rompe cualquier racha de arpegio.
+          step=(rnd()<0.5?-1:1);
+          leapStreak=0; lastLeapDir=0;
+        } else if(r<0.97){
+          // 3ª (salto pequeño): se permite encadenar como mucho 2 en la misma dirección.
+          let dir = rnd()<0.5?-1:1;
+          if(leapStreak>=1 && lastLeapDir!==0) dir=lastLeapDir; // segundo salto sigue la dirección del arpegio
+          step = dir*2;
+          if(lastLeapDir===dir){ leapStreak++; } else { leapStreak=1; }
+          lastLeapDir=dir;
+          if(leapStreak>=2){ cooldown=1; }   // ya van 2 saltos -> compensar a la siguiente
+        } else {
+          // 4ª (rara): salto grande -> compensación inmediata obligatoria
+          step=(rnd()<0.5?-3:3);
+          lastLeapDir=Math.sign(step); leapStreak=0; cooldown=1;
+        }
+      }
+      // límite de seguridad: nunca un intervalo mayor de 8ª
+      if(Math.abs(step)>7) step=Math.sign(step)*7;
+      idx=clampIdx(prevIdx+step);
+      idx=antiGrave(idx);
+      // si antiGrave movió la nota, no recalculo la racha (es ajuste de registro)
+      // NO REPETICIÓN: si cae en la misma nota, desplazar un grado
+      if(idx===prevIdx){ idx=clampIdx(prevIdx + (step>=0?1:-1) || prevIdx+1); if(idx===prevIdx) idx=clampIdx(prevIdx+1); }
+    }
+    notes.push({midi:scale[idx].midi, deg:scale[idx].deg, dur:f.dur, d:f.d});
+    prevIdx=idx;
+    pendingConjunctFromPrevBar=false;
+    i++;
+  }
+  // PASADA FINAL: eliminar repeticiones de nota consecutivas (cero repeticiones)
+  for(let q=1;q<notes.length;q++){
+    if(notes[q].rest||notes[q-1].rest) continue;
+    if(notes[q].midi===notes[q-1].midi){
+      // desplazar la nota q un grado conjunto (preferente hacia arriba; respetar ámbito)
+      let ci=findIdx(notes[q].midi);
+      let ni=clampIdx(ci+1); if(scale[ni].midi<57||scale[ni].midi===notes[q-1].midi) ni=clampIdx(ci-1);
+      if(scale[ni].midi<57) ni=clampIdx(ci+1);
+      // evitar crear repetición con la siguiente
+      if(notes[q+1] && !notes[q+1].rest && scale[ni].midi===notes[q+1].midi){ ni=clampIdx(ci+ (ni>ci?-1:1)); if(scale[ni].midi<57) ni=clampIdx(ci+1); }
+      notes[q].midi=scale[ni].midi; notes[q].deg=scale[ni].deg;
+    }
+  }
+  return notes;
+}
+
+
+
+// Selector de ritmo por PLANTILLA DE PULSOS: decide el nivel de cada pulso y
+// luego elige una célula compatible. Permite garantizar combinaciones.
+const PULSES_OF = {'2/4':2,'3/4':3,'4/4':4,'3/8':1,'6/8':2,'9/8':3};
+const SEC_OF = {'2/4':'binario','3/4':'binario','4/4':'binario','3/8':'ternario','6/8':'ternario','9/8':'ternario'};
+
+// ¿es una célula "figura de pulso" sola? (un único valor que llena el pulso: negra en binario, negra c.p. en ternario)
+function isPulseFigure(cell, ts){
+  if(cell.pulses!==1) return false;
+  if(cell.notes.length!==1) return false;
+  const d=(typeof cell.notes[0]==='object'?cell.notes[0].d:cell.notes[0]);
+  return d==='q' || d==='qd';
+}
+
+// nº de semicorcheas (figuras '16') que contiene una célula
+function semiCountOf(cell){
+  let n=0;
+  cell.notes.forEach(x=>{ const d=(typeof x==='object'?x.d:x); if(d==='16') n++; });
+  return n;
+}
+
+function pickRhythm(catalog, ts, rnd, opts){
+  opts=opts||{};
+  const totalPulses=PULSES_OF[ts];
+  const sec=SEC_OF[ts];
+  const forbid=opts.forbid||{};
+  const usedHighIds = opts.usedHighIds || new Set(); // ids de oca/pun ya usados en el dictado
+  const usedOnceIds = opts.usedOnceIds || new Set();  // ids que solo pueden salir UNA vez (p.ej. seisillo)
+  const ONCE_IDS = new Set(['t_6semi']); // células limitadas a una aparición por dictado
+  const avoidPulseFig=!!opts.avoidPulseFig;
+  const requireBasicPlusHigh=!!opts.requireBasicPlusHigh; // interiores: 1 bas + 1 oca/pun
+  const forceCellId=opts.forceCellId||null;              // forzar una célula concreta (4 semis)
+  const combo=opts.combo||null;                          // combo explícito por pareja
+  const startRhythm68=!!opts.startRhythm68;              // arranque variado del compás 1 en 6/8
+
+  // --- ARRANQUE 6/8 (compás 1): pulso1 = negra con puntillo; pulso2 = 3 corcheas o negra+corchea.
+  //     10% de probabilidad: seis corcheas (pero la melodía NO irá recta, eso lo asegura el motor).
+  if(startRhythm68 && ts==='6/8'){
+    const r=rnd();
+    let tokens;
+    if(r<0.10){ tokens=[{d:'8'},{d:'8'},{d:'8'},{d:'8'},{d:'8'},{d:'8'}]; }      // 10% seis corcheas
+    else {
+      // pulso 1: negra con puntillo
+      const p1=[{d:'qd'}];
+      // pulso 2: 3 corcheas (más probable) o negra+corchea
+      const p2 = (rnd()<0.6)? [{d:'8'},{d:'8'},{d:'8'}] : [{d:'q'},{d:'8'}];
+      tokens=p1.concat(p2);
+    }
+    return {ts, tokens, tuplets:[], pulses:totalPulses, levelsUsed:{bas:true}, forcedPlaced:false, usedHighIds:[], usedOnceIds:[]};
+  }
+
+  // --- Construir PLANTILLA de niveles por pulso ---
+  // niveles posibles según forbid
+  // 'pulse' = la figura de pulso (negra en binario). La buscamos en el pool.
+  let pool=catalog.filter(c=>c.block===sec && (!c.onlyTS||c.onlyTS===ts) && (!c.notTS||c.notTS!==ts));
+  const byLevel = lvl => pool.filter(c=>c.freq===lvl && c.pulses===1);
+  const bas=byLevel('bas'), rec=byLevel('rec'), oca=byLevel('oca'), pun=byLevel('pun');
+  // células de 2 pulsos (sólo se usan si caben y no hay restricciones complejas)
+  const twoPulse=pool.filter(c=>c.pulses===2);
+
+  const pulseCell = pool.find(c=>isPulseFigure(c,ts) && c.freq==='bas') || pool.find(c=>isPulseFigure(c,ts));
+  function levelCells(lvl){ if(lvl==='pulse') return pulseCell?[pulseCell]:bas; return ({bas,rec,oca,pun})[lvl]; }
+  function hasLevel(lvl){ const c=levelCells(lvl); return c && c.length>0; }
+
+  // --- COMBO EXPLÍCITO (regla de parejas de Iago): construye el compás directamente ---
+  if(combo){
+    const pick = (lvl)=>{ const c=({bas,rec,oca,pun})[lvl]; return c&&c.length? c : null; };
+    // síncopas de dos pulsos (solo binario)
+    if(combo==='sync_cnc' || combo==='sync_cnss'){
+      const id = combo==='sync_cnc' ? 'b_sinc_v1' : 'b_sinc_v2';
+      const syn = pool.find(c=>c.id===id);
+      if(syn && syn.pulses<=totalPulses){
+        const tokens=[]; const tuplets=[]; const levelsUsed={};
+        syn.notes.forEach(n=>tokens.push(typeof n==='object'?{d:n.d,t:n.t}:{d:n}));
+        levelsUsed[syn.freq]=true;
+        // si quedan pulsos (p.ej. 3/4: 2 de síncopa + 1), rellenar con una NEGRA (regla 3/4)
+        let rem=totalPulses-syn.pulses;
+        const negra = pool.find(c=>c.pulses===1 && isPulseFigure(c,ts) && (c.notes[0].d||c.notes[0])==='q');
+        while(rem>0){ const b=negra || (pick('bas')||[]).find(c=>c.pulses===1) || (bas[0]); if(!b) break; b.notes.forEach(n=>tokens.push(typeof n==='object'?{d:n.d,t:n.t}:{d:n})); levelsUsed.bas=true; rem-=1; }
+        return {ts, tokens, tuplets, pulses:totalPulses, levelsUsed, forcedPlaced:false, usedHighIds:(syn.freq==='oca'||syn.freq==='pun')?[syn.id]:[], usedOnceIds:[]};
+      }
+      // si no hay síncopa disponible, cae al reparto normal de abajo
+    }
+    if(combo==='pun_bas' || combo==='rec_oca'){
+      const wanted = combo==='pun_bas' ? ['pun','bas'] : ['rec','oca'];
+      // respetar forbid: si el nivel alto está vetado, degradar (pun->oca->rec ; oca->rec)
+      function resolveLvl(lvl){
+        if(lvl==='pun' && (forbid.pun||!hasLevel('pun'))) lvl='oca';
+        if(lvl==='oca' && (forbid.oca||!hasLevel('oca'))) lvl='rec';
+        if(!hasLevel(lvl)) lvl='bas';
+        return lvl;
+      }
+      let lv = wanted.map(resolveLvl);
+      // construir lista de pulsos objetivo (para 2 pulsos: los dos niveles; para 3: añadir un básico)
+      let pulseLevels;
+      if(totalPulses===2) pulseLevels=[lv[0],lv[1]];
+      else if(totalPulses===3) pulseLevels=[lv[0],lv[1],'pulse']; // 3/4: el 3er pulso es una NEGRA (regla Iago)
+      else pulseLevels=[lv[0],lv[1]].concat(new Array(Math.max(0,totalPulses-2)).fill('bas'));
+      // barajar orden dentro del compás
+      for(let i=pulseLevels.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [pulseLevels[i],pulseLevels[j]]=[pulseLevels[j],pulseLevels[i]]; }
+      const tokens=[]; const tuplets=[]; const levelsUsed={}; const usedIds=[]; let prevHeavy=false; let prevSig=null;
+      const sigOf=(c)=> c.notes.map(n=>(typeof n==='object'?n.d:n)).join('-');
+      for(const lvl of pulseLevels){
+        let cands;
+        if(lvl==='pulse'){
+          // figura de pulso = negra (en binario). Forzamos la negra como célula de 1 pulso.
+          cands = pool.filter(c=>c.pulses===1 && isPulseFigure(c,ts) && (c.notes[0].d||c.notes[0])==='q');
+          if(!cands.length) cands=(({bas})['bas']||[]).filter(c=>c.pulses===1);
+        } else {
+          cands=(({bas,rec,oca,pun})[lvl]||[]).filter(c=>c.pulses===1);
+          if(avoidPulseFig) { const mov=cands.filter(c=>!isPulseFigure(c,ts)); if(mov.length) cands=mov; }
+        }
+        // no repetir oca/pun ya usados
+        if(lvl==='oca'||lvl==='pun'){ const f=cands.filter(c=>!usedHighIds.has(c.id)); if(f.length) cands=f; }
+        // once-ids (seisillo)
+        { const f=cands.filter(c=>!(new Set(['t_6semi']).has(c.id)&&usedOnceIds.has(c.id))); if(f.length) cands=f; }
+        // densidad: no dos pulsos seguidos con 3+ semis
+        if(prevHeavy){ const f=cands.filter(c=>semiCountOf(c)<3); if(f.length) cands=f; }
+        // no repetir el mismo patrón rítmico que el pulso anterior
+        if(prevSig){ const f=cands.filter(c=>sigOf(c)!==prevSig); if(f.length) cands=f; }
+        if(!cands.length) cands=(bas.length?bas:rec).filter(c=>c.pulses===1);
+        if(!cands.length) break;
+        const c=cands[Math.floor(rnd()*cands.length)];
+        const startTok=tokens.length;
+        c.notes.forEach(n=>tokens.push(typeof n==='object'?{d:n.d,t:n.t}:{d:n}));
+        if(c.tuplet) tuplets.push({start:startTok, def:c.tuplet});
+        levelsUsed[c.freq]=true;
+        if(c.freq==='oca'||c.freq==='pun') usedIds.push(c.id);
+        prevHeavy=(semiCountOf(c)>=3);
+        prevSig=sigOf(c);
+      }
+      if(tokens.length){
+        return {ts, tokens, tuplets, pulses:totalPulses, levelsUsed, forcedPlaced:false, usedHighIds:usedIds, usedOnceIds:[]};
+      }
+      // si algo falló, cae al flujo normal de abajo
+    }
+  }
+
+
+
+
+
+  // Para cada pulso asignamos un nivel objetivo.
+  let plan=new Array(totalPulses).fill('rec'); // por defecto recurrente
+  // arranque básico
+  if(opts.startBasic && hasLevel('bas')) plan[0]='bas';
+  // compás de solo básicos (p.ej. compás 1 en 6/8)
+  if(opts.allBasic && hasLevel('bas')){ plan=new Array(totalPulses).fill('bas'); }
+  // forzar una célula concreta en todos los pulsos (p.ej. 3 corcheas en compás 1 de 6/8)
+  const forceAllId = opts.forceAllId || null;
+
+  if(requireBasicPlusHigh){
+    // PLANTILLAS de niveles por compás interior (elegir una al azar), respetando forbid.
+    // 2 pulsos: [bas,pun] | [oca,oca]
+    // 3 pulsos: [bas,bas,pun] | [oca,oca,bas]
+    const canPun = !forbid.pun && hasLevel('pun');
+    const canOca = !forbid.oca && hasLevel('oca');
+    let templates=[];
+    if(ts==='6/8'){
+      // 6/8 intermedios: (alto + básico) o (dos recurrentes)
+      const high = canPun? 'pun' : (canOca? 'oca' : null);
+      if(high && hasLevel('bas')) templates.push([high,'bas']);
+      if(canOca && hasLevel('bas')) templates.push(['oca','bas']);
+      if(hasLevel('rec')) templates.push(['rec','rec']);
+    } else if(totalPulses===2){
+      // 2/4 intermedios
+      if(hasLevel('bas') && canPun) templates.push(['bas','pun']);
+      if(canOca) templates.push(['oca','oca']);
+    } else if(totalPulses===3){
+      // 3/4 intermedios: una NEGRA obligatoria (figura de pulso), un alto (oca/pun) y un básico.
+      // 'pulse' = negra sola; el resto según disponibilidad.
+      if(canPun) templates.push(['pulse','bas','pun']);
+      if(canOca) templates.push(['pulse','bas','oca']);
+      if(!templates.length && hasLevel('bas')) templates.push(['pulse','bas','bas']);
+    } else {
+      // 4/4 u otros: básico + alto repartido
+      if(hasLevel('bas') && (canOca||canPun)) templates.push(['bas', canOca?'oca':'pun','bas', canPun?'pun':'oca']);
+    }
+    // fallbacks si los vetos dejan sin opciones
+    if(!templates.length){
+      if(canOca){ templates.push(new Array(totalPulses).fill('oca')); }
+      else if(hasLevel('rec')){ templates.push(new Array(totalPulses).fill('rec')); }
+      else { templates.push(new Array(totalPulses).fill('bas')); }
+    }
+    const tpl=templates[Math.floor(rnd()*templates.length)].slice();
+    // barajar el orden de los niveles dentro del compás (para variar la colocación)
+    for(let i=tpl.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [tpl[i],tpl[j]]=[tpl[j],tpl[i]]; }
+    plan=tpl;
+  }
+
+  // forzar célula concreta (4 semis) en un pulso interior
+  let forced=null;
+  if(forceCellId){ forced=pool.find(c=>c.id===forceCellId) || null; }
+
+  // 2 corcheas (sustituto de básico con movimiento en binario)
+  const twoEighths = pool.find(c=>c.pulses===1 && c.notes.length===2 &&
+    (c.notes[0].d||c.notes[0])==='8' && (c.notes[1].d||c.notes[1])==='8');
+  // --- Materializar la plantilla: elegir una célula por pulso ---
+  const tokens=[]; const tuplets=[]; const levelsUsed={};
+  const usedIdsThisBar=[]; const usedOnceThisBar=[];
+  let pulsesLeft=totalPulses, ocaUsed=0, punUsed=0, p=0;
+  let forcedPlaced=false;
+  let prevSemiHeavy=false; // ¿el pulso anterior tenía 3+ semicorcheas?
+  let prevCellSig=null;    // firma rítmica del pulso anterior (para no repetir pulsos iguales)
+  function cellSig(c){ return (c.pulses===1) ? c.notes.map(n=>(typeof n==='object'?n.d:n)).join('-') : null; }
+  const forcedAllCell = forceAllId? pool.find(c=>c.id===forceAllId) : null;
+  let guard=0;
+  while(pulsesLeft>0 && guard++<60){
+    if(forcedAllCell && forcedAllCell.pulses<=pulsesLeft){ place(forcedAllCell); p++; continue; }
+    let lvl = plan[p] || 'rec';
+    // candidatos de ese nivel
+    let cands = levelCells(lvl).slice();
+    // BÁSICO en interior (avoidPulseFig): preferir básicos con movimiento;
+    // si solo hay figura de pulso, usar 2 corcheas como básico, y permitir negra solo 15%.
+    if(lvl==='bas' && avoidPulseFig){
+      const basMov = cands.filter(c=>!isPulseFigure(c,ts));
+      if(basMov.length){ cands=basMov; }
+      else if(twoEighths && rnd()<0.85){ place(twoEighths); levelsUsed.bas=true; p++; continue; }
+      // else: cae abajo y podrá usar figura de pulso (poco probable, 15%)
+    }
+    // evitar figura de pulso en interiores (salvo 'bas' tratado y 'pulse' que SÍ la quiere)
+    if(avoidPulseFig && lvl!=='bas' && lvl!=='pulse') cands=cands.filter(c=>!isPulseFigure(c,ts));
+    if(avoidPulseFig && lvl==='bas'){
+      // mantener filtro salvo la pequeña probabilidad de permitir figura de pulso
+      const mov=cands.filter(c=>!isPulseFigure(c,ts));
+      if(mov.length) cands=mov;
+      else if(rnd()>=0.15) cands=cands.filter(c=>!isPulseFigure(c,ts));
+    }
+    // respetar forbid y cupos
+    if(lvl==='oca' && (forbid.oca||ocaUsed>=2)) cands=[];
+    if(lvl==='pun' && (forbid.pun||punUsed>=1)) cands=[];
+    // si toca forzar la célula y aún no se colocó, intentar aquí
+    if(forced && !forcedPlaced && (lvl==='oca'|| !requireBasicPlusHigh) && forced.pulses<=pulsesLeft){
+      // solo si el pulso permite (no figura de pulso, etc.)
+      if(!(avoidPulseFig && isPulseFigure(forced,ts))){
+        place(forced); forcedPlaced=true; levelsUsed.forced4semi=true; p++; continue;
+      }
+    }
+    if(!cands.length){
+      // fallback al mismo nivel sin filtros duros, luego rec, luego bas
+      cands = levelCells(lvl).filter(c=> !(avoidPulseFig && isPulseFigure(c,ts)));
+      if(!cands.length) cands = rec.filter(c=> !(avoidPulseFig && isPulseFigure(c,ts)));
+      if(!cands.length) cands = bas.filter(c=> !(avoidPulseFig && isPulseFigure(c,ts)));
+      if(!cands.length) cands = bas.concat(rec); // último recurso (puede ser figura de pulso)
+    }
+    if(!cands.length) break;
+    // no repetir una célula ocasional/puntual ya usada en el dictado
+    if((lvl==='oca'||lvl==='pun')){ const f2=cands.filter(c=>!usedHighIds.has(c.id)); if(f2.length) cands=f2; }
+    // células 'once' (seisillo): si ya salió en el dictado o en este compás, excluirla
+    { const f3=cands.filter(c=>!(ONCE_IDS.has(c.id)&&(usedOnceIds.has(c.id)||usedOnceThisBar.includes(c.id)))); if(f3.length) cands=f3; }
+    // REGLA DE DENSIDAD: no dos pulsos seguidos con 3+ semicorcheas cada uno.
+    if(prevSemiHeavy){ const f4=cands.filter(c=>semiCountOf(c)<3); if(f4.length) cands=f4; }
+    // REGLA "NO REPETIR PULSO IGUAL": evitar que este pulso tenga el mismo patrón rítmico que el anterior.
+    if(prevCellSig){ const f5=cands.filter(c=>cellSig(c)!==prevCellSig); if(f5.length) cands=f5; }
+    const c=cands[Math.floor(rnd()*cands.length)];
+    place(c); p++;
+  }
+
+  // si había que forzar la célula y no se colocó, intentar sustituir un pulso interior compatible
+  if(forced && !forcedPlaced){ /* se gestionará a nivel de dictado reintentando */ }
+
+  function place(c){
+    if(ONCE_IDS.has(c.id)) usedOnceThisBar.push(c.id);
+    if(c.freq==='oca'){ ocaUsed++; levelsUsed.oca=true; usedIdsThisBar.push(c.id); }
+    if(c.freq==='pun'){ punUsed++; levelsUsed.pun=true; usedIdsThisBar.push(c.id); }
+    if(c.freq==='bas') levelsUsed.bas=true;
+    if(c.freq==='rec') levelsUsed.rec=true;
+    const startTok=tokens.length;
+    c.notes.forEach(n=>{ tokens.push(typeof n==='object'?{d:n.d,t:n.t}:{d:n}); });
+    if(c.tuplet) tuplets.push({start:startTok, def:c.tuplet});
+    if(c._isForced) levelsUsed.forced4semi=true;
+    pulsesLeft-=c.pulses;
+    // actualizar densidad de semis para el siguiente pulso (regla: no 2 pulsos seguidos con 3+ semis)
+    prevSemiHeavy = (semiCountOf(c)>=3);
+    // actualizar firma rítmica (regla: no repetir el mismo patrón de pulso seguido)
+    const sig=cellSig(c); prevCellSig = sig;
+  }
+
+  return {ts, tokens, tuplets, pulses:totalPulses, levelsUsed, forcedPlaced, usedHighIds:usedIdsThisBar, usedOnceIds:usedOnceThisBar};
+}
+
+
+
+
+
+
+
+const KEYS=[
+  {key:'C',name:'Do mayor',mode:'major',keySig:'C',tonicMidi:60},
+  {key:'G',name:'Sol mayor',mode:'major',keySig:'G',tonicMidi:67},
+  {key:'D',name:'Re mayor',mode:'major',keySig:'D',tonicMidi:62},
+  {key:'F',name:'Fa mayor',mode:'major',keySig:'F',tonicMidi:65},
+  {key:'Bb',name:'Si bemol mayor',mode:'major',keySig:'Bb',tonicMidi:70},
+  {key:'Am',name:'La menor',mode:'minor',keySig:'C',tonicMidi:69},
+  {key:'Em',name:'Mi menor',mode:'minor',keySig:'G',tonicMidi:64},
+  {key:'Bm',name:'Si menor',mode:'minor',keySig:'D',tonicMidi:71},
+  {key:'Dm',name:'Re menor',mode:'minor',keySig:'F',tonicMidi:62},
+  {key:'Gm',name:'Sol menor',mode:'minor',keySig:'Bb',tonicMidi:67},
+];
+
+function toFigs(tokens){ return tokens.map(t=>({ d:t.d, isRest:(t.d||'').includes('r'), is16:(t.d||'').replace('r','')==='16' })); }
+
+// midi -> nombre vexflow
+
+// pitch classes bajadas por la armadura (bemoles) y subidas (sostenidos)
+const KEYSIG_ACC = {
+  'C':  {sharps:[], flats:[]},
+  'G':  {sharps:[6], flats:[]},          // F#
+  'D':  {sharps:[6,1], flats:[]},        // F#,C#
+  'F':  {sharps:[], flats:[10]},         // Bb
+  'Bb': {sharps:[], flats:[10,3]},       // Bb,Eb
+};
+// símbolo de alteración al alza (+1 semitono) para una nota cuyo midi YA está subido,
+// según la armadura keySig. Devuelve '#','n' (becuadro) o 'b'... normalmente '#' o 'n'.
+function accidentalForRaise(midiRaised, keySig){
+  const sig = KEYSIG_ACC[keySig] || KEYSIG_ACC['C'];
+  const pcRaised = ((midiRaised%12)+12)%12;
+  // la nota "natural" antes de subir era pcRaised-1
+  const pcBase = ((pcRaised-1)%12+12)%12;
+  // si la base estaba bemolizada por la armadura, subir un semitono la lleva al becuadro
+  if(sig.flats.includes(pcBase)) return 'n';
+  // si la nota subida coincide con un sostenido de la armadura, no hace falta accidental explícito,
+  // pero como la sensible no suele estar en la armadura, marcamos '#'
+  return '#';
+}
+
+function midiToVexKey(midi, useFlats, alt){
+  const s=['c','c#','d','d#','e','f','f#','g','g#','a','a#','b'];
+  const f=['c','db','d','eb','e','f','gb','g','ab','a','bb','b'];
+  const natural=['c',null,'d',null,'e','f',null,'g',null,'a',null,'b'];
+  const pc=((midi%12)+12)%12, oct=Math.floor(midi/12)-1;
+  let nm;
+  if(alt==='n'){ // becuadro: nombre de letra natural de este pc (debe ser natural)
+    nm = natural[pc] || s[pc];
+  } else if(alt==='#'){ nm = s[pc]; }
+  else { nm = (useFlats?f:s)[pc]; }
+  return nm+'/'+oct;
+}
+
+function generateDictado(active, opts){
+  opts=opts||{};
+  const rnd = opts.rnd || Math.random;
+  const k = opts.keyObj || KEYS[Math.floor(rnd()*KEYS.length)];
+  const tsChoices = opts.meters || ['2/4','3/4','6/8'];
+  // probabilidad por compás: 50% 6/8, 40% 2/4, 10% 3/4 (solo entre los habilitados)
+  let ts;
+  if(opts.ts){ ts=opts.ts; }
+  else {
+    const weights={'6/8':0.5,'2/4':0.4,'3/4':0.1};
+    const avail=tsChoices.filter(t=>weights[t]!=null);
+    const pool=avail.length?avail:tsChoices;
+    const total=pool.reduce((a,t)=>a+(weights[t]||0.0001),0);
+    let r=rnd()*total, acc=0; ts=pool[pool.length-1];
+    for(const t of pool){ acc+=(weights[t]||0.0001); if(r<=acc){ ts=t; break; } }
+  }
+  const useFlats=['F','Bb','Dm','Gm'].includes(k.key);
+  const lo=57, hi=76; // La3..Mi5 (límites absolutos)
+  // Ventana de registro de ESTE dictado: estrecha (~1 octava), centrada cerca de Do4-Do5,
+  // para no mezclar notas muy graves (La3-Si3) con muy agudas (Re5-Mi5) en la misma pieza.
+  // El centro flota un poco entre dictados, pero la ventana siempre cae dentro de [57,76].
+  // Ventana de registro de ESTE dictado. Se ancla en una TÓNICA concreta dentro de [57,76]
+  // y se extiende ~una octava hacia arriba, para que el dictado empiece/acabe en esa tónica
+  // y no mezcle graves con agudos. tonicMidi base está cerca de A4 (69) según la tonalidad.
+  const tpc=((k.tonicMidi%12)+12)%12;
+  // candidatas de tónica dentro del ámbito absoluto
+  const tonicCands=[];
+  for(let mm=57; mm<=76; mm++){ if(((mm%12)+12)%12===tpc) tonicCands.push(mm); }
+  // elegir una tónica baja-media como suelo de la ventana (preferimos que quepa una octava arriba)
+  const validFloors=tonicCands.filter(t=>t>=58 && t+11<=76);
+  const winFloor = validFloors.length? validFloors[Math.floor(rnd()*validFloors.length)] : (tonicCands[0]||60);
+  const regWindow = { lo: Math.max(57, winFloor-2), hi: Math.min(76, winFloor+11) };
+  const useLo = regWindow.lo;
+  const useHi = regWindow.hi;
+  const scale=scalePitches(k.tonicMidi, k.mode, useLo, useHi);
+  const tonicPc=((k.tonicMidi%12)+12)%12;
+
+  // octava de tónica más cercana al centro para empezar
+  const startTonic = (((winFloor%12)+12)%12===tonicPc) ? winFloor
+                     : scale.reduce((best,s)=> (((s.midi%12)+12)%12===tonicPc && Math.abs(s.midi-66)<Math.abs(best-66))?s.midi:best, scale[0].midi);
+
+  const PULSES=PULSES_OF[ts];
+  const measures=[];
+  let cursorMidi=startTonic;
+  let firstBarRhythm=null;
+  let fourSemiPlaced=false;
+  let presentationPlan=null;
+  const usedHighIds=new Set(); // oca/pun ya usados en el dictado (no se repiten)
+  const usedOnceIds=new Set(); // células limitadas a una vez (seisillo)
+
+  // === PLANIFICACIÓN DE NIVELES POR COMPÁS (reglas de exclusión) ===
+  // Compases normales: 0,1,2 (sistema1, c4 es cierre) y 4,5,6 (sistema2, c8 es final).
+  // Reglas: por SISTEMA, máx 1 puntual. Ocasional: no en compases adyacentes (ventana ±1).
+  // Generamos un plan {forbid:{oca,pun}} por compás respetando esto de forma probabilística.
+  const forbidPlan = new Array(8).fill(null).map(()=>({}));
+  const systems=[[0,1,2],[4,5,6]];
+  systems.forEach(sys=>{
+    let punPlaced=false;
+    let lastOcaBar=-99;
+    sys.forEach(bar=>{
+      // ¿este compás "intentará" un puntual? solo si no hay ya uno en el sistema
+      // dejamos que pickRhythm decida si sale, pero vetamos según estado:
+      const f={};
+      if(punPlaced) f.pun=true; // ya hay puntual en el sistema
+      if(bar-lastOcaBar<2) f.oca=true; // compás adyacente a un ocasional reciente
+      forbidPlan[bar]=f;
+      // Nota: como no sabemos a priori si saldrá oca/pun, marcamos tras generar (abajo).
+    });
+  });
+
+
+
+  // === PLAN DE COMBOS POR PAREJA DE COMPASES INTERIORES (regla de Iago) ===
+  // Parejas de interiores: (c2,c3)=idx[1,2] y (c6,c7)=idx[5,6]. Dentro de cada pareja, sin orden fijo:
+  //  - un compás: PUNTUAL + BÁSICO
+  //  - el otro:  RECURRENTE + OCASIONAL
+  // Tercera opción SOLO en binario (2/4,3/4), 20% por compás, sustituye al combo:
+  //  - 15%: síncopa C·N·C (b_sinc_v1, 2 pulsos)
+  //  -  5%: síncopa C·N·S·S (b_sinc_v2, 2 pulsos)
+  const comboPlan = new Array(8).fill(null);
+  const isBinaryTS = (ts==='2/4'||ts==='3/4'||ts==='4/4');
+  [[1,2],[5,6]].forEach(pair=>{
+    const roles = rnd()<0.5 ? ['pun_bas','rec_oca'] : ['rec_oca','pun_bas'];
+    pair.forEach((bar,k)=>{
+      let combo = roles[k];
+      if(isBinaryTS){
+        const r=rnd();
+        if(r<0.15) combo='sync_cnc';
+        else if(r<0.20) combo='sync_cnss';
+      }
+      comboPlan[bar]=combo;
+    });
+  });
+
+  for(let m=0;m<8;m++){
+    const isPhrase1End = (m===3);
+    const isLastMeasure = (m===7);
+    let tokens, figs, notes;
+
+    if(isLastMeasure){
+      // FINAL: 40% tónica todo el compás / 40% tónica+8va / 20% arpegio a tónica
+      const r=rnd();
+      if(r<0.40){
+        const d = ts==='3/4'?'hd' : (ts==='2/4'?'h' : 'hd');
+        const tn=nearestTonic(scale,tonicPc,cursorMidi);
+        notes=[{midi:tn, dur:'full', d:d}];
+      } else if(r<0.80){
+        // tónica (pulso1) + octava (pulso2). La octava debe quedar en [57,76].
+        const tn=nearestTonic(scale,tonicPc,cursorMidi);
+        let up = (tn+12<=hi)? tn+12 : ((tn-12>=57)? tn-12 : null);
+        if(up===null){
+          const d = ts==='3/4'?'hd' : (ts==='2/4'?'h' : 'hd');
+          notes=[{midi:tn, dur:'full', d:d}];
+        } else {
+          if(ts==='3/4'){ notes=[{midi:tn,d:'q'},{midi:up,d:'h'}]; }
+          else if(ts==='6/8'){ notes=[{midi:tn,d:'qd'},{midi:up,d:'qd'}]; }
+          else { notes=[{midi:tn,d:'q'},{midi:up,d:'q'}]; }
+        }
+      } else {
+        // arpegio a la tónica (3 notas): acorde de tónica subiendo a la tónica aguda
+        let tn=nearestTonic(scale,tonicPc,cursorMidi);
+        // el arpegio sube hasta la TÓNICA aguda (tn+12); debe caber en [57,76].
+        // bajar la base de octava hasta que tn+12<=hi y la base >=57.
+        while(tn+12>hi && tn-12>=57) tn-=12;
+        // si aun así no cabe (tonalidad muy aguda), degradar a final de tónica llena
+        if(tn+12>hi){
+          const d = ts==='3/4'?'hd' : (ts==='2/4'?'h' : 'hd');
+          const tnn=nearestTonic(scale,tonicPc,cursorMidi);
+          notes=[{midi:tnn, dur:'full', d:d}];
+          const meas0={notes:notes.map(n=>decorate(n,useFlats)), _tuplets:[]};
+          meas0.notes.forEach(n=>{ if(!n.rest){ n._lock=true; } });
+          measures.push(meas0); continue;
+        }
+        const third=tn+(k.mode==='minor'?3:4), fifth=tn+7, top=tn+12;
+        if(ts==='6/8'){
+          notes=[{midi:tn,d:'8'},{midi:third,d:'8'},{midi:fifth,d:'8'},{midi:top,d:'qd'}];
+        } else if(ts==='3/4'){
+          notes=[{midi:tn,d:'8',t:1},{midi:third,d:'8',t:1},{midi:fifth,d:'8',t:1}, {midi:top,d:'h'}];
+          notes._tuplets=[{start:0,def:{first:3,num:3,notes:2}}];
+        } else {
+          notes=[{midi:tn,d:'8',t:1},{midi:third,d:'8',t:1},{midi:fifth,d:'8',t:1}, {midi:top,d:'q'}];
+          notes._tuplets=[{start:0,def:{first:3,num:3,notes:2}}];
+        }
+      }
+      const measF={notes:notes.map(n=>decorate(n,useFlats)), _tuplets:notes._tuplets||[]};
+      measF.notes.forEach(n=>{ if(!n.rest){ n._lock=true; } });
+      measures.push(measF);
+      continue;
+    }
+
+    if(isPhrase1End){
+      // cierre frase 1: SEMICADENCIA -> nota del acorde de DOMINANTE (V).
+      // acorde de V: fundamental V (=7 semis), su 3ª = sensible (11), su 5ª = II (2 semis -> +14).
+      // preferimos la fundamental de la dominante (la quinta del tono) para que suene a semicadencia.
+      const domTones=[7,2]; // V grado y II (existen en la escala); el V da la semicadencia
+      const target=nearestChordTone(scale,tonicPc,domTones,cursorMidi);
+      if(ts==='2/4'){ notes=[{midi:target,d:'q'},{rest:true,d:'qr'}]; }
+      else if(ts==='3/4'){ notes=[{midi:target,d:'q'},{rest:true,d:'hr'}]; } // negra + silencio de blanca
+      else if(ts==='6/8'){ notes=[{midi:target,d:'qd'},{rest:true,d:'qdr'}]; } // un pulso nota, otro silencio
+      cursorMidi=target;
+      const dec4=notes.map(n=>n.rest?n:decorate(n,useFlats));
+      dec4.forEach(n=>{ if(!n.rest) n._lock=true; });
+      measures.push({notes:dec4, _tuplets:[]});
+      continue;
+    }
+
+    // compás normal — aplicar vetos según lo ya colocado en el sistema
+    const startBasic = true;
+    const sysOf = m<4? [0,1,2] : [4,5,6];
+    let punAlready=false, ocaPrev=false;
+    sysOf.forEach(b=>{ if(b<m && measures[b] && measures[b]._levels){ if(measures[b]._levels.pun) punAlready=true; } });
+    if(m-1>=0 && measures[m-1] && measures[m-1]._levels && measures[m-1]._levels.oca) ocaPrev=true;
+    const forbid={};
+    if(punAlready) forbid.pun=true;
+    if(ocaPrev) forbid.oca=true;
+    // REGLA: compases 1 y 5 (arranques de frase) -> nunca ocasional ni puntual
+    const isPhraseStart = (m===0 || m===4);
+    if(isPhraseStart){ forbid.oca=true; forbid.pun=true; }
+
+    // interiores 2,3,6,7 (idx 1,2,5,6): básico+alto, sin figura de pulso
+    const isInterior = (m===1||m===2||m===5||m===6);
+    const baseOpts = {startBasic, forbid, usedHighIds, usedOnceIds};
+    if(isInterior){ baseOpts.requireBasicPlusHigh=true; baseOpts.avoidPulseFig=true; baseOpts.startBasic=false; baseOpts.combo=comboPlan[m]; }
+    if(m===0 && ts==='6/8'){ baseOpts.startRhythm68=true; } // arranque variado en 6/8 (qd + [3cor|neg+cor|10% 6 corcheas])
+
+    let r;
+    if(m===4 && firstBarRhythm){
+      // el compás 5 IMITA RÍTMICAMENTE al compás 1 (mismo ritmo exacto; la melodía variará)
+      r = { ts, tokens: firstBarRhythm.tokens.map(t=>({d:t.d,t:t.t})), tuplets: (firstBarRhythm.tuplets||[]).map(tp=>({start:tp.start,def:tp.def})), pulses: PULSES_OF[ts], levelsUsed:{} };
+    } else {
+      r = pickRhythm(active, ts, rnd, baseOpts);
+    }
+    if(r.usedHighIds) r.usedHighIds.forEach(id=>usedHighIds.add(id));
+    if(r.usedOnceIds) r.usedOnceIds.forEach(id=>usedOnceIds.add(id));
+    if(r.levelsUsed && r.levelsUsed.forced4semi) fourSemiPlaced=true;
+    // detectar si por azar salieron las 4 semis aunque no se forzaran
+    if(r.tokens && r.tokens.length>=4){
+      // (la célula 4 semis es 4 figuras '16' seguidas en 1 pulso)
+      for(let i=0;i+3<r.tokens.length;i++){
+        if(r.tokens[i].d==='16'&&r.tokens[i+1].d==='16'&&r.tokens[i+2].d==='16'&&r.tokens[i+3].d==='16'){ fourSemiPlaced=true; break; }
+      }
+    }
+    figs=toFigs(r.tokens);
+    // ¿la última nota real del compás anterior fue semicorchea? (regla de hierro entre compases)
+    let prevBarEndedInSemi=false;
+    if(m>0 && measures.length){
+      const prevNotes=measures[measures.length-1].notes;
+      for(let z=prevNotes.length-1; z>=0; z--){ if(!prevNotes[z].rest){ prevBarEndedInSemi=(prevNotes[z].d==='16'); break; } }
+    }
+    // melodía
+    notes=assignMelody(figs, scale, m===0?startTonic:cursorMidi, rnd, prevBarEndedInSemi, regWindow);
+    // primer compás del dictado: forzar primera nota = tónica
+    if(m===0){ const fr=notes.find(n=>!n.rest); if(fr){ fr.midi=startTonic; fr.deg=1; } }
+    // COMPASES 1 y 5 (presentación): melodía muy sencilla -> escala (grado conjunto) o arpegio
+    if(m===0){
+      simplePresentation(notes, scale, startTonic, tonicPc, k.mode, rnd);
+      presentationPlan = notes.filter(n=>!n.rest).map(n=>n.midi); // melodía del c1 (para imitar en c5)
+    } else if(m===4){
+      // c5 imita la MELODÍA del c1 (mismo ritmo ya garantizado) variando ligeramente alguna nota
+      imitateMelody(notes, presentationPlan, scale, rnd);
+    }
+    const lastReal=[...notes].reverse().find(n=>!n.rest);
+    if(lastReal) cursorMidi=lastReal.midi;
+    const decorated=notes.map(n=> n.rest? n : decorate(n,useFlats));
+    measures.push({notes:decorated, _tuplets:r.tuplets||[], _levels:r.levelsUsed||{}});
+    // guardar el RITMO COMPLETO del compás 1 (para que el compás 5 lo imite exactamente)
+    if(m===0){ firstBarRhythm = { tokens: r.tokens.map(t=>({d:t.d,t:t.t})), tuplets:(r.tuplets||[]) }; }
+  }
+
+  // === GARANTÍA: las 4 semicorcheas aparecen al menos una vez ===
+  (function ensureFourSemis(){
+    const has4 = measures.some(mm=> mm.notes.some((n,j)=> n.d==='16' && mm.notes[j+1] && mm.notes[j+1].d==='16' && mm.notes[j+2] && mm.notes[j+2].d==='16' && mm.notes[j+3] && mm.notes[j+3].d==='16'));
+    if(has4) return;
+    // buscar la célula 4 semis en el catálogo activo
+    const cell = active.find(c=>c.id==='b_4semi');
+    if(!cell) return;
+    // sustituir un pulso de un interior (2,3,6,7 -> idx 1,2,5,6) por las 4 semis.
+    // preferimos un interior cuyo compás sea 2/4 o 3/4 (binario) y tenga un pulso de 1 figura sustituible.
+    const interiors=[1,2,5,6];
+    for(const bi of interiors){
+      const meas=measures[bi];
+      // localizar un pulso (en negras, 1 pulso=1 negra en binario) ocupado por figuras que sumen 1 pulso
+      // estrategia simple: si el compás es binario, reemplazar el primer pulso por las 4 semis
+      if((ts==='2/4' || ts==='3/4') && !(meas._tuplets&&meas._tuplets.length)){
+        const SC={'q':4,'8':2,'16':1,'h':8,'qd':6,'8d':3};
+        // localizar límites de pulso (cada 4 semis) que caigan EXACTO entre figuras
+        let acc=0; const bounds=[0];
+        for(let i=0;i<meas.notes.length;i++){ acc+=SC[(meas.notes[i].d||'').replace('r','')]||0; if(acc%4===0) bounds.push(i+1); }
+        // buscar un pulso [bounds[j], bounds[j+1]) que abarque exactamente 4 semis
+        let done=false;
+        for(let j=0;j+1<bounds.length && !done;j++){
+          let span=0; for(let i=bounds[j];i<bounds[j+1];i++) span+=SC[(meas.notes[i].d||'').replace('r','')]||0;
+          if(span===4){
+            const before=meas.notes.slice(0,bounds[j]);
+            const after=meas.notes.slice(bounds[j+1]);
+            const refN = (before.slice().reverse().find(n=>!n.rest)) || meas.notes.find(n=>!n.rest);
+            const startMidi = refN? refN.midi : k.tonicMidi;
+            // 4 semis por grado conjunto en la escala, con un único cambio de dirección
+            let si = scale.findIndex(s=>s.midi===startMidi);
+            if(si<0){ // buscar más cercano
+              let bd=Infinity; scale.forEach((s,ii)=>{const dd=Math.abs(s.midi-startMidi); if(dd<bd){bd=dd;si=ii;}});
+            }
+            let dir = (si < scale.length-2)? 1 : -1;
+            const changeAt = 2; // sube 2 y baja 2 (un cambio)
+            const fourMidis=[]; let cur=si;
+            for(let s=0;s<4;s++){
+              if(s===changeAt) dir=-dir;
+              let nx=cur+dir;
+              if(nx<0||nx>=scale.length){ dir=-dir; nx=cur+dir; }
+              if(scale[nx].midi<57){ dir=-dir; nx=cur+dir; }
+              cur=nx; fourMidis.push(scale[cur].midi);
+            }
+            const four=fourMidis.map(mm=>decorate({midi:mm, d:'16'}, useFlats));
+            meas.notes = before.concat(four, after);
+            meas._levels = Object.assign({}, meas._levels, {oca:true});
+            done=true;
+          }
+        }
+        if(done) return;
+      }
+    }
+  })();
+
+  // === LIMPIEZA GLOBAL FINAL (red de seguridad, un solo recorrido coherente) ===
+  (function finalClean(){
+    function idxOf(midi){ let bi=0,bd=Infinity; scale.forEach((s,ii)=>{const d=Math.abs(s.midi-midi);if(d<bd){bd=d;bi=ii;}}); return bi; }
+    function inR(idx){ return idx>=0 && idx<scale.length && scale[idx].midi>=57; }
+    function setN(n, idx){ n.midi=scale[idx].midi; n.k=midiToVexKey(scale[idx].midi, useFlats, n.alt); }
+    // construir lista plana para pasadas globales
+    const flatAll=[]; measures.forEach(m=>m.notes.forEach(n=>{ if(!n.rest) flatAll.push(n); }));
+
+    let prevIdx=null, prevLock=false;
+    measures.forEach(m=>{
+      const reals=m.notes.filter(n=>!n.rest);
+      // recorrer las notas del compás detectando runs de semicorcheas
+      let i=0; let cameFromSemi=false; let lastNormalRef=null;
+      while(i<reals.length){
+        const n=reals[i];
+        if(n.d==='16'){
+          let j=i; while(j<reals.length && reals[j].d==='16') j++;
+          const len=j-i;
+          // construir secuencia conjunta con <=1 cambio, entrando conjunto desde prevIdx
+          let startIdx;
+          if(prevIdx==null) startIdx=idxOf(reals[i].midi);
+          else { startIdx=prevIdx+1; if(!inR(startIdx)) startIdx=prevIdx-1; if(!inR(startIdx)) startIdx=idxOf(reals[i].midi); }
+          // candidatos de startIdx: el conjunto desde prevIdx (subir o bajar un grado)
+          let startCands=[];
+          if(prevIdx==null){ startCands=[idxOf(reals[i].midi)]; }
+          else { if(inR(prevIdx+1)) startCands.push(prevIdx+1); if(inR(prevIdx-1)) startCands.push(prevIdx-1); if(!startCands.length) startCands=[prevIdx]; }
+          let best=null;
+          const minCp = 2;
+          outer:
+          for(const sI of startCands){
+            for(let attempt=0; attempt<2; attempt++){
+              const dir0= attempt===0?1:-1;
+              for(let cp=len; cp>=minCp; cp--){ // cp=len => sin cambio
+                const seq=[sI]; let ok=true; let d=dir0;
+                for(let g=1; g<len; g++){ if(g===cp) d=-d; const nx=seq[g-1]+d; if(!inR(nx)){ok=false;break;} seq.push(nx); }
+                if(ok){ best=seq; break outer; }
+              }
+            }
+          }
+          if(!best){
+            // fallback: para grupos largos (>=6) forzar MONOTONÍA eligiendo inicio que quepa;
+            // para grupos cortos, oscilar suavemente.
+            let loI=0; while(loI<scale.length && scale[loI].midi<57) loI++;
+            const hiI=scale.length-1, spanAvail=hiI-loI;
+            if(len>=6){
+              // dirección preferida desde startCands[0]
+              const sI0=startCands[0];
+              let dir = (sI0 - (prevIdx==null?sI0:prevIdx) >=0)?1:-1;
+              // ¿cabe len-1 grados en esa dirección? si no, invertir; si tampoco, recortar
+              let start;
+              if(dir===1){ start=Math.min(sI0, hiI-(len-1)); if(start<loI){ dir=-1; } }
+              if(dir===-1){ start=Math.max(sI0, loI+(len-1)); if(start>hiI){ dir=1; start=Math.min(sI0,hiI-(len-1)); if(start<loI)start=loI; } }
+              best=[start]; let cur=start;
+              for(let g=1; g<len; g++){ let nx=cur+dir; if(nx<loI||nx>hiI) nx=cur+(dir>0?-1:1); if(nx<loI||nx>hiI) nx=cur; cur=nx; best.push(cur); }
+            } else {
+              const sI=startCands[0];
+              best=[sI]; let d= inR(sI+1)?1:-1;
+              for(let g=1; g<len; g++){ let nx=best[g-1]+d; if(!inR(nx)){ d=-d; nx=best[g-1]+d; } if(!inR(nx)) nx=best[g-1]; best.push(nx); }
+            }
+          }
+          // nota siguiente al grupo (dentro del compás o el inicio del siguiente compás)
+          let nextMidi=null, nextLocked=false;
+          if(j<reals.length){ nextMidi=reals[j].midi; nextLocked=!!reals[j]._lock; }
+          else {
+            // primera nota real del siguiente compás
+            const mIdx=measures.indexOf(m);
+            for(let mm=mIdx+1; mm<measures.length; mm++){ const fn=measures[mm].notes.find(x=>!x.rest); if(fn){ nextMidi=fn.midi; nextLocked=!!fn._lock; break; } }
+          }
+          // si el grupo terminaría en la misma nota que la siguiente (y esa siguiente no se puede mover),
+          // recalcular para terminar en un grado distinto pero conjunto.
+          if(nextMidi!=null && scale[best[best.length-1]] && scale[best[best.length-1]].midi===nextMidi){
+            // intentar otra secuencia cuyo último índice tenga midi != nextMidi
+            let alt=null;
+            outer2:
+            for(const sI of startCands){
+              for(let attempt=0; attempt<2; attempt++){
+                const dir0=attempt===0?1:-1;
+                for(let cp=len; cp>=2; cp--){
+                  const seq=[sI]; let ok=true; let d=dir0;
+                  for(let g=1; g<len; g++){ if(g===cp) d=-d; const nx=seq[g-1]+d; if(!inR(nx)){ok=false;break;} seq.push(nx); }
+                  if(ok && scale[seq[len-1]].midi!==nextMidi){ alt=seq; break outer2; }
+                }
+              }
+            }
+            if(alt) best=alt;
+          }
+          startIdx=best[0];
+          for(let g=0; g<len; g++){ if(!reals[i+g]._lock) setN(reals[i+g], best[g]); }
+          prevIdx=idxOf(reals[j-1].midi); prevLock=!!reals[j-1]._lock;
+          cameFromSemi=true;
+          i=j; continue;
+        }
+        // nota normal
+        if(!n._lock){
+          let ci=idxOf(n.midi);
+          if(cameFromSemi && prevIdx!=null && Math.abs(ci-prevIdx)>1){ ci = inR(prevIdx+1)? prevIdx+1 : prevIdx-1; }
+          if(prevIdx!=null && ci===prevIdx){ ci = inR(prevIdx+1)? prevIdx+1 : prevIdx-1; if(ci===prevIdx) ci= inR(prevIdx-1)?prevIdx-1:prevIdx+1; }
+          // LÍMITE DE OCTAVA: si el intervalo con la anterior supera 12 semis, acercar
+          if(prevIdx!=null){ let g=0; while(Math.abs(scale[ci].midi-scale[prevIdx].midi)>12 && g++<12){ ci += (scale[ci].midi>scale[prevIdx].midi?-1:1); if(!inR(ci)){ ci-=(scale[ci].midi>scale[prevIdx].midi?-1:1); break; } } }
+          if(inR(ci)) setN(n, ci);
+          prevIdx=idxOf(n.midi);
+        } else {
+          // nota locked: si el salto desde la anterior (no locked) supera la octava, acercar la anterior
+          const lockIdx=idxOf(n.midi);
+          if(prevIdx!=null && !prevLock && Math.abs(scale[lockIdx].midi-scale[prevIdx].midi)>12){
+            // mover la nota anterior (la última que pusimos) hacia la locked
+            let pi=prevIdx, g=0;
+            while(Math.abs(scale[lockIdx].midi-scale[pi].midi)>12 && g++<12){ pi += (scale[pi].midi>scale[lockIdx].midi?-1:1); if(!inR(pi)){ pi-=(scale[pi].midi>scale[lockIdx].midi?-1:1); break; } }
+            if(inR(pi) && lastNormalRef){ setN(lastNormalRef, pi); }
+          }
+          prevIdx=lockIdx;
+        }
+        if(!n._lock) lastNormalRef=n;
+        cameFromSemi=false;
+        prevLock=!!n._lock;
+        i++;
+      }
+    });
+    // no repetición global final (respeta locked), iterando hasta converger
+    const flat=[]; measures.forEach(m=>m.notes.forEach(n=>{ if(!n.rest) flat.push(n); }));
+    for(let pass=0; pass<4; pass++){
+      let changed=false;
+      for(let i=1;i<flat.length;i++){
+        if(flat[i].midi===flat[i-1].midi){
+          // preferimos mover la nota que NO sea semicorchea (para no romper grupos conjuntos);
+          // si ambas son semi o ninguna lo es, mover la no-locked.
+          const iIsSemi = flat[i].d==='16', pIsSemi=flat[i-1].d==='16';
+          let t;
+          if(iIsSemi && !pIsSemi && !flat[i-1]._lock) t=i-1;
+          else if(pIsSemi && !iIsSemi && !flat[i]._lock) t=i;
+          else t = !flat[i]._lock? i : (!flat[i-1]._lock? i-1 : -1);
+          if(t<0) continue;
+          // si la nota a mover es semicorchea, desplazarla solo un grado (mantener conjunción con su grupo)
+          let ci=idxOf(flat[t].midi);
+          const tIsSemi = flat[t].d==='16';
+          let cands = tIsSemi? [ci+1,ci-1] : [ci+1,ci-1,ci+2,ci-2];
+          let done=false;
+          for(const alt of cands){
+            if(!inR(alt)) continue;
+            const before = flat[t-1]? flat[t-1].midi : null;
+            const after = flat[t+1]? flat[t+1].midi : null;
+            if(scale[alt].midi!==before && scale[alt].midi!==after){ setN(flat[t], alt); changed=true; done=true; break; }
+          }
+          // si no se pudo mover la elegida (p.ej. semi encajonada), mover la otra del par
+          if(!done){
+            const t2 = t===i? (flat[i-1]._lock?-1:i-1) : (flat[i]._lock?-1:i);
+            if(t2>=0){ let ci2=idxOf(flat[t2].midi); for(const alt of [ci2+1,ci2-1,ci2+2,ci2-2]){ if(!inR(alt))continue; const before=flat[t2-1]?flat[t2-1].midi:null; const after=flat[t2+1]?flat[t2+1].midi:null; if(scale[alt].midi!==before&&scale[alt].midi!==after){ setN(flat[t2],alt); changed=true; break; } } }
+          }
+        }
+      }
+      if(!changed) break;
+    }
+// --- saneamiento melódico (semis conjuntas/monótonas + no repetición) ---
+  // Garantiza, después de TODO: dentro de grupos de semicorcheas grado conjunto;
+  // seisillos (>=6) monótonos (una dirección); no-repetición de nota consecutiva.
+  // La nota que SALE de un grupo de semis solo se exige conjunta, sin imponer dirección.
+    (function sanitizeMelody(){
+    function idxOf(midi){ let bi=0,bd=Infinity; scale.forEach((s,ii)=>{const dd=Math.abs(s.midi-midi);if(dd<bd){bd=dd;bi=ii;}}); return bi; }
+    let loI=0; while(loI<scale.length && scale[loI].midi<57) loI++;
+    const hiI=scale.length-1;
+    function clampR(idx){ if(idx<loI) idx=loI; if(idx>hiI) idx=hiI; return idx; }
+    function setN(n,idx){ idx=clampR(idx); n.midi=scale[idx].midi; n.k=midiToVexKey(scale[idx].midi, useFlats, n.alt); return idx; }
+    // lista plana con referencia y flags
+    const flat=[]; measures.forEach(m=>m.notes.forEach(n=>{ if(!n.rest) flat.push(n); }));
+    if(!flat.length) return;
+    let idxs=flat.map(n=>idxOf(n.midi));
+    // 1) grupos de semicorcheas: conjunción + (monotonía si len>=6, si no <=1 cambio)
+    let q=0;
+    while(q<flat.length){
+      if(flat[q].d!=='16'){ q++; continue; }
+      let r=q; while(r<flat.length && flat[r].d==='16') r++;
+      const len=r-q;
+      if(len>=2){
+        const prevI = q>0? idxs[q-1] : null;
+        let start = prevI==null? idxs[q] : (prevI+1<=hiI? prevI+1 : prevI-1);
+        if(start<loI) start=loI;
+        let dir = (len>1 && idxs[q+1]<idxs[q])? -1 : 1;
+        if(len>=6){
+          // SEISILLO: línea recta (monótono). Recolocar inicio para que quepa.
+          if(dir===1 && start+(len-1)>hiI) start=Math.max(loI, hiI-(len-1));
+          if(dir===-1 && start-(len-1)<loI) start=Math.min(hiI, loI+(len-1));
+          if(start<loI) start=loI; if(start>hiI) start=hiI;
+          if(dir===1 && start+(len-1)>hiI){ dir=-1; start=Math.min(hiI, loI+(len-1)); }
+          else if(dir===-1 && start-(len-1)<loI){ dir=1; start=Math.max(loI, hiI-(len-1)); }
+          let cur=start; if(!flat[q]._lock) setN(flat[q], cur); idxs[q]=cur;
+          for(let g=1; g<len; g++){ let nx=cur+dir; if(nx<loI||nx>hiI) nx=cur; cur=nx; if(!flat[q+g]._lock) setN(flat[q+g], cur); idxs[q+g]=cur; }
+        } else {
+          // GRUPO CORTO (2 o 4 semis): conjunto, con COMO MUCHO un cambio de dirección.
+          // Detectamos en qué paso gira el contorno original y reproducimos un único giro ahí.
+          if(!flat[q]._lock){ idxs[q]=setN(flat[q], clampR(start)); }
+          // localizar el primer punto de giro del contorno original
+          let turnAt=-1, d0=dir;
+          for(let g=1; g<len; g++){ const w=(idxs[q+g]>=idxs[q+g-1])?1:-1; if(g===1){ d0=w; } else if(w!==d0){ turnAt=g; break; } }
+          let curDir=d0, turned=false;
+          let cur=idxs[q];
+          for(let g=1; g<len; g++){
+            if(g===turnAt && !turned){ curDir=-curDir; turned=true; }
+            let nx=cur+curDir;
+            if(nx<loI||nx>hiI){ curDir=-curDir; turned=true; nx=cur+curDir; if(nx<loI||nx>hiI) nx=cur; }
+            cur=nx;
+            if(!flat[q+g]._lock){ idxs[q+g]=setN(flat[q+g], cur); }
+          }
+        }
+      }
+      q=r;
+    }
+    // 2) no-repetición consecutiva (respeta locked; no rompe conjunción de semis: mueve la otra nota)
+    for(let pass=0; pass<4; pass++){
+      let changed=false;
+      for(let i=1;i<flat.length;i++){
+        if(flat[i].midi===flat[i-1].midi){
+          // mover preferentemente una nota que NO sea semicorchea
+          const iSemi=flat[i].d==='16', pSemi=flat[i-1].d==='16';
+          let t = (iSemi&&!pSemi&&!flat[i-1]._lock)? i-1 : (pSemi&&!iSemi&&!flat[i]._lock)? i : (!flat[i]._lock? i : (!flat[i-1]._lock? i-1 : -1));
+          if(t<0) continue;
+          let ci=idxs[t];
+          // para semis encajonadas en frontera con nota locked, permitir hasta ±2 como último recurso
+          const cands = flat[t].d==='16'? [ci+1,ci-1,ci-2,ci+2] : [ci+1,ci-1,ci+2,ci-2];
+          for(const alt of cands){ if(alt<loI||alt>hiI) continue; const before=flat[t-1]?flat[t-1].midi:null; const after=flat[t+1]?flat[t+1].midi:null; if(scale[alt].midi!==before&&scale[alt].midi!==after){ idxs[t]=setN(flat[t],alt); changed=true; break; } }
+        }
+      }
+      if(!changed) break;
+    }
+    // 3) reparación de conjunción dentro de grupos de semis
+    let qq=0;
+    while(qq<flat.length){
+      if(flat[qq].d!=='16'){ qq++; continue; }
+      let rr=qq; while(rr<flat.length && flat[rr].d==='16') rr++;
+      const gdir = (rr-qq>=2)? (idxs[qq+1]>=idxs[qq]?1:-1) : 1; // dirección monótona del grupo
+      for(let g=qq+1; g<rr; g++){
+        if(Math.abs(flat[g].midi-flat[g-1].midi)>2 && !flat[g]._lock){
+          let cand=clampR(idxs[g-1]+gdir);
+          if(cand===idxs[g-1]) cand=clampR(idxs[g-1]-gdir); // si topa, el otro lado (último recurso)
+          idxs[g]=setN(flat[g], cand);
+        }
+      }
+      qq=rr;
+    }
+    })();
+        // LLEGADA A LA TÓNICA FINAL: la última nota del compás 7 debe estar a 2ª (1-2 semis)
+    // o a 4ª justa ascendente (5 semis, solo si es corchea) respecto a la tónica del compás 8.
+    (function approachFinal(){
+      const m8=measures[7]; const m7=measures[6];
+      if(!m8||!m7) return;
+      const tnFirst=m8.notes.find(n=>!n.rest); if(!tnFirst) return;
+      const tonicMidiFinal=tnFirst.midi;
+      let li=-1; for(let i=m7.notes.length-1;i>=0;i--){ if(!m7.notes[i].rest){ li=i; break; } }
+      if(li<0) return;
+      const ln=m7.notes[li];
+      if(ln._lock) return;
+      function idxScale(midi){ return scale.findIndex(s=>s.midi===midi); }
+      function inR(idx){ return idx>=0 && idx<scale.length && scale[idx].midi>=57; }
+      const isEighth=(ln.d==='8'), isSemi=(ln.d==='16');
+      const iv=tonicMidiFinal-ln.midi, absiv=Math.abs(iv);
+      const ok = (absiv>=1 && absiv<=2) || (iv===5 && isEighth); // 2ª, o 4ª justa ascendente en corchea
+      if(ok) return;
+      // destino: una 2ª de la tónica (grado adyacente). En semicorchea solo 2ª; en corchea también 4ªJ asc.
+      const tIdx=idxScale(tonicMidiFinal);
+      const cands=[];
+      if(tIdx-1>=0) cands.push({idx:tIdx-1, need8:false});
+      if(tIdx+1<scale.length) cands.push({idx:tIdx+1, need8:false});
+      if(isEighth){ const f=idxScale(tonicMidiFinal-5); if(f>=0) cands.push({idx:f, need8:true}); }
+      // nota anterior real (para no repetir)
+      let prevRealMidi=null; for(let x=li-1;x>=0;x--){ if(!m7.notes[x].rest){ prevRealMidi=m7.notes[x].midi; break; } }
+      // elegir destino válido más cercano a la nota actual y distinto de la anterior
+      let dest=null, bd=Infinity;
+      cands.forEach(c=>{ if(!inR(c.idx)) return; if(c.need8 && !isEighth) return; const mm=scale[c.idx].midi; if(mm===prevRealMidi) return; const dd=Math.abs(mm-ln.midi); if(dd<bd){ bd=dd; dest=c.idx; } });
+      if(dest==null) return;
+      if(!isSemi){
+        // nota suelta (corchea/negra): basta moverla al destino
+        ln.midi=scale[dest].midi; ln.k=midiToVexKey(scale[dest].midi, useFlats, ln.alt);
+        return;
+      }
+      // SEMICORCHEA final: NO reconstruimos el grupo. La conjunción dentro y a la salida del
+      // grupo es prioridad absoluta (la garantiza runSanitize). No rompemos el grupo por
+      // forzar la 2ª exacta a la tónica; la llegada será la conjunta que resulte.
+      return;
+    })();
+  })();
+
+
+
+
+
+
+  // ===== REGLA DE HIERRO FINAL: tras CUALQUIER semicorchea, la nota siguiente a 2ª (<=2 semis),
+  //       cruzando compases. Última autoridad, tras sensible/approachFinal. No mueve semis del grupo
+  //       (esas ya son conjuntas); ajusta la NOTA SIGUIENTE (o, si está locked, la última semi). =====
+  (function secondAfterSemi(){
+    const sc = scale;
+    function idxOf(midi){ let bi=0,bd=Infinity; sc.forEach((s,ii)=>{const dd=Math.abs(s.midi-midi);if(dd<bd){bd=dd;bi=ii;}}); return bi; }
+    let loI=0; while(loI<sc.length && sc[loI].midi<57) loI++; const hiI=sc.length-1;
+    function clampR(idx){ return Math.max(loI, Math.min(hiI, idx)); }
+    function setN(n,idx){ idx=clampR(idx); n.midi=sc[idx].midi; n.k=midiToVexKey(sc[idx].midi, useFlats, n.alt); return idx; }
+    const flat=[]; measures.forEach(m=>m.notes.forEach(n=>{ if(!n.rest) flat.push(n); }));
+    // 0) re-sanear SOLO seisillos (>=6) a línea recta (por si quedó algún salto interno).
+    //    Los grupos de 2 o 4 semis NO se aplanan: pueden girar (su conjunción ya está garantizada).
+    {
+      let q=0;
+      while(q<flat.length){
+        if(flat[q].d!=='16'){ q++; continue; }
+        let r=q; while(r<flat.length && flat[r].d==='16') r++;
+        const len=r-q;
+        if(len>=6){
+          const prevI = q>0? idxOf(flat[q-1].midi) : null;
+          let start = prevI==null? idxOf(flat[q].midi) : (prevI+1<=hiI? prevI+1 : prevI-1);
+          if(start<loI) start=loI;
+          let dir = (len>1 && idxOf(flat[q+1].midi)<idxOf(flat[q].midi))? -1 : 1;
+          if(dir===1 && start+(len-1)>hiI) start=Math.max(loI,hiI-(len-1));
+          if(dir===-1 && start-(len-1)<loI) start=Math.min(hiI,loI+(len-1));
+          if(start<loI)start=loI; if(start>hiI)start=hiI;
+          let cur=start;
+          for(let g=0; g<len; g++){ if(g>0){ let nx=cur+dir; if(nx<loI||nx>hiI) nx=cur; cur=nx; } if(!flat[q+g]._lock) setN(flat[q+g], cur); }
+        }
+        q=r;
+      }
+    }
+    for(let pass=0; pass<4; pass++){
+      let moved=false;
+      for(let i=1;i<flat.length;i++){
+        if(flat[i-1].d!=='16') continue;       // anterior debe ser semicorchea
+        if(flat[i].d==='16') continue;          // si la siguiente es semi, ya es conjunta (grupo)
+        const gap=Math.abs(flat[i].midi-flat[i-1].midi);
+        if(gap<=2) continue;
+        const semiIdx=idxOf(flat[i-1].midi);
+        if(!flat[i]._lock){
+          // mover la nota siguiente a 2ª de la semicorchea (preferente dirección contraria al grupo)
+          let gdir=1; if(i-2>=0 && flat[i-2].d==='16') gdir=(idxOf(flat[i-1].midi)>=idxOf(flat[i-2].midi))?1:-1;
+          const prefDown=(gdir>=0);
+          const o1=prefDown? semiIdx-1 : semiIdx+1;
+          const o2=prefDown? semiIdx+1 : semiIdx-1;
+          const after=flat[i+1]?flat[i+1].midi:null;
+          let placed=false;
+          for(const c of [o1,o2]){ if(c<loI||c>hiI) continue; if(sc[c].midi===flat[i-1].midi) continue; if(after!=null&&sc[c].midi===after) continue; setN(flat[i],c); placed=true; moved=true; break; }
+          if(!placed){ setN(flat[i], clampR(semiIdx-1)); moved=true; }
+        } else {
+          // nota siguiente locked: reconstruir el grupo de semis para que aterrice a 2ª de la locked,
+          // de forma conjunta y monótona (la última semi a 2ª de la locked).
+          if(flat[i-1]._lock) continue;
+          // localizar el grupo de semis que termina en i-1
+          let gs=i-1; while(gs-1>=0 && flat[gs-1].d==='16' && !flat[gs-1]._lock) gs--;
+          const glen=(i-1)-gs+1;
+          const lockIdx=idxOf(flat[i].midi);
+          // destino de la última semi: grado adyacente a la locked (2ª), preferente el que permita
+          // construir el grupo hacia atrás de forma conjunta
+          const destCands=[lockIdx-1, lockIdx+1].filter(c=>c>=loI&&c<=hiI && sc[c].midi!==flat[i].midi);
+          // nota previa al grupo (para conjunción de entrada)
+          const before=(gs-1>=0)?idxOf(flat[gs-1].midi):null;
+          let done=false;
+          // intento 1: grupo conjunto que aterriza en dest Y entra conjunto desde 'before'
+          for(const dest of destCands){
+            for(const dir of [1,-1]){
+              const seq=new Array(glen); seq[glen-1]=dest; let ok=true;
+              for(let g=glen-2; g>=0; g--){ const ni=seq[g+1]-dir; if(ni<loI||ni>hiI){ok=false;break;} seq[g]=ni; }
+              if(!ok) continue;
+              if(before!=null && Math.abs(seq[0]-before)>1) continue; // entrada conjunta
+              for(let g=0; g<glen; g++){ if(!flat[gs+g]._lock) setN(flat[gs+g], seq[g]); }
+              done=true; break;
+            }
+            if(done) break;
+          }
+          // intento 2: aterriza en dest con grupo conjunto, aunque la ENTRADA salte (la nota previa
+          // no es semicorchea, así que un salto de 3ª a la entrada es admisible). La regla de hierro
+          // (tras semicorchea, 2ª) se respeta SIEMPRE; lo que se relaja es la entrada AL grupo.
+          if(!done){
+            for(const dest of destCands){
+              for(const dir of [1,-1]){
+                const seq=new Array(glen); seq[glen-1]=dest; let ok=true;
+                for(let g=glen-2; g>=0; g--){ const ni=seq[g+1]-dir; if(ni<loI||ni>hiI){ok=false;break;} seq[g]=ni; }
+                if(!ok) continue;
+                for(let g=0; g<glen; g++){ if(!flat[gs+g]._lock) setN(flat[gs+g], seq[g]); }
+                done=true; break;
+              }
+              if(done) break;
+            }
+          }
+          if(done){ moved=true; }
+          // si aun así !done (ámbito imposible), no tocamos (prioridad: conjunción interna)
+        }
+      }
+      if(!moved) break;
+    }
+    // no-repetición final (tras reconstrucciones): mueve la nota no-semi del par; nunca rompe
+    // la regla de hierro (si una vecina es semicorchea, el resultado queda a 2ª de ella).
+    for(let pass=0; pass<4; pass++){
+      let changed=false;
+      for(let i=1;i<flat.length;i++){
+        if(flat[i].midi!==flat[i-1].midi) continue;
+        const iSemi=flat[i].d==='16', pSemi=flat[i-1].d==='16';
+        let t = (iSemi&&!pSemi&&!flat[i-1]._lock)? i-1 : (pSemi&&!iSemi&&!flat[i]._lock)? i : (!flat[i]._lock? i : (!flat[i-1]._lock? i-1 : -1));
+        if(t<0) continue;
+        let ci=idxOf(flat[t].midi);
+        // ¿hay una semicorchea pegada a 't'? entonces el destino debe quedar a <=1 grado de ella
+        const prevIsSemi = (t-1>=0) && flat[t-1].d==='16';
+        const nextIsSemi = (t+1<flat.length) && flat[t+1].d==='16';
+        let cands = flat[t].d==='16'? [ci+1,ci-1] : [ci+1,ci-1,ci+2,ci-2];
+        for(const alt of cands){
+          if(alt<loI||alt>hiI) continue;
+          const before=flat[t-1]?flat[t-1].midi:null, after=flat[t+1]?flat[t+1].midi:null;
+          if(sc[alt].midi===before||sc[alt].midi===after) continue;
+          // REGLA DE HIERRO: si la vecina es semicorchea, el salto a ella no puede superar la 2ª
+          if(prevIsSemi && Math.abs(sc[alt].midi-flat[t-1].midi)>2) continue;
+          if(nextIsSemi && Math.abs(sc[alt].midi-flat[t+1].midi)>2) continue;
+          setN(flat[t],alt); changed=true; break;
+        }
+      }
+      if(!changed) break;
+    }
+  })();
+
+  // (sensible aplicada al final, tras todas las reescrituras melódicas)
+  // === SENSIBLE / MENOR MELÓDICO (única fuente de alteraciones) ===
+  if(k.mode==='minor'){
+    const flatAll=[];
+    measures.forEach(m=>{ m.notes.forEach(n=>{ if(!n.rest){ flatAll.push(n); delete n.alt; delete n.altUp; } }); });
+    applyMinorLeading(flatAll, k.tonicMidi);
+    // MÁXIMO 3 ALTERACIONES por dictado: conservar preferentemente las sensibles (VII->I)
+    let altered=flatAll.filter(n=>n.altUp);
+    if(altered.length>3){
+      const idxOfNote=(n)=>flatAll.indexOf(n);
+      altered.forEach(n=>{ const rel=((n.midi-k.tonicMidi)%12+12)%12; n._prio=(rel===11)?2:1; });
+      altered.sort((a,b)=> (b._prio-a._prio) || (idxOfNote(a)-idxOfNote(b)));
+      const keep=new Set(altered.slice(0,3));
+      altered.forEach(n=>{ if(!keep.has(n)){ n.midi-=1; delete n.altUp; } });
+    }
+    // símbolo según armadura; persistencia en el compás (no repetir el accidental en la misma nota)
+    measures.forEach(m=>{
+      const seen=new Set();
+      m.notes.forEach(n=>{
+        if(n.rest) return;
+        if(n.altUp){
+          n.alt = accidentalForRaise(n.midi, k.keySig);
+          if(seen.has(n.midi)) delete n.alt; else seen.add(n.midi);
+        }
+        n.k=midiToVexKey(n.midi, useFlats, n.alt);
+      });
+    });
+  } else {
+    measures.forEach(m=>{ m.notes.forEach(n=>{ if(!n.rest) delete n.alt; }); });
+  }
+
+  return {
+    key:k.key, name:k.name, mode:k.mode, keySig:k.keySig, tonicMidi:k.tonicMidi,
+    ts, beatsPerBar:PULSES, pulseFig:(ts==='6/8'||ts==='3/8'||ts==='9/8')?'qd':'q',
+    measures
+  };
+
+  function decorate(n, uf){
+    let midi=n.midi;
+    const vk=midiToVexKey(midi, uf);
+    return {k:vk, midi:midi, d:n.d, t:n.t, dur:n.dur, alt:n.alt};
+  }
+}
+
+// === helpers para "primer pulso igual" entre frases ===
+const _DB={'q':1,'8':0.5,'16':0.25,'h':2,'qd':1.5,'8d':0.75};
+function pulseBeats(ts){ return (ts==='6/8'||ts==='3/8'||ts==='9/8')?1.5:1; }
+
+// captura las figuras (y notas) que ocupan el PRIMER PULSO del compás generado
+function captureFirstPulse(r, decoratedNotes, ts){
+  const PB=pulseBeats(ts);
+  // recorrer tokens sumando duración hasta completar 1 pulso
+  let acc=0; const toks=[]; const noteRefs=[];
+  let noteCursor=0; // índice de nota real
+  for(let i=0;i<r.tokens.length;i++){
+    const t=r.tokens[i];
+    const dur=_DB[(t.d||'').replace('r','')]||1;
+    toks.push({d:t.d, t:t.t});
+    if(!(t.d||'').includes('r')){
+      // emparejar con la nota decorada correspondiente
+      noteRefs.push(decoratedNotes[i]? {midi:decoratedNotes[i].midi, k:decoratedNotes[i].k, alt:decoratedNotes[i].alt} : null);
+    } else {
+      noteRefs.push(null);
+    }
+    acc+=dur;
+    if(acc>=PB-1e-9) break;
+  }
+  return {tokens:toks, notes:noteRefs, ts};
+}
+
+// genera un compás cuyo primer pulso son las figuras fijadas, y el resto libre
+function pickWithFixedFirstPulse(active, ts, rnd, opts, plan){
+  // generamos un compás normal y le sustituimos las figuras del primer pulso
+  // estrategia simple: tomar plan.tokens como inicio, luego completar el resto con pickRhythm
+  // para los pulsos restantes.
+  const PULSES=PULSES_OF[ts];
+  // el primer pulso ya ocupa 1 pulso (las células del catálogo son de 1-2 pulsos; el primer pulso del c1
+  // proviene de una célula de 1 pulso casi siempre). Asumimos que plan cubre 1 pulso.
+  const restPulses=PULSES-1;
+  // generar el resto con pickRhythm sobre un compás "virtual" del mismo nº de pulsos restantes
+  // truco: generamos un compás completo y nos quedamos con sus pulsos a partir del 2º
+  let attempt=pickRhythm(active, ts, rnd, opts);
+  // reconstruir: tokens del plan + tokens del attempt que caen después del primer pulso
+  const PB=pulseBeats(ts);
+  // quitar del attempt las figuras del primer pulso
+  let acc=0, cut=0;
+  for(let i=0;i<attempt.tokens.length;i++){ const dur=_DB[(attempt.tokens[i].d||'').replace('r','')]||1; acc+=dur; cut=i+1; if(acc>=PB-1e-9) break; }
+  const restToks=attempt.tokens.slice(cut);
+  const tokens=plan.tokens.map(t=>({d:t.d, t:t.t})).concat(restToks);
+  // recalcular tuplets del attempt desplazados (raro en pulso1; lo simplificamos: sin tuplets heredados del plan)
+  const tuplets=(attempt.tuplets||[]).map(tp=>({start:tp.start - cut + plan.tokens.length, def:tp.def})).filter(tp=>tp.start>=plan.tokens.length);
+  return {ts, tokens, tuplets, pulses:PULSES, levelsUsed:attempt.levelsUsed||{}};
+}
+
+// fuerza que las notas del primer pulso del compás 5 sean iguales a las del compás 1
+function copyFirstPulseNotes(notes, plan, ts){
+  // notes: array de notas asignadas (con rests). plan.notes: notas del primer pulso del c1.
+  let pi=0;
+  for(let i=0;i<notes.length && pi<plan.notes.length;i++){
+    // saltar rests en notes para alinear con plan (que también tiene nulls en sus rests)
+    const planEntry=plan.notes[pi];
+    if(notes[i].rest){
+      // si el plan también marca rest aquí, avanzar
+      if(planEntry===null) pi++;
+      continue;
+    }
+    if(planEntry && planEntry.midi!=null){
+      notes[i].midi=planEntry.midi;
+      notes[i].deg=undefined;
+      if(planEntry.alt) notes[i].alt=planEntry.alt; else delete notes[i].alt;
+    }
+    pi++;
+  }
+}
+
+
+// el compás 5 imita la MELODÍA del compás 1 (mismo ritmo) variando solo un poco:
+// copia las notas del c1 y cambia ligeramente 1-2 notas interiores por grado conjunto.
+function imitateMelody(notes, plan, scale, rnd){
+  if(!plan || !plan.length) return;
+  const reals=notes.filter(n=>!n.rest);
+  const n=Math.min(reals.length, plan.length);
+  for(let i=0;i<n;i++){ reals[i].midi=plan[i]; reals[i].deg=undefined; delete reals[i].alt; }
+  // variar ligeramente: mover 1 o 2 notas NO extremas un grado (sin tocar la primera ni la última)
+  function idxOf(midi){ let bi=0,bd=Infinity; scale.forEach((s,ii)=>{const d=Math.abs(s.midi-midi);if(d<bd){bd=d;bi=ii;}}); return bi; }
+  let loI=0; while(loI<scale.length && scale[loI].midi<57) loI++; const hiI=scale.length-1;
+  const nVar = 1 + (rnd()<0.4?1:0);
+  for(let v=0; v<nVar; v++){
+    if(n<=2) break;
+    const pos = 1 + Math.floor(rnd()*(n-2)); // interior
+    let ci=idxOf(reals[pos].midi);
+    const dir = rnd()<0.5?1:-1;
+    let nc=ci+dir; if(nc<loI||nc>hiI) nc=ci-dir;
+    if(nc>=loI&&nc<=hiI){ reals[pos].midi=scale[nc].midi; reals[pos].deg=undefined; }
+  }
+}
+
+
+// compás de presentación (1 y 5): escala por grado conjunto o arpegio de tónica
+function simplePresentation(notes, scale, startMidi, tonicPc, mode, rnd){
+  const reals=notes.filter(n=>!n.rest);
+  if(!reals.length) return;
+  function idxOf(midi){ let bi=0,bd=Infinity; scale.forEach((s,ii)=>{const d=Math.abs(s.midi-midi);if(d<bd){bd=d;bi=ii;}}); return bi; }
+  function clampUp(idx){ if(idx<0)idx=0; if(idx>=scale.length)idx=scale.length-1; while(idx<scale.length&&scale[idx].midi<57)idx++; return Math.min(idx,scale.length-1); }
+  let si=idxOf(startMidi);
+  const useArpeggio = rnd()<0.4;
+  if(useArpeggio){
+    // ARPEGIO DE PRESENTACIÓN: como mucho 3 notas del acorde de tónica (1-3-5) en una dirección,
+    // y a partir de ahí COMPENSAR por grado conjunto en dirección contraria (regla de Iago:
+    // máximo arpegio de 3 notas, luego resolver al contrario). Empieza siempre en la tónica.
+    const dir = rnd()<0.5?1:-1;          // dirección del arpegio
+    const chordPC=[tonicPc,(tonicPc+(mode==='minor'?3:4))%12,(tonicPc+7)%12];
+    let cur=si;
+    // asegurar que arranca en una nota del acorde (idealmente la tónica de salida)
+    let g0=0; while(g0<8 && !chordPC.includes(((scale[cur].midi%12)+12)%12)){ cur=clampUp(cur+1); g0++; }
+    const arpCount=Math.min(3, reals.length);   // 3 notas de arpegio como máximo
+    for(let q=0;q<reals.length;q++){
+      if(q===0){
+        // primera nota: la de salida (acorde)
+      } else if(q<arpCount){
+        // siguiente grado del acorde en la dirección del arpegio
+        let steps=0;
+        do{ cur=clampUp(cur+dir); steps++; }while(steps<8 && !chordPC.includes(((scale[cur].midi%12)+12)%12));
+      } else {
+        // COMPENSACIÓN: grado conjunto en dirección CONTRARIA al arpegio
+        let nx=cur-dir;
+        if(nx<0||nx>=scale.length||scale[nx].midi<57){ nx=cur+dir; } // si topa, el otro lado
+        cur=clampUp(nx);
+      }
+      reals[q].midi=scale[cur].midi; reals[q].deg=scale[cur].deg;
+    }
+  } else {
+    // escala por grado conjunto, dirección elegida, con posible un cambio si se sale de ámbito
+    let dir = rnd()<0.5?1:-1;
+    let cur=si;
+    for(let q=0;q<reals.length;q++){
+      if(q>0){
+        let nx=cur+dir;
+        if(nx<0||nx>=scale.length||scale[nx].midi<57){ dir=-dir; nx=cur+dir; if(nx<0||nx>=scale.length)nx=cur; }
+        cur=clampUp(nx);
+      }
+      reals[q].midi=scale[cur].midi; reals[q].deg=scale[cur].deg;
+    }
+  }
+}
+
+function nearestTonic(scale,tonicPc,ref){
+  let best=null,bd=Infinity;
+  scale.forEach(s=>{ if(((s.midi%12)+12)%12===tonicPc){ const d=Math.abs(s.midi-ref); if(d<bd){bd=d;best=s.midi;} } });
+  return best!=null?best:ref;
+}
+function nearestChordTone(scale,tonicPc,chordSemis,ref){
+  const pcs=chordSemis.map(s=>((tonicPc+s)%12+12)%12);
+  let best=null,bd=Infinity;
+  scale.forEach(s=>{ const pc=((s.midi%12)+12)%12; if(pcs.includes(pc)){ const d=Math.abs(s.midi-ref); if(d<bd){bd=d;best=s.midi;} } });
+  return best!=null?best:ref;
+}
+
+
+
+
+window.DGEN = { generateDictado, KEYS, scalePitches, applyMinorLeading };
+})();
+</script>
 
 <script>
 /* ====== MOTOR DE GENERACIÓN (reutilizado de PreDict) ====== */
@@ -773,6 +2468,15 @@ function setPlayIcon(idx,playing){
   btn.innerHTML = playing
     ? '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>'
     : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  if(playing){
+    const ex=exos[idx];
+    const bpm=ex.spec.bpm+(ex.tempoOffset||0);
+    btn.style.setProperty('--pulse-ms',(60000/bpm)+'ms');
+    btn.classList.add('playing');
+  } else {
+    btn.classList.remove('playing');
+    btn.style.removeProperty('--pulse-ms');
+  }
 }
 function playExo(idx){
   // si ya está sonando este, el botón actúa como STOP
@@ -1086,7 +2790,6 @@ function renderExos(){
       '</div>'+
       '<div class="exo-head-right">'+
         '<div class="beatmon" id="beatmon-'+idx+'"></div>'+
-        '<button class="btn-main btn-check" id="check-'+idx+'">¿Qué tal fue?</button>'+
       '</div>'+
       '</div>'+
       '<div class="exo-main">'+
@@ -1104,6 +2807,10 @@ function renderExos(){
               '</div>'+
             '</div>'+
             '<div class="score-line" id="score-'+idx+'"></div>'+
+          '</div>'+
+          '<div class="check-bar">'+
+            '<button class="check-link" id="check-'+idx+'">¿Qué tal fue?</button>'+
+            '<button class="btn-sol" id="sol-'+idx+'">Solución</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -1126,6 +2833,7 @@ function renderExos(){
     });
     block.querySelector('#play-'+idx).addEventListener('click',()=>playExo(idx));
     block.querySelector('#check-'+idx).addEventListener('click',()=>onCheck(idx));
+    block.querySelector('#sol-'+idx).addEventListener('click',()=>onReveal(idx));
     const td=block.querySelector('#tempo-down-'+idx), tu=block.querySelector('#tempo-up-'+idx);
     if(td) td.addEventListener('click',()=>{ ex.tempoOffset=Math.max(-10,(ex.tempoOffset||0)-5); updateTempo(idx); });
     if(tu) tu.addEventListener('click',()=>{ ex.tempoOffset=Math.min(10,(ex.tempoOffset||0)+5); updateTempo(idx); });
@@ -1151,12 +2859,16 @@ function refreshPlay(idx){
 function refreshControls(idx){
   const ex=exos[idx];
   const checkBtn=document.getElementById('check-'+idx);
+  const solBtn=document.getElementById('sol-'+idx);
   const pal=document.getElementById('palette-'+idx);
   if(pal) pal.classList.toggle('locked',ex.checked);
   if(checkBtn){
-    if(!ex.checked){checkBtn.textContent='¿Qué tal fue?';checkBtn.disabled=false;}
-    else if(!ex.revealed){checkBtn.textContent='Ver solución';checkBtn.disabled=false;}
-    else{checkBtn.textContent='Solución mostrada';checkBtn.disabled=true;}
+    checkBtn.disabled=ex.checked;
+    checkBtn.textContent=ex.checked?'Corregido':'¿Qué tal fue?';
+  }
+  if(solBtn){
+    solBtn.disabled=ex.revealed;
+    solBtn.textContent=ex.revealed?'Solución mostrada':'Solución';
   }
 }
 function addCell(idx,cell){
@@ -1178,9 +2890,13 @@ function onCheck(idx){
     document.getElementById('score-'+idx).innerHTML='<b>'+ok+' / '+ex.nslots+'</b> pulsos correctos';
     drawBoard(idx);
     maybeShowGlobal();
-  } else if(!ex.revealed){
-    ex.revealed=true;drawBoard(idx);
   }
+  refreshPlay(idx);refreshControls(idx);
+}
+function onReveal(idx){
+  const ex=exos[idx];
+  if(!ex.checked){ ex.checked=true; const ok=scoreOf(ex); const sc=document.getElementById('score-'+idx); if(sc) sc.innerHTML='<b>'+ok+' / '+ex.nslots+'</b> pulsos correctos'; maybeShowGlobal(); }
+  if(!ex.revealed){ ex.revealed=true; drawBoard(idx); }
   refreshPlay(idx);refreshControls(idx);
 }
 function scoreOf(ex){
@@ -1448,6 +3164,15 @@ function stopMelAudio(){
 function setMelPlayIcon(idx,playing){
   const btn=document.getElementById('melplay-'+idx);if(!btn)return;
   btn.innerHTML=playing?'<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>':'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  if(playing){
+    const ex=melExos[idx];
+    const step=(MEL_NOTE_SEC+MEL_GAP_SEC)*(ex&&ex.melSpeed?ex.melSpeed:1);
+    btn.style.setProperty('--pulse-ms',(step*1000)+'ms');
+    btn.classList.add('playing');
+  } else {
+    btn.classList.remove('playing');
+    btn.style.removeProperty('--pulse-ms');
+  }
 }
 function startMelMonitor(idx,audioStart,ctx){
   const mon=document.getElementById('melbeat-'+idx);if(!mon)return;
@@ -1505,7 +3230,7 @@ function drawMelBoard(idx){
       const sn=new VF.StaveNote({keys:[vf.key],duration:'w'});
       if(vf.accidental) sn.addModifier(new VF.Accidental(vf.accidental),0);
       const col=colorMap?colorMap[i]:null;
-      if(i===0 && !ex.scored && !ex.revealed) sn.setStyle({fillStyle:'#b3261e',strokeStyle:'#b3261e'}); // tónica dada en rojo
+      if(i===0 && !ex.scored && !ex.revealed) sn.setStyle({fillStyle:'#5b9dff',strokeStyle:'#5b9dff'}); // tónica dada en azul (color del apartado)
       else if(col) sn.setStyle({fillStyle:col,strokeStyle:col});
       notes.push(sn);
     } else {
@@ -1728,10 +3453,9 @@ function renderMelExos(){
         '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
         '<h2>'+altTxt+'</h2>'+
         '<span class="ts">tónica dada · 10 notas</span>'+
-      '</div><div class="exo-head-right"><div class="beatmon" id="melbeat-'+idx+'"></div>'+
-        '<button class="btn-main btn-check" id="melcheck-'+idx+'">¿Qué tal fue?</button></div></div>'+
+      '</div><div class="exo-head-right"><div class="beatmon" id="melbeat-'+idx+'"></div></div></div>'+
       '<div class="exo-main">'+
-        '<div class="board" id="melboard-'+idx+'" style="min-height:200px"></div>'+
+        '<div class="board" id="melboard-'+idx+'" style="min-height:150px"></div>'+
         '<div class="exo-side">'+
           '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
             '<div class="pr-right"><div class="listens" id="mellistens-'+idx+'"></div>'+
@@ -1748,12 +3472,17 @@ function renderMelExos(){
             '</div>'+
             '<div class="score-line" id="melscore-'+idx+'"></div>'+
           '</div>'+
+          '<div class="check-bar">'+
+            '<button class="check-link" id="melcheck-'+idx+'">¿Qué tal fue?</button>'+
+            '<button class="btn-sol" id="melsol-'+idx+'">Solución</button>'+
+          '</div>'+
         '</div>'+
       '</div>'+
       '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Mueve sobre el pentagrama y la redonda salta de nota en nota: colócala donde corresponda. En tablet puedes ampliar si necesitas más precisión, y pulsar otra vez para reescribir. Para borrar una nota: clic derecho (ordenador) o dos dedos (tablet). Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.</span></div>';
     cont.appendChild(block);
     block.querySelector('#melplay-'+idx).addEventListener('click',()=>playMel(idx));
     block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
+    block.querySelector('#melsol-'+idx).addEventListener('click',()=>onMelReveal(idx));
     block.querySelectorAll('.melspeed-btn').forEach(b=>{
       b.addEventListener('click',()=>{
         ex.melSpeed=parseFloat(b.dataset.sp);
@@ -1774,26 +3503,26 @@ function refreshMelPlay(idx){
 function refreshMelControls(idx){
   const ex=melExos[idx];
   const checkBtn=document.getElementById('melcheck-'+idx);
-  if(checkBtn){
-    if(ex.revealed){checkBtn.textContent='Solución mostrada';checkBtn.disabled=true;}
-    else if(ex.scored){checkBtn.textContent='Ver solución';checkBtn.disabled=false;}
-    else{checkBtn.textContent='¿Qué tal fue?';checkBtn.disabled=false;}
-  }
+  const solBtn=document.getElementById('melsol-'+idx);
+  if(checkBtn){ checkBtn.textContent=ex.scored?'Corregido':'¿Qué tal fue?'; checkBtn.disabled=false; }
+  if(solBtn){ solBtn.disabled=ex.revealed; solBtn.textContent=ex.revealed?'Solución mostrada':'Solución'; }
 }
 function melScoreOf(ex){
   let ok=0; for(let i=0;i<10;i++){ if(ex.slots[i]!==null && ex.slots[i]===ex.midis[i]) ok++; } return ok;
 }
 function onMelCheck(idx){
   const ex=melExos[idx];
-  if(!ex.scored){
-    // comprobar (o re-comprobar tras editar): colorea y puntúa, sigue editable
-    ex.scored=true; ex.checked=true;
-    const ok=melScoreOf(ex);
-    document.getElementById('melscore-'+idx).innerHTML='<b>'+ok+' / 10</b> notas correctas';
-    drawMelBoard(idx); maybeShowMelGlobal();
-  } else if(!ex.revealed){
-    ex.revealed=true; drawMelBoard(idx);
-  }
+  // comprobar (o re-comprobar tras editar): colorea y puntúa, sigue editable
+  ex.scored=true; ex.checked=true;
+  const ok=melScoreOf(ex);
+  document.getElementById('melscore-'+idx).innerHTML='<b>'+ok+' / 10</b> notas correctas';
+  drawMelBoard(idx); maybeShowMelGlobal();
+  refreshMelPlay(idx); refreshMelControls(idx);
+}
+function onMelReveal(idx){
+  const ex=melExos[idx];
+  if(!ex.scored){ ex.scored=true; ex.checked=true; const ok=melScoreOf(ex); const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='<b>'+ok+' / 10</b> notas correctas'; maybeShowMelGlobal(); }
+  if(!ex.revealed){ ex.revealed=true; drawMelBoard(idx); }
   refreshMelPlay(idx); refreshMelControls(idx);
 }
 function maybeShowMelGlobal(){
@@ -2001,6 +3730,62 @@ function rhythmBin3(barIndex,isEdge,used){
    llegada a tónica por 2ª/4ªJ; menor VI/VII en ascenso.
    =========================================================== */
 function buildDictado(key, ts){
+  // Adaptador: usa el motor DGEN (leyes melódicas Iago) y convierte su salida al formato events.
+  const pulsosPorCompas = (ts==='3/4')?3:((ts==='6/8')?2:2);
+  try{
+    if(window.DGEN){
+      // mapear nuestra key ("Do M" / "La m" ...) a la keyObj del DGEN por tónica+modo
+      const mode = /m$/.test((key.name||'').trim()) && !/M$/.test((key.name||'').trim()) ? 'minor' : (key.mode==='minor'?'minor':'major');
+      const tonicPc = ((midiOfDegreeNear(key,0,64)%12)+12)%12;
+      const kobj = window.DGEN.KEYS.find(k=>{
+        const kpc=((k.tonicMidi%12)+12)%12;
+        return kpc===tonicPc && k.mode===(key.mode||mode);
+      }) || window.DGEN.KEYS.find(k=>k.mode===(key.mode||mode));
+      const active = (typeof CELLS_DGEN!=='undefined') ? CELLS_DGEN.filter(c=>c.def) : [];
+      const ternarioTS = (ts==='6/8'||ts==='3/8'||ts==='9/8');
+      const negrasPorPulso = ternarioTS ? 1.5 : 1;
+      const negrasObjetivo = pulsosPorCompas * negrasPorPulso;  // negras que debe sumar cada compás
+      const negrasDe = (d)=>{ const negras={'h':2,'qd':1.5,'q':1,'8d':0.75,'8':0.5,'16':0.25,'hd':3}; const v=negras[(d||'').replace('r','')]; return v==null?1:v; };
+      const compasCuadra = (m)=>{ let s=0; m.notes.forEach(n=>s+=negrasDe(n.d)); return Math.abs(s-negrasObjetivo)<0.01; };
+      // generar hasta obtener un dictado con TODOS los compases cuadrados (el motor falla a veces en 3/4)
+      let D=null;
+      for(let intento=0; intento<24; intento++){
+        const cand = window.DGEN.generateDictado(active, {meters:[ts], keyObj:kobj, rnd:DRND});
+        if(cand.measures.every(compasCuadra)){ D=cand; break; }
+        if(!D) D=cand; // guardar el último por si ninguno cuadra del todo
+      }
+      // pulsos por compás según métrica del resultado
+      const ppc = D.beatsPerBar || pulsosPorCompas;
+      // conversión de figura -> duración en PULSOS
+      const ternario = (D.ts==='6/8'||D.ts==='3/8'||D.ts==='9/8');
+      function durEnPulsos(d){
+        const n=negrasDe(d);
+        if(ternario){
+          // en ternario el pulso = negra con puntillo = 1.5 negras -> pulsos = negras/1.5
+          return n/1.5;
+        }
+        return n; // binario: 1 negra = 1 pulso
+      }
+      const events=[];
+      D.measures.forEach((m,mi)=>{
+        m.notes.forEach(n=>{
+          events.push({
+            midi: n.rest? null : n.midi,
+            dur: durEnPulsos(n.d),
+            bar: mi+1,
+            rest: !!n.rest,
+            phraseStart: (mi===0 || mi===4)
+          });
+        });
+      });
+      return {key, ts:D.ts, pulsosPorCompas:ppc, events};
+    }
+  }catch(e){ /* si algo falla, caemos al generador antiguo */ }
+  return buildDictadoLegacy(key, ts);
+}
+
+function buildDictadoLegacy(key, ts){
+
   const pulsosPorCompas = (ts==='3/4')?3:2;
   const ppc=pulsosPorCompas;
   const used=new Set();
@@ -2198,7 +3983,7 @@ function buildTonExos(){
       key, compas,
       dict,                       // {events:[{midi,dur,bar,phraseStart}], ...}
       usesAcordes:0, usesCompleto:0,
-      chosenKey:null, chosenArm:null, chosenCompas:null,
+      chosenKey:null, chosenArm:null, chosenCompas:null, showSol:false,
       checked:false, revealed:false
     };
   });
@@ -2326,30 +4111,25 @@ function _playTonCompletoAudio(idx){
   let pulsosAcum=0;   // posición del evento dentro del dictado, en pulsos
   ex.dict.events.forEach(ev=>{
     if(!ev.rest && ev.midi!=null){
-      // ¿esta nota cae en el primer pulso de un compás? -> acento
-      const posEnCompas = pulsosAcum % ppc;
-      const enCabeza = Math.abs(posEnCompas) < 0.01 || Math.abs(posEnCompas-ppc) < 0.01;
-      const gain = enCabeza ? 1.25 : 0.95;
-      pianoPlay(ctx,tonMaster,t,ev.midi, Math.max(0.22, ev.dur*pulseSec*0.92), gain);
+      pianoPlay(ctx,tonMaster,t,ev.midi, Math.max(0.22, ev.dur*pulseSec*0.92), 1.05);
     }
     pulsosAcum += ev.dur;
     t+=ev.dur*pulseSec;   // los silencios solo avanzan el tiempo
   });
-  // claqueta acompañando todo el dictado: mismo timbre; acento (más fuerte) en el 1er pulso del compás
+  // claqueta acompañando todo el dictado: pulso UNIFORME, sin distinción fuerte/débil
   const totalPulsos=8*ppc;
   for(let p=0;p<totalPulsos;p++){
-    clickFlat(ctx,tonMaster, tStart + p*pulseSec, (p%ppc===0));
+    clickFlat(ctx,tonMaster, tStart + p*pulseSec, false);
   }
-  // LATIDO visual de la tarjeta de play: pulso suave (fuerte en cabeza de compás)
+  // LATIDO visual de la tarjeta de play: pulso uniforme (sin acento de cabeza)
   const card=document.getElementById('ton-completo-'+idx);
   tonBeatTimers.forEach(clearTimeout); tonBeatTimers=[];
   const delay0=Math.max(0,(tStart-ctx.currentTime))*1000;
   for(let p=0;p<totalPulsos;p++){
-    const fuerte=(p%ppc===0);
     tonBeatTimers.push(setTimeout(()=>{
       if(!card) return;
       card.classList.remove('beat','beat-strong'); void card.offsetWidth;
-      card.classList.add(fuerte?'beat-strong':'beat');
+      card.classList.add('beat');
     }, Math.round(delay0 + p*pulseSec*1000)));
   }
   tonBeatTimers.push(setTimeout(()=>{ if(card) card.classList.remove('beat','beat-strong'); }, Math.round(delay0 + totalPulsos*pulseSec*1000)));
@@ -2408,6 +4188,86 @@ function chooseKey(name){
 
 /* --- UI TonCom --- */
 function audioIcon(){ return '<span class="ico-audio" aria-hidden="true">▶</span>'; }
+// rueda de armadura: de arriba a abajo. v = nº de alteraciones (+ sostenidos, - bemoles)
+const ARM_WHEEL=[{v:2,t:'2♯'},{v:1,t:'1♯'},{v:0,t:'Sin armadura'},{v:-1,t:'1♭'},{v:-2,t:'2♭'}];
+const ARM_ITEM_H=44;   // alto de cada item (debe coincidir con el CSS)
+function armLabel(v){ const o=ARM_WHEEL.find(x=>x.v===v); return o?o.t:'Sin armadura'; }
+function armIndexOf(v){ const i=ARM_WHEEL.findIndex(x=>x.v===v); return i<0?2:i; }   // 2 = centro (Sin armadura)
+function setArmWheel(idx, wheelIndex){
+  const ex=tonExos[idx]; if(!ex) return;
+  wheelIndex=Math.max(0,Math.min(ARM_WHEEL.length-1,wheelIndex));
+  if(!ex.checked) ex.chosenArm=ARM_WHEEL[wheelIndex].v;
+  const list=document.getElementById('armlist-'+idx);
+  if(list){
+    list.style.transform='translateY('+(-(wheelIndex)*ARM_ITEM_H)+'px)';
+    list.querySelectorAll('.arm-item').forEach((el,i)=>el.classList.toggle('on',i===wheelIndex));
+  }
+}
+function armTick(){
+  // sonidito breve tipo "detente" de rueda iOS
+  try{
+    const ctx=getCtx(); if(ctx.state==='suspended')ctx.resume();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='sine'; o.frequency.value=520;
+    g.gain.setValueAtTime(0.0001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.12,ctx.currentTime+0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.06);
+    o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.07);
+  }catch(e){}
+}
+function initArmWheel(idx){
+  const wheel=document.getElementById('tonarm-'+idx); if(!wheel) return;
+  const ex=tonExos[idx];
+  if(ex.chosenArm==null && !ex.checked) ex.chosenArm=0;   // por defecto "Sin armadura"
+  setArmWheel(idx, ex.chosenArm!=null?armIndexOf(ex.chosenArm):2);
+  if(ex.checked) return;
+  const curIdx=()=>armIndexOf(ex.chosenArm!=null?ex.chosenArm:0);
+  const step=(dir)=>{
+    const before=curIdx();
+    const after=Math.max(0,Math.min(ARM_WHEEL.length-1,before+dir));
+    if(after!==before){ setArmWheel(idx, after); armTick(); }
+  };
+  // RUEDA DEL RATÓN: acumula delta y avanza un escalón por umbral, con cooldown
+  let wheelAcc=0, wheelLock=false;
+  wheel.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    if(wheelLock) return;
+    wheelAcc+=e.deltaY;
+    if(Math.abs(wheelAcc)>=28){           // umbral: un escalón por gesto
+      step(wheelAcc>0?1:-1);
+      wheelAcc=0; wheelLock=true;
+      setTimeout(()=>{wheelLock=false;},160);   // cooldown entre escalones
+    }
+  },{passive:false});
+  // ARRASTRE: avanza de uno en uno cada vez que se recorre un "escalón" de píxeles
+  const DRAG_STEP=34;
+  let dragging=false, lastY=0, accY=0;
+  const down=(y)=>{ dragging=true; lastY=y; accY=0; };
+  const move=(y)=>{
+    if(!dragging)return;
+    accY += (lastY - y); lastY=y;
+    while(Math.abs(accY)>=DRAG_STEP){
+      if(accY>0){ step(-1); accY-=DRAG_STEP; }   // arrastrar hacia arriba = sostenidos
+      else { step(1); accY+=DRAG_STEP; }
+    }
+  };
+  const up=()=>{ dragging=false; };
+  wheel.addEventListener('mousedown',e=>{e.preventDefault();down(e.clientY);});
+  window.addEventListener('mousemove',e=>move(e.clientY));
+  window.addEventListener('mouseup',up);
+  wheel.addEventListener('touchstart',e=>{down(e.touches[0].clientY);},{passive:true});
+  wheel.addEventListener('touchmove',e=>{e.preventDefault();move(e.touches[0].clientY);},{passive:false});
+  wheel.addEventListener('touchend',up);
+  // teclado
+  wheel.addEventListener('keydown',e=>{
+    if(e.key==='ArrowUp'){e.preventDefault();step(-1);}
+    else if(e.key==='ArrowDown'){e.preventDefault();step(1);}
+  });
+  // clic directo sobre un item visible salta a él
+  wheel.querySelectorAll('.arm-item').forEach((el,i)=>{
+    el.addEventListener('click',()=>{ if(i!==curIdx()){ setArmWheel(idx,i); armTick(); } });
+  });
+}
 function renderTonExos(){
   const cont=document.getElementById('tonContainer');
   cont.innerHTML='';
@@ -2417,34 +4277,31 @@ function renderTonExos(){
     const keyOk = ex.checked ? tonKeyMatches(ex.chosenKey, ex.key.name) : null;
     const armOk = ex.checked ? (ex.chosenArm===ex.key.sig) : null;
     const compOk = ex.checked ? (ex.chosenCompas===ex.compas.ts) : null;
-    const checkBtn = ex.checked
-      ? '<span class="ton-pts" id="tonscore-'+idx+'"></span>'
-      : '<button class="btn-main btn-check ton-checkbtn" id="toncheck-'+idx+'">¿Qué tal fue?</button>';
-    const armOpts=[{v:0,t:'Sin armadura'},{v:1,t:'1♯'},{v:2,t:'2♯'},{v:-1,t:'1♭'},{v:-2,t:'2♭'}];
     block.innerHTML=
       '<div class="exo-head ton-head"><div class="exo-title">'+
         '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
         '<h2>Tonalidad, armadura y compás</h2>'+
-      '</div><div class="ton-head-right">'+checkBtn+'</div></div>'+
+      '</div></div>'+
       '<div class="ton-row">'+
         // 1) TONALIDAD (escrita)
         '<div class="ton-pick">'+
           '<h4>Tonalidad</h4>'+
           '<input class="ton-input '+(ex.checked?(keyOk?'ok':'bad'):'')+'" id="tonkey-'+idx+'" type="text" '+
             'placeholder="ej. Do m  ·  Lab M" value="'+(ex.chosenKey?ex.chosenKey.replace(/"/g,'&quot;'):'')+'" '+(ex.checked?'disabled':'')+' autocomplete="off" spellcheck="false">'+
-          (ex.checked&&!keyOk?'<div class="ton-correct">Correcta: '+ex.key.name+'</div>':'')+
+          (ex.checked&&!keyOk&&ex.showSol?'<div class="ton-correct">Correcta: '+ex.key.name+'</div>':'')+
         '</div>'+
         // 2) ARMADURA (selector)
         '<div class="ton-pick">'+
           '<h4>Armadura</h4>'+
-          '<div class="arm-opts" id="tonarm-'+idx+'">'+
-            armOpts.map(o=>{
-              let cls='arm-opt';
-              if(ex.checked){ if(o.v===ex.key.sig) cls+=' ok'; else if(o.v===ex.chosenArm) cls+=' bad'; }
-              else if(ex.chosenArm===o.v) cls+=' sel';
-              return '<div class="'+cls+'" data-v="'+o.v+'">'+o.t+'</div>';
-            }).join('')+
+          '<div class="arm-wheel'+(ex.checked?' locked '+(ex.chosenArm===ex.key.sig?'ok':'bad'):'')+'" id="tonarm-'+idx+'" data-idx="'+idx+'" tabindex="0">'+
+            '<div class="arm-wheel-window">'+
+              '<div class="arm-wheel-list" id="armlist-'+idx+'">'+
+                ARM_WHEEL.map(o=>'<div class="arm-item" data-v="'+o.v+'">'+o.t+'</div>').join('')+
+              '</div>'+
+            '</div>'+
+            '<div class="arm-wheel-center"></div>'+
           '</div>'+
+          (ex.checked?'<div class="ton-correct" style="text-align:center;margin-top:8px">'+(ex.chosenArm===ex.key.sig?'<span style="color:var(--green)">Correcta</span>':(ex.showSol?'<span style="color:var(--red)">Correcta: '+armLabel(ex.key.sig)+'</span>':'<span style="color:var(--red)">Incorrecta</span>'))+'</div>':'')+
         '</div>'+
         // 3) tarjeta LA + TÓNICA + ACORDES
         '<button class="ton-playcard" id="ton-acordes-'+idx+'">'+
@@ -2456,14 +4313,18 @@ function renderTonExos(){
         // 4) COMPÁS (selector)
         '<div class="ton-pick">'+
           '<h4>Compás</h4>'+
-          '<div class="compas-opts" id="toncompas-'+idx+'">'+
+          '<div class="compas-opts'+(ex.checked&&!ex.chosenCompas?' empty-bad':'')+'" id="toncompas-'+idx+'">'+
             ['2/4','3/4','6/8'].map(c=>{
               let cls='compas-opt';
-              if(ex.checked){ if(c===ex.compas.ts) cls+=' ok'; else if(c===ex.chosenCompas) cls+=' bad'; }
+              if(ex.checked){
+                if(c===ex.chosenCompas){ cls += (c===ex.compas.ts)?' ok':' bad'; }
+                else if(ex.showSol && c===ex.compas.ts){ cls+=' ok'; }
+              }
               else if(ex.chosenCompas===c) cls+=' sel';
               return '<div class="'+cls+'" data-c="'+c+'">'+c+'</div>';
             }).join('')+
           '</div>'+
+          (ex.checked&&!ex.chosenCompas&&ex.showSol?'<div class="ton-correct">Correcto: '+ex.compas.ts+'</div>':'')+
         '</div>'+
         // 5) tarjeta DICTADO COMPLETO
         '<button class="ton-playcard" id="ton-completo-'+idx+'">'+
@@ -2472,6 +4333,13 @@ function renderTonExos(){
           '<span class="uses">'+[0,1].map(d=>'<span class="dot '+(ex.usesCompleto>d?'used':'')+'"></span>').join('')+'</span>'+
           '<div class="tpc-play">'+audioIcon()+'</div>'+
         '</button>'+
+        // barra ¿qué tal fue? + corrección, debajo de "Dictado completo" (última columna)
+        '<div class="check-bar ton-check-bar">'+
+          '<button class="check-link" id="toncheck-'+idx+'" '+(ex.checked?'disabled':'')+'>¿Qué tal fue?</button>'+
+          (ex.checked
+            ? '<span class="ton-pts" id="tonscore-'+idx+'"></span>'
+            : '<button class="btn-sol" id="tonsol-'+idx+'">Solución</button>')+
+        '</div>'+
       '</div>';
     cont.appendChild(block);
 
@@ -2486,10 +4354,9 @@ function renderTonExos(){
     block.querySelectorAll('#toncompas-'+idx+' .compas-opt').forEach(o=>{
       o.addEventListener('click',()=>{ if(ex.checked)return; ex.chosenCompas=o.dataset.c; renderTonExos(); });
     });
-    block.querySelectorAll('#tonarm-'+idx+' .arm-opt').forEach(o=>{
-      o.addEventListener('click',()=>{ if(ex.checked)return; ex.chosenArm=parseInt(o.dataset.v,10); renderTonExos(); });
-    });
+    initArmWheel(idx);
     const cb=block.querySelector('#toncheck-'+idx); if(cb) cb.addEventListener('click',()=>onTonCheck(idx));
+    const sb=block.querySelector('#tonsol-'+idx); if(sb) sb.addEventListener('click',()=>onTonSolution(idx));
     if(ex.checked){ const sc=block.querySelector('#tonscore-'+idx); if(sc){ const pts=(keyOk?1:0)+(armOk?1:0)+(compOk?1:0); sc.innerHTML='<b>'+pts+'</b> / 3'; } }
     renderTonAudioButtons(idx);
   });
@@ -2510,7 +4377,14 @@ function onTonCheck(idx){
   const ex=tonExos[idx];
   if(ex.checked) return;
   if(!ex.chosenKey || !ex.chosenKey.trim() || ex.chosenArm==null || !ex.chosenCompas){ toast('Escribe la tonalidad y elige armadura y compás antes de comprobar'); return; }
-  ex.checked=true;
+  ex.checked=true; ex.showSol=false;
+  renderTonExos();
+  maybeShowTonGlobal();
+}
+function onTonSolution(idx){
+  const ex=tonExos[idx];
+  if(ex.checked) return;
+  ex.checked=true; ex.showSol=true;   // corrige y revela las respuestas correctas
   renderTonExos();
   maybeShowTonGlobal();
 }
