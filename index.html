@@ -66,6 +66,32 @@
   .home-prof{font-size:14px;color:var(--ink);font-weight:600;margin:14px 0 0}
   .opt-banner{display:inline-block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--muted2);border:1px solid var(--line);border-radius:999px;padding:6px 16px;margin-bottom:18px}
 
+  /* ===== flip de tarjeta: cara frontal -> 3 niveles ===== */
+  .flip-card{perspective:1600px}
+  .flip-inner{position:relative;width:100%;min-height:340px;transition:transform .55s cubic-bezier(.4,.15,.2,1);transform-style:preserve-3d}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+  .flip-front,.flip-back{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+  .flip-front{display:flex}
+  .flip-back{transform:rotateY(180deg);flex-direction:column;justify-content:center;gap:12px;padding:24px;cursor:default}
+  .flip-back:hover{transform:rotateY(180deg);border-color:var(--line);box-shadow:none}
+  /* las subtarjetas de nivel */
+  .lvl{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:13px;padding:16px 20px;cursor:pointer;border:1px solid;transition:background .15s,border-color .15s,transform .1s}
+  .lvl .lvl-nm{font-weight:800;font-size:18px;letter-spacing:.01em}
+  .lvl .lvl-cur{font-size:12.5px;font-weight:600;opacity:.85;letter-spacing:.02em}
+  .lvl:active{transform:scale(.98)}
+  /* disponibles: contorno fino del color + relleno semitransparente; hover = color intenso */
+  .lvl-easy{border-color:var(--rit);background:rgba(34,201,138,.14);color:var(--rit)}
+  .lvl-easy:hover:not(.locked){background:var(--rit);color:#062b1d;border-color:var(--rit)}
+  .lvl-med{border-color:var(--gold);background:rgba(240,169,59,.15);color:var(--gold)}
+  .lvl-med:hover:not(.locked){background:var(--gold);color:#2b1d05;border-color:var(--gold)}
+  .lvl-hard{border-color:var(--red);background:rgba(255,92,114,.14);color:var(--red)}
+  .lvl-hard:hover:not(.locked){background:var(--red);color:#2b0710;border-color:var(--red)}
+  /* bloqueado: gris */
+  .lvl.locked{border-color:var(--line);background:rgba(233,237,255,.03);color:var(--muted2);cursor:not-allowed}
+  .lvl.locked .lvl-nm{color:var(--muted2)}
+  .lvl-back{align-self:center;margin-top:4px;background:none;border:none;color:var(--muted2);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:color .15s}
+  .lvl-back:hover{color:var(--ink)}
+
   /* vista ejercicio */
   .ex-view{display:none}
   .ex-view.active{display:block}
@@ -416,30 +442,60 @@
       <p class="eva-tag">Ejercicios específicos que entrenan tu oído y mejoran tus dictados</p>
     </div>
     <div class="home-grid">
-      <button class="mode-card m1" data-mode="ritmica">
-        <div class="edge"></div>
-        <div>
-          <h2 class="card-title"><span class="hl">RÍT</span><span class="dim">MICO</span></h2>
-          <p>Solo el ritmo. Escucha cada ejercicio y reconstrúyelo célula a célula.</p>
+      <div class="flip-card" data-mode="ritmica">
+        <div class="flip-inner">
+          <button class="mode-card m1 flip-front">
+            <div class="edge"></div>
+            <div>
+              <h2 class="card-title"><span class="hl">RÍT</span><span class="dim">MICO</span></h2>
+              <p>Solo el ritmo. Escucha cada ejercicio y reconstrúyelo célula a célula.</p>
+            </div>
+            <div class="go">Elegir nivel →</div>
+          </button>
+          <div class="mode-card flip-back">
+            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">FÁCIL</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
+            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">MEDIO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
+            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">DIFÍCIL</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
+            <button class="lvl-back">← volver</button>
+          </div>
         </div>
-        <div class="go">Empezar →</div>
-      </button>
-      <button class="mode-card m2" data-mode="melodica">
-        <div class="edge"></div>
-        <div>
-          <h2 class="card-title"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h2>
-          <p>Alturas de las notas. Escucha y coloca cada nota en el pentagrama.</p>
+      </div>
+      <div class="flip-card" data-mode="melodica">
+        <div class="flip-inner">
+          <button class="mode-card m2 flip-front">
+            <div class="edge"></div>
+            <div>
+              <h2 class="card-title"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h2>
+              <p>Alturas de las notas. Escucha y coloca cada nota en el pentagrama.</p>
+            </div>
+            <div class="go">Elegir nivel →</div>
+          </button>
+          <div class="mode-card flip-back">
+            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">FÁCIL</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
+            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">MEDIO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
+            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">DIFÍCIL</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
+            <button class="lvl-back">← volver</button>
+          </div>
         </div>
-        <div class="go">Empezar →</div>
-      </button>
-      <button class="mode-card m3" data-mode="toncom">
-        <div class="edge"></div>
-        <div>
-          <h2 class="card-title"><span class="hl">TON</span><span class="dim">COM</span></h2>
-          <p>Saca la tonalidad, la armadura y el compás de cada dictado.</p>
+      </div>
+      <div class="flip-card" data-mode="toncom">
+        <div class="flip-inner">
+          <button class="mode-card m3 flip-front">
+            <div class="edge"></div>
+            <div>
+              <h2 class="card-title"><span class="hl">TON</span><span class="dim">COM</span></h2>
+              <p>Saca la tonalidad, la armadura y el compás de cada dictado.</p>
+            </div>
+            <div class="go">Elegir nivel →</div>
+          </button>
+          <div class="mode-card flip-back">
+            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">FÁCIL</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
+            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">MEDIO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
+            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">DIFÍCIL</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
+            <button class="lvl-back">← volver</button>
+          </div>
         </div>
-        <div class="go">Empezar →</div>
-      </button>
+      </div>
     </div>
     <div class="eva-foot"><button class="maint-link" id="maintLink">Mantenimiento</button></div>
   </div>
@@ -499,24 +555,6 @@
 </div>
 
 <!-- Selección de nivel (pantalla intermedia) -->
-<div class="level-backdrop" id="levelBackdrop">
-  <div class="level-modal">
-    <h3>Elige el nivel</h3>
-    <p class="level-sub">Selecciona el curso para este ejercicio</p>
-    <div class="level-grid">
-      <button class="level-btn locked" data-level="1GE">1º GE</button>
-      <button class="level-btn locked" data-level="2GE">2º GE</button>
-      <button class="level-btn locked" data-level="3GE">3º GE</button>
-      <button class="level-btn" data-level="4GE">4º GE</button>
-      <div class="level-divider"></div>
-      <button class="level-btn locked" data-level="1GP">1º GP</button>
-      <button class="level-btn locked" data-level="2GP">2º GP</button>
-    </div>
-    <div class="level-soon" id="levelSoon">Estamos trabajando en el resto de cursos.</div>
-    <button class="road-close" id="levelCancel">Cancelar</button>
-  </div>
-</div>
-
 <div class="road-backdrop" id="roadBackdrop">
   <div class="road">
     <h3>Elige la tonalidad</h3>
@@ -4438,25 +4476,36 @@ function toast(msg){
 }
 // --- portada PreDict: las tarjetas de apartado abren la pantalla de NIVEL ---
 let pendingMode=null;
-document.querySelectorAll('.mode-card[data-mode]').forEach(card=>{
-  card.addEventListener('click',(e)=>{ e.stopPropagation(); pendingMode=card.dataset.mode; openLevel(); });
-});
-function openLevel(){ const b=document.getElementById('levelBackdrop'); document.getElementById('levelSoon').classList.remove('show'); b.classList.add('open'); }
-function closeLevel(){ document.getElementById('levelBackdrop').classList.remove('open'); }
-document.querySelectorAll('.level-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    if(btn.classList.contains('locked')){ document.getElementById('levelSoon').classList.add('show'); return; }
-    closeLevel();
-    if(pendingMode==='ritmica')openRitmica();
-    else if(pendingMode==='melodica')openMelodica();
-    else if(pendingMode==='toncom')openToncom();
+document.querySelectorAll('.flip-card[data-mode]').forEach(card=>{
+  const mode=card.dataset.mode;
+  // pulsar la cara frontal -> voltear
+  card.querySelector('.flip-front').addEventListener('click',(e)=>{ e.stopPropagation(); card.classList.add('flipped'); });
+  // volver
+  card.querySelector('.lvl-back').addEventListener('click',(e)=>{ e.stopPropagation(); card.classList.remove('flipped'); });
+  // niveles
+  card.querySelectorAll('.lvl').forEach(lvl=>{
+    lvl.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      if(lvl.classList.contains('locked')){
+        const nm=lvl.querySelector('.lvl-nm').textContent;
+        const nmCap=nm.charAt(0)+nm.slice(1).toLowerCase();
+        toast('Nivel '+nmCap+' todavía no disponible');
+        return;
+      }
+      // nivel disponible (de momento solo Medio) -> entrar directo al apartado
+      pendingMode=mode;
+      if(mode==='ritmica')openRitmica();
+      else if(mode==='melodica')openMelodica();
+      else if(mode==='toncom')openToncom();
+      // resetear el flip para la próxima vez que se vuelva a la portada
+      setTimeout(()=>card.classList.remove('flipped'),300);
+    });
   });
 });
-document.getElementById('levelCancel').addEventListener('click',closeLevel);
-document.getElementById('levelBackdrop').addEventListener('click',e=>{ if(e.target.id==='levelBackdrop') closeLevel(); });
 
 function backToEva(){
   ['ritmicaView','melodicaView','toncomView'].forEach(v=>document.getElementById(v).classList.remove('active'));
+  document.querySelectorAll('.flip-card.flipped').forEach(c=>c.classList.remove('flipped'));
   setMode(null);
   document.getElementById('evaHome').classList.remove('hidden');
 }
