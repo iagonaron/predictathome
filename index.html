@@ -481,9 +481,9 @@
             <div class="go">Elegir nivel →</div>
           </button>
           <div class="mode-card flip-back">
-            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">FÁCIL</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
-            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">MEDIO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
-            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">DIFÍCIL</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
+            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">PRIMER CICLO</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
+            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">SEGUNDO CICLO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
+            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">TERCER CICLO</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
             <button class="lvl-back">← volver</button>
           </div>
         </div>
@@ -499,9 +499,9 @@
             <div class="go">Elegir nivel →</div>
           </button>
           <div class="mode-card flip-back">
-            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">FÁCIL</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
-            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">MEDIO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
-            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">DIFÍCIL</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
+            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">PRIMER CICLO</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
+            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">SEGUNDO CICLO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
+            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">TERCER CICLO</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
             <button class="lvl-back">← volver</button>
           </div>
         </div>
@@ -517,9 +517,9 @@
             <div class="go">Elegir nivel →</div>
           </button>
           <div class="mode-card flip-back">
-            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">FÁCIL</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
-            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">MEDIO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
-            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">DIFÍCIL</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
+            <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">PRIMER CICLO</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
+            <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">SEGUNDO CICLO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
+            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">TERCER CICLO</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
             <button class="lvl-back">← volver</button>
           </div>
         </div>
@@ -576,9 +576,9 @@
     </div>
     <h1 class="section-title rit"><span class="hl">EDI</span><span class="dim">CIÓN RÍTMICA</span></h1>
     <div class="lvl-tabs" id="ritLvlTabs">
-      <button class="lvl-tab easy active" data-lvl="facil">FÁCIL</button>
-      <button class="lvl-tab med" data-lvl="medio">MEDIO</button>
-      <button class="lvl-tab hard" data-lvl="dificil">DIFÍCIL</button>
+      <button class="lvl-tab easy active" data-lvl="facil">PRIMER CICLO</button>
+      <button class="lvl-tab med" data-lvl="medio">SEGUNDO CICLO</button>
+      <button class="lvl-tab hard" data-lvl="dificil">TERCER CICLO</button>
     </div>
     <h3 class="edit-h">Células rítmicas <span class="edit-hint">— pulsa para activar / desactivar</span></h3>
     <div class="cell-grid" id="ritCellGrid"></div>
@@ -4538,7 +4538,7 @@ document.querySelectorAll('.flip-card[data-mode]').forEach(card=>{
       if(lvl.classList.contains('locked')){
         const nm=lvl.querySelector('.lvl-nm').textContent;
         const nmCap=nm.charAt(0)+nm.slice(1).toLowerCase();
-        toast('Nivel '+nmCap+' todavía no disponible');
+        toast(nmCap+' todavía no disponible');
         return;
       }
       // nivel disponible (de momento solo Medio) -> entrar directo al apartado
