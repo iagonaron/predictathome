@@ -35,6 +35,7 @@
   .brand{display:flex;align-items:baseline;gap:13px}
   .brand h1{font-size:30px;font-weight:800;letter-spacing:-.6px;margin:0;line-height:1.1}
   .brand h1 .a{color:var(--ink);font-weight:900} .brand h1 .eav{color:var(--muted2);font-weight:300} .brand h1 .b{color:var(--muted2);transition:color .2s}
+  .brand h1 .p-pre{color:var(--muted2);font-weight:300} .brand h1 .p-dict{color:var(--ink);font-weight:900}
   body.mode-rit .brand h1 .b{color:var(--rit)}
   body.mode-mel .brand h1 .b{color:var(--mel)}
   body.mode-ton .brand h1 .b{color:var(--ton)}
@@ -42,7 +43,7 @@
   .tagline{font-size:12px;letter-spacing:.05em;color:var(--muted)}
 
   /* HOME */
-  .home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+  .home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-top:48px;max-width:760px;margin-left:auto;margin-right:auto}
   .mode-card{
     background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;
     padding:46px 36px;cursor:pointer;text-align:left;transition:transform .12s,border-color .15s,box-shadow .15s;
@@ -54,11 +55,12 @@
   .mode-card.m1 .edge{background:linear-gradient(var(--rit),#14a06a)}
   .mode-card.m2 .edge{background:linear-gradient(var(--mel),#3f7fe0)}
   .mode-card.m3 .edge{background:linear-gradient(var(--ton),#e07d1c)}
+  .mode-card.m4 .edge{background:linear-gradient(#9b6bff,#7a4fd0)}
   .mode-card .mc-kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
   .mode-card h2{font-size:40px;margin:18px 0 12px;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
   .card-title{letter-spacing:.01em}
   .card-title .hl{font-weight:900;color:var(--ink)}
-  .card-title .dim{font-weight:300;color:var(--muted2);opacity:.65}
+  .card-title .dim{font-weight:100;color:var(--muted);-webkit-font-smoothing:antialiased}
   .mode-card[disabled] h2{color:var(--muted)}
   .mode-card p{font-size:15px;line-height:1.5;color:var(--muted);margin:0}
   .mode-card .go{margin-top:28px;font-size:14px;font-weight:700;color:var(--accent2);letter-spacing:.02em}
@@ -79,13 +81,9 @@
   .lvl .lvl-nm{font-weight:800;font-size:18px;letter-spacing:.01em}
   .lvl .lvl-cur{font-size:12.5px;font-weight:600;opacity:.85;letter-spacing:.02em}
   .lvl:active{transform:scale(.98)}
-  /* disponibles: contorno fino del color + relleno semitransparente; hover = color intenso */
-  .lvl-easy{border-color:var(--rit);background:rgba(34,201,138,.14);color:var(--rit)}
-  .lvl-easy:hover:not(.locked){background:var(--rit);color:#062b1d;border-color:var(--rit)}
-  .lvl-med{border-color:var(--gold);background:rgba(240,169,59,.15);color:var(--gold)}
-  .lvl-med:hover:not(.locked){background:var(--gold);color:#2b1d05;border-color:var(--gold)}
-  .lvl-hard{border-color:var(--red);background:rgba(255,92,114,.14);color:var(--red)}
-  .lvl-hard:hover:not(.locked){background:var(--red);color:#2b0710;border-color:var(--red)}
+  /* disponibles: estilo neutro/blanquecino del portal; hover = realce sutil */
+  .lvl-easy,.lvl-med{border-color:var(--line);background:rgba(233,237,255,.04);color:var(--ink)}
+  .lvl-easy:hover:not(.locked),.lvl-med:hover:not(.locked){background:rgba(233,237,255,.10);border-color:var(--muted2);color:var(--ink)}
   /* bloqueado: gris */
   .lvl.locked{border-color:var(--line);background:rgba(233,237,255,.03);color:var(--muted2);cursor:not-allowed}
   .lvl.locked .lvl-nm{color:var(--muted2)}
@@ -102,7 +100,7 @@
   .ex-meta{font-size:15px;letter-spacing:.01em;color:var(--ink);font-weight:500}
   .section-title{font-size:54px;font-weight:900;letter-spacing:-.02em;margin:4px 0 22px;line-height:1}
   .section-title .hl{font-weight:900;color:var(--ink)}
-  .section-title .dim{font-weight:300;color:var(--muted2);opacity:.65}
+  .section-title .dim{font-weight:200;color:var(--muted)}
   .tempo-ctl{display:flex;align-items:center;gap:8px;margin-top:4px}
   .tempo-ctl .ts{margin:0}
   .tempo-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);font-size:16px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center;transition:border-color .15s,background .15s}
@@ -143,9 +141,7 @@
   .btn-edit:hover{background:rgba(233,237,255,.10);color:var(--ink);border-color:var(--muted2)}
   .lvl-tabs{display:flex;gap:10px;justify-content:center;margin:6px 0 28px}
   .lvl-tab{background:transparent;border:1px solid var(--line);color:var(--muted);font-size:14px;font-weight:800;letter-spacing:.04em;padding:10px 26px;border-radius:11px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-  .lvl-tab.easy.active{background:rgba(34,201,138,.16);border-color:var(--rit);color:var(--rit)}
-  .lvl-tab.med.active{background:rgba(240,169,59,.16);border-color:var(--gold);color:var(--gold)}
-  .lvl-tab.hard.active{background:rgba(255,92,114,.16);border-color:var(--red);color:var(--red)}
+  .lvl-tab.easy.active,.lvl-tab.med.active{background:rgba(233,237,255,.10);border-color:var(--muted2);color:var(--ink)}
   .edit-h{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:.02em;margin:26px 2px 14px;text-transform:uppercase}
   .edit-hint{font-weight:400;color:var(--muted2);text-transform:none;letter-spacing:0;font-size:12.5px}
   .cell-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
@@ -283,6 +279,89 @@
   .gs-of{font-size:20px;font-weight:700;color:var(--muted)}
   .gs-sub{font-size:12px;color:var(--muted)}
 
+  /* ============ ARMÓNICA ============ */
+  :root{ --arm:#9b6bff; --arm-soft:rgba(155,107,255,.14); --arm2:#7a4fd0; }
+  .mode-card.m4 .edge{background:linear-gradient(var(--arm),var(--arm2))}
+  #armonicaView .now-tag{color:var(--arm);background:var(--arm-soft)}
+  #armonicaView .dice-btn:hover{border-color:var(--arm);background:var(--arm-soft)}
+  #armonicaView .section-title .dim{color:var(--muted)}
+  /* toggle de 7ª de dominante (a nivel de toda la página) */
+  .arm-seventh{display:flex;align-items:center;gap:13px;margin:2px 0 22px;padding:13px 18px;border:1px solid var(--line);
+    border-radius:14px;background:linear-gradient(180deg,var(--panel2),var(--panel));max-width:560px}
+  .arm-seventh .as-txt{flex:1}
+  .arm-seventh .as-txt b{font-weight:800;color:var(--ink);font-size:15px}
+  .arm-seventh .as-txt span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .arm-switch{position:relative;width:52px;height:30px;flex:0 0 52px;border-radius:999px;border:1px solid var(--line);
+    background:rgba(255,255,255,.05);cursor:pointer;transition:background .18s,border-color .18s}
+  .arm-switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;
+    background:var(--muted);transition:transform .18s,background .18s}
+  .arm-switch.on{background:var(--arm-soft);border-color:var(--arm)}
+  .arm-switch.on::after{transform:translateX(22px);background:var(--arm)}
+  /* selector de los dos ejercicios */
+  .arm-pick{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:10px}
+  .arm-pick-card{text-align:left;border:1px solid var(--line);border-radius:18px;padding:24px 22px;cursor:pointer;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));position:relative;overflow:hidden;
+    transition:transform .15s,border-color .15s,box-shadow .15s;color:inherit;font-family:inherit}
+  .arm-pick-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(var(--arm),var(--arm2))}
+  .arm-pick-card:hover{transform:translateY(-4px);border-color:var(--arm);box-shadow:0 22px 50px rgba(60,30,120,.4)}
+  .arm-pick-card .apc-k{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2)}
+  .arm-pick-card h3{font-size:26px;margin:12px 0 10px;font-weight:800;letter-spacing:-.3px;color:var(--ink)}
+  .arm-pick-card p{font-size:14px;line-height:1.5;color:var(--muted);margin:0}
+  .arm-pick-card .apc-go{margin-top:20px;font-size:13px;font-weight:800;color:var(--arm);letter-spacing:.02em}
+  /* zona de ejercicio en marcha */
+  .arm-run-head{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .arm-run-head h2{font-size:20px;margin:0;font-weight:800;letter-spacing:-.2px}
+  .arm-subback{font-size:12px;font-weight:800;letter-spacing:.04em;color:var(--muted);background:rgba(233,237,255,.06);
+    border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer;font-family:inherit}
+  .arm-subback:hover{color:var(--ink);border-color:var(--arm)}
+  .arm-staff-wrap{background:var(--paper);border-radius:16px;padding:6px 4px;margin-bottom:18px;overflow-x:auto}
+  .arm-panels{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .arm-panel{border:1px solid var(--line);border-radius:14px;padding:14px 13px;background:linear-gradient(180deg,var(--panel2),var(--panel));
+    display:flex;flex-direction:column;gap:11px;transition:border-color .18s,box-shadow .18s}
+  .arm-panel.ok{border-color:var(--green);box-shadow:0 0 0 1px var(--green-soft)}
+  .arm-panel.bad{border-color:var(--red);box-shadow:0 0 0 1px var(--red-soft)}
+  .arm-panel .ap-num{font-size:10.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2)}
+  .arm-play{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:11px;cursor:pointer;
+    font-family:inherit;font-weight:800;font-size:14px;padding:11px 10px;color:#1a1030;
+    background:linear-gradient(135deg,var(--arm),var(--arm2));transition:filter .15s,transform .1s}
+  .arm-play:hover{filter:brightness(1.08)} .arm-play:active{transform:scale(.97)}
+  .arm-play.playing{filter:brightness(.92)}
+  .arm-opts{display:flex;flex-direction:column;gap:7px}
+  .arm-opt{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink);border-radius:9px;
+    padding:9px 11px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;
+    transition:background .14s,border-color .14s,color .14s}
+  .arm-opt:hover:not(:disabled){border-color:var(--arm);background:var(--arm-soft)}
+  .arm-opt:disabled{cursor:default}
+  .arm-opt.chosen-ok{border-color:var(--green);background:var(--green-soft);color:#bff3dd}
+  .arm-opt.chosen-bad{border-color:var(--red);background:var(--red-soft);color:#ffc8d0}
+  .arm-opt.reveal-ok{border-color:var(--green);color:#bff3dd}
+  .arm-verdict{font-size:12px;font-weight:800;min-height:1em}
+  .arm-verdict.ok{color:var(--green)} .arm-verdict.bad{color:var(--red)}
+  /* dos ejercicios apilados */
+  .arm-section{margin-bottom:30px}
+  .arm-sec-title{font-size:20px;font-weight:800;margin:0 0 14px;letter-spacing:-.2px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;color:var(--ink)}
+  .arm-sec-title .ast-k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--arm);background:var(--arm-soft);border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-weight:800}
+  /* opciones tarjeta A en rejilla 2×2 + botón ancho de 7ª */
+  .arm-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .arm-opt.cell{text-align:center;padding:9px 6px;line-height:1.05}
+  .arm-opt .ao-ab{display:block;font-weight:900;font-size:15px}
+  .arm-opt .ao-full{display:block;font-size:9.5px;color:var(--muted);font-weight:600;margin-top:3px;letter-spacing:.01em}
+  .arm-opt.cell.chosen-ok .ao-full,.arm-opt.cell.reveal-ok .ao-full{color:#9be3c4}
+  .arm-opt.cell.chosen-bad .ao-full{color:#ffaeb8}
+  .arm-opt-wide{width:100%;text-align:center;margin-top:7px;font-weight:900}
+  .arm-play.spent{background:linear-gradient(135deg,#2a2440,#201b34);color:var(--arm);opacity:1;cursor:default}
+  /* play redondo + bolitas de escuchas (mismo patrón que rítmico/melódico) */
+  .arm-playrow{display:flex;align-items:center;gap:12px;justify-content:center;margin:2px 0 4px}
+  #armonicaView .play-btn{width:46px;height:46px}
+  #armonicaView .play-btn svg{width:22px;height:22px}
+  #armonicaView .play-btn:hover{background:var(--arm)}
+  #armonicaView .play-btn.playing{background:var(--arm);--pulse-color:rgba(155,107,255,.45)}
+  #armonicaView .listens .dot{border-color:var(--arm)}
+  #armonicaView .listens .dot.used{background:var(--arm);border-color:transparent}
+  @media (max-width:760px){
+    .arm-panels{grid-template-columns:repeat(2,1fr)}
+  }
+
   @media (max-width:860px){
     .exo-main{grid-template-columns:1fr}
     .home-grid{grid-template-columns:1fr}
@@ -404,7 +483,7 @@
   .opt-top{display:block;width:max-content;margin:18px auto 0}
   .eva-hero{text-align:center;margin:18px 0 34px}
   .eva-big{font-size:38px;font-weight:900;letter-spacing:-.01em;margin:0;line-height:1}
-  .eva-big .pre{color:var(--ink);font-weight:300;opacity:.6}
+  .eva-big .pre{color:var(--muted);font-weight:200}
   .eva-big .dict{color:var(--ink);font-weight:900}
   .eva-big .home2{font-size:.5em;color:#aeb6d6}
   .eva-tag{font-size:15px;color:var(--muted);margin:10px 0 0}
@@ -455,7 +534,7 @@
 <div class="wrap">
 
   <header class="top">
-    <a class="brand" id="brandHome" href="https://iagonaron.github.io/LMEAVathome/" style="cursor:pointer;text-decoration:none;color:inherit">
+    <a class="brand" id="brandHome" href="#" onclick="brandNav();return false;" style="cursor:pointer;text-decoration:none;color:inherit">
       <h1><span class="a">LM</span><span class="eav">EAV</span> <span class="home2">at home</span></h1>
       <span class="brand-inline">Recursos interactivos LM y EAV desde tu casa</span>
     </a>
@@ -483,7 +562,6 @@
           <div class="mode-card flip-back">
             <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">PRIMER CICLO</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
             <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">SEGUNDO CICLO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
-            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">TERCER CICLO</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
             <button class="lvl-back">← volver</button>
           </div>
         </div>
@@ -501,7 +579,6 @@
           <div class="mode-card flip-back">
             <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">PRIMER CICLO</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
             <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">SEGUNDO CICLO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
-            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">TERCER CICLO</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
             <button class="lvl-back">← volver</button>
           </div>
         </div>
@@ -519,9 +596,20 @@
           <div class="mode-card flip-back">
             <div class="lvl lvl-easy locked" data-lvl="easy"><span class="lvl-nm">PRIMER CICLO</span><span class="lvl-cur">1ºGE · 2ºGE</span></div>
             <div class="lvl lvl-med" data-lvl="med"><span class="lvl-nm">SEGUNDO CICLO</span><span class="lvl-cur">3ºGE · 4ºGE</span></div>
-            <div class="lvl lvl-hard locked" data-lvl="hard"><span class="lvl-nm">TERCER CICLO</span><span class="lvl-cur">1ºGP · 2ºGP</span></div>
             <button class="lvl-back">← volver</button>
           </div>
+        </div>
+      </div>
+      <div class="flip-card" id="armEntry">
+        <div class="flip-inner">
+          <button class="mode-card m4 flip-front" id="armEntryBtn">
+            <div class="edge"></div>
+            <div>
+              <h2 class="card-title"><span class="hl">ARM</span><span class="dim">ÓNICO</span></h2>
+              <p>Trabajamos el oído con tipos de acordes y la disposición de sus notas. Dos ejercicios; activa la 7ª de dominante para subir el nivel.</p>
+            </div>
+            <div class="go">Entrar →</div>
+          </button>
         </div>
       </div>
     </div>
@@ -530,9 +618,6 @@
 
   <div class="ex-view" id="ritmicaView">
     <div class="backbar">
-      <button class="btn-back" id="backBtn">← Modos</button>
-      <span class="now-tag">PreDict · Rítmico</span>
-      <span class="ex-meta">Escucha cada ejercicio (máx. 3 veces) y reconstrúyelo</span>
       <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtn" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
     </div>
     <h1 class="section-title rit"><span class="hl">RÍT</span><span class="dim">MICO</span></h1>
@@ -544,9 +629,6 @@
   <!-- ============ MELÓDICO ============ -->
   <div class="ex-view" id="melodicaView">
     <div class="backbar">
-      <button class="btn-back" id="backBtnMel">← Modos</button>
-      <span class="now-tag">PreDict · Melódico</span>
-      <span class="ex-meta">Escucha (máx. 2 veces) y coloca las 10 notas en el pentagrama</span>
       <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtnMel" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
     </div>
     <h1 class="section-title mel"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h1>
@@ -557,14 +639,38 @@
   <!-- ============ TONCOM ============ -->
   <div class="ex-view" id="toncomView">
     <div class="backbar">
-      <button class="btn-back" id="backBtnTon">← Modos</button>
-      <span class="now-tag">PreDict · TonCom</span>
-      <span class="ex-meta">Escucha cada dictado y deduce su tonalidad y su compás</span>
       <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtnTon" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
     </div>
     <h1 class="section-title ton"><span class="hl">TON</span><span class="dim">COM</span></h1>
     <div id="tonContainer"></div>
     <div class="global-score" id="globalScoreTon"></div>
+  </div>
+
+  <!-- ============ ARMÓNICA ============ -->
+  <div class="ex-view" id="armonicaView">
+    <div class="backbar">
+      <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtnArm" title="Nuevos ejercicios"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
+    </div>
+    <h1 class="section-title"><span class="hl">ARM</span><span class="dim">ÓNICO</span></h1>
+
+    <div class="arm-seventh">
+      <div class="as-txt"><b>Acordes de 7ª de dominante</b><span>Añade el acorde de 7ª de dominante a los ejercicios y a las opciones.</span></div>
+      <div class="arm-switch" id="armSeventh" role="switch" aria-checked="false" tabindex="0"></div>
+    </div>
+
+    <div class="arm-section" id="armSecA">
+      <h2 class="arm-sec-title"><span class="ast-k">Ejercicio A</span> Tipo de acorde</h2>
+      <div class="arm-staff-wrap"><div id="armStaff_A"></div></div>
+      <div class="arm-panels" id="armPanels_A"></div>
+      <div class="global-score" id="armScore_A"></div>
+    </div>
+
+    <div class="arm-section" id="armSecB">
+      <h2 class="arm-sec-title"><span class="ast-k">Ejercicio B</span> Inversión: ¿qué nota está arriba?</h2>
+      <div class="arm-staff-wrap"><div id="armStaff_B"></div></div>
+      <div class="arm-panels" id="armPanels_B"></div>
+      <div class="global-score" id="armScore_B"></div>
+    </div>
   </div>
 
   <!-- ============ EDICIÓN RÍTMICO ============ -->
@@ -578,7 +684,6 @@
     <div class="lvl-tabs" id="ritLvlTabs">
       <button class="lvl-tab easy active" data-lvl="facil">PRIMER CICLO</button>
       <button class="lvl-tab med" data-lvl="medio">SEGUNDO CICLO</button>
-      <button class="lvl-tab hard" data-lvl="dificil">TERCER CICLO</button>
     </div>
     <h3 class="edit-h">Células rítmicas <span class="edit-hint">— pulsa para activar / desactivar</span></h3>
     <div class="cell-grid" id="ritCellGrid"></div>
@@ -3043,7 +3148,7 @@ function keySigPCs(sig){const s=new Set();if(sig>0)for(let i=0;i<sig;i++)s.add(S
 function buildPitches(key){
   const tpc=TONIC_PC[key.tonic];const scale=SCALES[key.mode];const useFlats=key.sig<0;
   const pitchset=new Set();scale.forEach(s=>pitchset.add((tpc+s)%12));
-  const out=[];for(let m=57;m<=79;m++){if(pitchset.has(m%12))out.push(m);}
+  const out=[];for(let m=43;m<=79;m++){if(pitchset.has(m%12))out.push(m);}
   return {midis:out,useFlats,tpc};
 }
 // deletreo diatónico: a cada pc de la escala le asigna la letra correcta (grado a grado).
@@ -3106,41 +3211,80 @@ function intervaloPermitido(midisOrd,a,b){
   return false;
 }
 function costeSalto(g){if(g===1)return 0;if(g===2)return 1;if(g===3||g===4)return 2;if(g===5)return 2;if(g===7)return 0;return 0;}
-function genMelodia(key){
+function genMelodia(key,clef){
+  clef=clef||'treble';
   const {midis,useFlats}=buildPitches(key);
   const sigPCs=keySigPCs(key.sig);const tpc=TONIC_PC[key.tonic];
   const tonicMidis=midis.filter(m=>m%12===tpc);
-  const center=68;const startTonic=tonicMidis.reduce((a,b)=>Math.abs(b-center)<Math.abs(a-center)?b:a);
-  const lo=60,hi=76;
+  // rango y centro según la clave: sol (treble) en agudo; fa (bass) Sol2..Do4
+  const isBass=(clef==='bass');
+  const center=isBass?52:68;
+  const lo=isBass?43:60, hi=isBass?60:76;
+  // tónica inicial dentro del rango estricto, lo más cercana al centro
+  const tonicsInRange=tonicMidis.filter(m=>m>=lo&&m<=hi);
+  const startPool=tonicsInRange.length?tonicsInRange:tonicMidis;
+  const startTonic=startPool.reduce((a,b)=>Math.abs(b-center)<Math.abs(a-center)?b:a);
   let intentos=0;
   while(true){
     intentos++;
-    const seq=[startTonic];let deuda=0;let saltosSeguidos=0;let ok=true;
+    const seq=[startTonic];
+    let thirds=0;       // terceras consecutivas (máx 2)
+    let comp=0;         // notas de compensación pendientes tras un salto de 4ª o más
+    let compDir=0;      // sentido obligado de la compensación (contrario al salto)
+    let ok=true;
     for(let i=1;i<10;i++){
       const prev=seq[i-1];const isLast=(i===9);
-      let cands=midis.filter(m=>m!==prev&&intervaloPermitido(midis,prev,m));
-      // arpegios: se permiten hasta 2 saltos seguidos; al 3º, obligar grado conjunto.
-      // además, si la deuda llegó al tope, obligar resolución por 2ª.
-      const TOPE_DEUDA=3;
-      if(saltosSeguidos>=2 || deuda>=TOPE_DEUDA){
-        cands=cands.filter(m=>gradosEntre(midis,prev,m)===1);
+      const left=9-i;   // notas que quedan tras ésta
+      // RANGO ESTRICTO + intervalos permitidos
+      let cands=midis.filter(m=>{
+        if(m===prev||m<lo||m>hi) return false;
+        if(!intervaloPermitido(midis,prev,m)) return false;
+        const g=gradosEntre(midis,prev,m);              // 1=2ª,2=3ª,3=4ª,4=5ª,5=6ª,7=8ª
+        const dir=(m>prev?1:-1);
+        if(comp>0){
+          // compensando: solo 2ª (grado conjunto) en sentido contrario al salto
+          return g===1 && dir===compDir;
+        }
+        // máx 2 terceras seguidas
+        if(g===2 && thirds>=2) return false;
+        // un salto de 4ª o más necesita 2 notas después para compensar
+        if(g>=3 && left<2) return false;
+        return true;
+      });
+      // penúltima: si quedara compensación a medias, fórzala; si no, deja vía libre a la tónica final
+      if(isLast){
+        cands=tonicMidis.filter(m=>{
+          if(m===prev||m<lo||m>hi) return false;
+          if(!intervaloPermitido(midis,prev,m)) return false;
+          const g=gradosEntre(midis,prev,m);
+          const dir=(m>prev?1:-1);
+          if(comp>0) return g===1 && dir===compDir;     // aún compensando: 2ª contraria
+          return g===1||g===7;                          // si no, cerrar por 2ª u 8ª
+        });
+        if(!cands.length){ok=false;break;}
       }
-      // penúltima: la deuda debe quedar a 0 tras colocarla
-      if(i===8)cands=cands.filter(m=>{const g=gradosEntre(midis,prev,m);let d=deuda;if(g===1)d=Math.max(0,d-1);else d+=costeSalto(g);return d===0;});
-      if(isLast){cands=tonicMidis.filter(m=>{if(m===prev)return false;const g=gradosEntre(midis,prev,m);if(!intervaloPermitido(midis,prev,m))return false;if(saltosSeguidos>=2)return g===1;return g===1||g===7;});if(!cands.length){ok=false;break;}}
-      const inRange=cands.filter(m=>m>=lo&&m<=hi);
-      const pool=inRange.length?(MEL_RND()<0.85?inRange:cands):cands;
-      if(!pool.length){ok=false;break;}
-      const next=mpick(pool);const g=gradosEntre(midis,prev,next);
-      if(g===1){deuda=Math.max(0,deuda-1);saltosSeguidos=0;}
-      else{deuda+=costeSalto(g);saltosSeguidos++;}
+      if(!cands.length){ok=false;break;}
+      const next=mpick(cands);
+      const g=gradosEntre(midis,next,prev), dir=(next>prev?1:-1);
+      if(comp>0){ comp--; thirds=0; if(comp===0) compDir=0; }
+      else if(g>=3){ comp=2; compDir=-dir; thirds=0; }   // tras 4ª o más: 2 notas por 2ª en sentido contrario
+      else if(g===2){ thirds++; }                        // 3ª: cuenta para el tope de 2 seguidas
+      else { thirds=0; }                                 // 2ª: reinicia
       seq.push(next);
     }
-    if(ok&&seq.length===10)return {key,notes:seq.map(m=>midiToVF(m,key)),midis:seq};
-    if(intentos>2000){
+    if(ok&&seq.length===10&&comp===0)return {key,notes:seq.map(m=>midiToVF(m,key)),midis:seq};
+    if(intentos>4000){
+      // escala que rebota DENTRO del rango estricto
+      const inR=midis.filter(m=>m>=lo&&m<=hi);
       const seq=[startTonic];let dir=1;
-      for(let i=1;i<10;i++){let idx=midis.indexOf(seq[i-1])+dir;if(idx<0||idx>=midis.length){dir=-dir;idx=midis.indexOf(seq[i-1])+dir;}seq.push(midis[idx]);}
-      seq[9]=tonicMidis.reduce((a,b)=>Math.abs(b-seq[8])<Math.abs(a-seq[8])?b:a);
+      for(let i=1;i<10;i++){
+        let idx=inR.indexOf(seq[i-1])+dir;
+        if(idx<0||idx>=inR.length){dir=-dir;idx=inR.indexOf(seq[i-1])+dir;}
+        if(idx<0||idx>=inR.length){idx=inR.indexOf(seq[i-1]);}  // 1 sola nota en rango: repite
+        seq.push(inR[idx]);
+      }
+      const tonR=tonicsInRange.length?tonicsInRange:[startTonic];
+      seq[9]=tonR.reduce((a,b)=>Math.abs(b-seq[8])<Math.abs(a-seq[8])?b:a);
       return {key,notes:seq.map(m=>midiToVF(m,key)),midis:seq};
     }
   }
@@ -3159,12 +3303,13 @@ const MEL_NOTE_SEC=2, MEL_GAP_SEC=1;
 function buildMelExos(){
   const keys=chooseKeysForExercise();
   melExos=keys.map(key=>{
-    const mel=genMelodia(key);
+    const clef = (MEL_RND()<0.50) ? 'bass' : 'treble';   // 50% clave de fa
+    const mel=genMelodia(key,clef);
     const {midis}=buildPitches(key);
     const sigPCs=keySigPCs(key.sig);
     const slots=new Array(10).fill(null);
     slots[0]=mel.midis[0]; // tónica inicial dada
-    return {key, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1};
+    return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1};
   });
 }
 
@@ -3304,7 +3449,7 @@ function drawMelBoard(idx){
   renderer.resize(W,H);
   const ctx=renderer.getContext();
   const stave=new VF.Stave(8,40,W-16);
-  stave.addClef('treble');
+  stave.addClef(ex.clef||'treble');
   if(ex.key.vfsig!=='C') stave.addKeySignature(ex.key.vfsig);
   stave.setContext(ctx).draw();
   const source = ex.revealed ? ex.midis : ex.slots;
@@ -3314,14 +3459,15 @@ function drawMelBoard(idx){
     const m=source[i];
     if(m!==null && m!==undefined){
       const vf=midiToVF(m,ex.key);
-      const sn=new VF.StaveNote({keys:[vf.key],duration:'w'});
+      const sn=new VF.StaveNote({keys:[vf.key],duration:'w',clef:ex.clef||'treble'});
       if(vf.accidental) sn.addModifier(new VF.Accidental(vf.accidental),0);
       const col=colorMap?colorMap[i]:null;
       if(i===0 && !ex.scored && !ex.revealed) sn.setStyle({fillStyle:'#5b9dff',strokeStyle:'#5b9dff'}); // tónica dada en azul (color del apartado)
       else if(col) sn.setStyle({fillStyle:col,strokeStyle:col});
       notes.push(sn);
     } else {
-      const sn=new VF.StaveNote({keys:['b/4'],duration:'w'});
+      const _emptyKey=(ex.clef==='bass')?'d/3':'b/4';   // nota central de la clave: sin líneas adicionales fantasma
+      const sn=new VF.StaveNote({keys:[_emptyKey],duration:'w',clef:ex.clef||'treble'});
       sn.setStyle({fillStyle:'rgba(0,0,0,0)',strokeStyle:'rgba(0,0,0,0)'});
       notes.push(sn);
     }
@@ -3345,8 +3491,9 @@ function drawMelBoard(idx){
         if(ys && ys.length){ ex._anchor={midi:m, y:ys[0], step:diatonicStep(m)}; ex._half=lineSpacing/2; break; }
       }
     }
-    if(!ex._anchor){ // sin notas: anclar en B4 = línea central
-      ex._anchor={midi:71, y:stave.getYForLine(2), step:diatonicStep(71)}; ex._half=lineSpacing/2;
+    if(!ex._anchor){ // sin notas: anclar en la línea central del pentagrama (B4 en sol, D3 en fa)
+      const anchorMidi=(ex.clef==='bass')?50:71;
+      ex._anchor={midi:anchorMidi, y:stave.getYForLine(2), step:diatonicStep(anchorMidi)}; ex._half=lineSpacing/2;
     }
   }catch(e){ ex._anchor={midi:71, y:80, step:diatonicStep(71)}; ex._half=5; }
   // números 1..10 bajo el pentagrama
@@ -3460,7 +3607,9 @@ function showGhost(idx,slot,midi){
   // líneas adicionales: comparar el step de la nota con las líneas del pentagrama
   // líneas del pentagrama (clave sol): Mi4=64 (inferior) ... Fa5=77 (superior)
   const stepNote=diatonicStep(midi);
-  const stepBottom=diatonicStep(64), stepTop=diatonicStep(77);
+  // límites del pentagrama según la clave: sol = Mi4(64)/Fa5(77) · fa = Sol2(43)/La3(57)
+  const _bass=(ex.clef==='bass');
+  const stepBottom=diatonicStep(_bass?43:64), stepTop=diatonicStep(_bass?57:77);
   const half=ex._half||5;
   // ledger lines por debajo: en Do4(step de 60), La3, ... cada 2 steps bajo Mi4
   // ledger lines por encima: La5, Do6,... cada 2 steps sobre Fa5
@@ -3625,11 +3774,28 @@ function maybeShowMelGlobal(){
     '<span class="gs-sub">'+melExos.map((e,i)=>'Ej.'+(i+1)+': '+melScoreOf(e)+'/10').join(' · ')+'</span></div></div>';
   panel.style.display='block';
 }
+// La marca arriba a la izquierda muestra su destino: dentro de un apartado -> "PreDict at home" (vuelve a la portada);
+// en la portada -> "LMEAV at home" (va al portal Elemental). Sirve de "volver atrás".
+function setBrand(dest){
+  const h=document.querySelector('#brandHome h1'); if(!h) return;
+  if(dest==='predict') h.innerHTML='<span class="a">PRE</span><span class="eav">DICT</span> <span class="home2">at home</span>';
+  else h.innerHTML='<span class="a">LM</span><span class="eav">EAV</span> <span class="home2">at home</span>';
+}
+function brandNav(){
+  const R=id=>{ const el=document.getElementById(id); return el && el.classList.contains('active'); };
+  if(R('ritmicaView')) goHome();
+  else if(R('melodicaView')) goHomeMel();
+  else if(R('toncomView')) goHomeTon();
+  else if(R('armonicaView')) goHomeArm();
+  else if(R('ritEditView')) closeRitEdit();
+  else window.location.href='https://iagonaron.github.io/LMEAVathome/';
+}
 function openMelodica(){
   setMode('mel');
   loadPiano();
   document.getElementById('evaHome').classList.add('hidden');
   document.getElementById('melodicaView').classList.add('active');
+  setBrand('predict');
   startMelodica();
 }
 function startMelodica(){buildMelExos();renderMelExos();const g=document.getElementById('globalScoreMel');if(g){g.style.display='none';g.innerHTML='';}}
@@ -3638,6 +3804,7 @@ function goHomeMel(){
   stopMelAudio();
   document.getElementById('melodicaView').classList.remove('active');
   document.getElementById('evaHome').classList.remove('hidden');
+  setBrand('lmeav');
 }
 
 
@@ -4494,10 +4661,11 @@ function openToncom(){
   loadPiano();
   document.getElementById('evaHome').classList.add('hidden');
   document.getElementById('toncomView').classList.add('active');
+  setBrand('predict');
   startToncom();
 }
 function startToncom(){ stopTonAudio(); buildTonExos(); renderTonExos(); const g=document.getElementById('globalScoreTon'); if(g){g.style.display='none';g.innerHTML='';} }
-function goHomeTon(){ setMode(null); stopTonAudio(); document.getElementById('toncomView').classList.remove('active'); document.getElementById('evaHome').classList.remove('hidden'); }
+function goHomeTon(){ setMode(null); stopTonAudio(); document.getElementById('toncomView').classList.remove('active'); document.getElementById('evaHome').classList.remove('hidden'); setBrand('lmeav'); }
 
 
 /* ====== NAV + TOAST ====== */
@@ -4509,6 +4677,7 @@ function openRitmica(){
   setMode('rit');
   document.getElementById('evaHome').classList.add('hidden');
   document.getElementById('ritmicaView').classList.add('active');
+  setBrand('predict');
   startRitmica();
 }
 function startRitmica(){buildExos();renderExos();const g=document.getElementById('globalScore');if(g){g.style.display='none';g.innerHTML='';}}
@@ -4516,6 +4685,7 @@ function goHome(){
   setMode(null);
   document.getElementById('ritmicaView').classList.remove('active');
   document.getElementById('evaHome').classList.remove('hidden');
+  setBrand('lmeav');
 }
 let toastT=null;
 function toast(msg){
@@ -4661,7 +4831,7 @@ function showCfgPrompt(txt){
 }
 
 function backToEva(){
-  ['ritmicaView','melodicaView','toncomView','ritEditView'].forEach(v=>document.getElementById(v).classList.remove('active'));
+  ['ritmicaView','melodicaView','toncomView','ritEditView','armonicaView'].forEach(v=>document.getElementById(v).classList.remove('active'));
   document.querySelectorAll('.flip-card.flipped').forEach(c=>c.classList.remove('flipped'));
   setMode(null);
   document.getElementById('evaHome').classList.remove('hidden');
@@ -4677,18 +4847,312 @@ document.getElementById('maintLink').addEventListener('click',()=>{
 document.getElementById('maintClose').addEventListener('click',()=>document.getElementById('maintBackdrop').classList.remove('open'));
 document.getElementById('maintBackdrop').addEventListener('click',e=>{ if(e.target.id==='maintBackdrop') document.getElementById('maintBackdrop').classList.remove('open'); });
 
-document.getElementById('backBtn').addEventListener('click',goHome);
 document.getElementById('regenBtn').addEventListener('click',startRitmica);
-document.getElementById('backBtnMel').addEventListener('click',goHomeMel);
 document.getElementById('regenBtnMel').addEventListener('click',startMelodica);
-document.getElementById('backBtnTon').addEventListener('click',goHomeTon);
 document.getElementById('regenBtnTon').addEventListener('click',startToncom);
 document.getElementById('roadClose').addEventListener('click',closeRoad);
 document.getElementById('roadBackdrop').addEventListener('click',e=>{ if(e.target.id==='roadBackdrop') closeRoad(); });
 window.addEventListener('resize',()=>{
   if(document.getElementById('ritmicaView').classList.contains('active'))exos.forEach((_,i)=>drawBoard(i));
   if(document.getElementById('melodicaView').classList.contains('active'))melExos.forEach((_,i)=>drawMelBoard(i));
+  if(document.getElementById('armonicaView').classList.contains('active')){ armDraw('A'); armDraw('B'); }
 });
+
+/* ===================================================================
+   ARMÓNICA — cualidad e inversión de acordes (de oído)
+   =================================================================== */
+const ARM = { seventh:false, A:{ex:[]}, B:{ex:[]}, _hl:null, _playTok:0, _timers:[] };
+const ARM_LETTERS=['C','D','E','F','G','A','B'];
+const ARM_LPC={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const ARM_QUAL={
+  mayor:{iv:[0,4,7], label:'perfecto mayor'},
+  menor:{iv:[0,3,7], label:'perfecto menor'},
+  dis:  {iv:[0,3,6], label:'disminuido'},
+  aum:  {iv:[0,4,8], label:'aumentado'},
+  dom7: {iv:[0,4,7,10], label:'7ª de dominante'},
+};
+// raíces con cifrado limpio (letra + alteración en semitonos) por cualidad
+const ARM_ROOTS={
+  mayor:[['C',0],['G',0],['D',0],['A',0],['E',0],['F',0],['B',-1],['E',-1]],
+  menor:[['A',0],['E',0],['D',0],['G',0],['C',0],['B',0],['F',0]],
+  dis:  [['B',0],['C',0],['D',0],['E',0],['A',0],['G',0],['F',1]],
+  aum:  [['C',0],['F',0],['G',0],['D',0],['B',-1],['E',-1],['A',-1]],
+  dom7: [['G',0],['C',0],['D',0],['A',0],['E',0],['F',0],['B',-1]],
+};
+const ARM_MEMBER=['tonica','tercera','quinta','septima'];
+const ARM_MEMBER_LBL={tonica:'Tónica',tercera:'Tercera',quinta:'Quinta',septima:'Séptima'};
+const ARM_NOTE_INK='#16223f', ARM_NOTE_BLUE='#3a74ff';
+
+function armPick(a){return a[Math.floor(Math.random()*a.length)];}
+function armSpell(rootLetter, member, midi){
+  const li=(ARM_LETTERS.indexOf(rootLetter)+[0,2,4,6][member])%7;
+  const letter=ARM_LETTERS[li];
+  const naturalPc=ARM_LPC[letter];
+  const targetPc=((midi%12)+12)%12;
+  let acc=targetPc-naturalPc; while(acc>6)acc-=12; while(acc<-6)acc+=12;
+  const octave=Math.round((midi-naturalPc)/12)-1;
+  return {letter,acc,octave,midi,member};
+}
+function armAccSym(a){return a===1?'#':a===-1?'b':a===2?'##':a===-2?'bb':'';}
+function armVexKey(n){return n.letter.toLowerCase()+armAccSym(n.acc)+'/'+n.octave;}
+function armFit(notes){
+  let shift=0,g=0;
+  const mn=()=>Math.min(...notes.map(n=>n.midi))+shift, mx=()=>Math.max(...notes.map(n=>n.midi))+shift;
+  while(mn()<58 && g++<6) shift+=12;
+  while(mx()>81 && g++<14) shift-=12;
+  return notes.map(n=>({...n,midi:n.midi+shift}));
+}
+function armReSpell(rl,notes){ notes.forEach(n=>{const s=armSpell(rl,n.member,n.midi);n.letter=s.letter;n.acc=s.acc;n.octave=s.octave;}); }
+function armNameES(n){ const L={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'}; return L[n.letter]+(n.acc===1?'♯':n.acc===-1?'♭':n.acc===2?'♯♯':n.acc===-2?'♭♭':''); }
+
+// distribución de cualidades de la tarjeta A:
+//  sin 7D: 70% perfectos (Pm/PM) · 30% extremos (Aum/Dis)
+//  con 7D: 50% perfectos · 30% extremos · 20% 7ª de dominante
+function armPickQualityA(seventh){
+  const perf=['mayor','menor'], ext=['aum','dis'];
+  const r=Math.random();
+  if(!seventh){ return r<0.70 ? armPick(perf) : armPick(ext); }
+  if(r<0.50) return armPick(perf);
+  if(r<0.80) return armPick(ext);
+  return 'dom7';
+}
+function armGenCualidad(seventh){
+  const q=armPickQualityA(seventh); const [rl,ra]=armPick(ARM_ROOTS[q]);
+  const rootMidi=60+ARM_LPC[rl]+ra; const iv=ARM_QUAL[q].iv;
+  let notes=iv.map((s,k)=>armSpell(rl,k,rootMidi+s));
+  notes=armFit(notes); armReSpell(rl,notes); notes.sort((a,b)=>a.midi-b.midi);
+  return {type:'A', quality:q, rootLetter:rl, notes};
+}
+function armGenInversion(seventh){
+  const pool = seventh ? ['mayor','menor','dom7'] : ['mayor','menor'];
+  const q=armPick(pool); const iv=ARM_QUAL[q].iv; const nMem=iv.length;
+  const top=Math.floor(Math.random()*nMem);
+  const [rl,ra]=armPick(ARM_ROOTS[q]); const rootMidi=60+ARM_LPC[rl]+ra;
+  // voicing cerrado con el miembro `top` arriba: los miembros por encima de `top`
+  // (más agudos en estado fundamental) bajan una 8ª
+  let notes=iv.map((s,k)=>{ let midi=rootMidi+s; if(k>top) midi-=12; return armSpell(rl,k,midi); });
+  notes=armFit(notes); armReSpell(rl,notes); notes.sort((a,b)=>a.midi-b.midi);
+  const topN=notes[notes.length-1];
+  return {type:'B', quality:q, rootLetter:rl, notes, topMember:ARM_MEMBER[topN.member]};
+}
+function armBuildSet(section){
+  const gen = section==='A' ? armGenCualidad : armGenInversion;
+  const keyOf = section==='A' ? (c=>c.quality) : (c=>c.topMember);
+  let set;
+  for(let t=0;t<80;t++){
+    set=[0,1,2,3].map(()=>gen(ARM.seventh));
+    if(new Set(set.map(keyOf)).size>=2) break;   // algo de variedad
+  }
+  set.forEach(c=>{c.answered=false;c.chosen=null;c.correct=false;c.plays=0;});
+  ARM[section].ex=set;
+}
+
+/* ---- audio ---- */
+let armDestNode=null;
+function armDest(){ const ctx=getCtx(); if(!armDestNode){armDestNode=ctx.createGain();armDestNode.gain.value=1;armDestNode.connect(ctx.destination);} return {ctx,dest:armDestNode}; }
+function armStopAudio(){
+  ARM._playTok++; (ARM._timers||[]).forEach(id=>clearTimeout(id)); ARM._timers=[];
+  try{ stopSampler(); }catch(e){}
+  document.querySelectorAll('.arm-play.playing').forEach(b=>b.classList.remove('playing'));
+  if(ARM._hl){ const s=ARM._hl.section; ARM._hl=null; armDraw(s); }
+}
+function armPlayMeasure(section, i){
+  const ch=ARM[section].ex[i]; if(!ch) return;
+  const btn=document.querySelector('#armPanels_'+section+' .play-btn[data-m="'+i+'"]');
+  // límite: antes de responder, máximo 2 escuchas por compás
+  if(!ch.answered){
+    if(ch.plays>=2) return;
+    ch.plays++; armRefreshPlay(section,i);
+  }
+  armStopAudio();
+  const {ctx,dest}=armDest();
+  if(ctx.state==='suspended'){ try{ctx.resume();}catch(e){} }
+  loadPiano();
+  const midis=ch.notes.map(n=>n.midi);
+  const t0=ctx.currentTime+0.09;
+  const blockDur=1.0, gap=0.16, step=0.42, arpDur=0.5;
+  midis.forEach(m=>pianoPlay(ctx,dest,t0,m,blockDur,0.85));
+  const arp=t0+blockDur+gap;
+  midis.forEach((m,k)=>pianoPlay(ctx,dest,arp+k*step,m,arpDur,0.9));
+  const tok=++ARM._playTok; ARM._timers=[];
+  const at=(when,fn)=>{ const ms=(when-getCtx().currentTime)*1000; ARM._timers.push(setTimeout(()=>{ if(ARM._playTok===tok) fn(); },Math.max(0,ms))); };
+  if(btn) btn.classList.add('playing');
+  if(ch.answered){   // solo resaltamos cuando el compás está revelado
+    at(t0, ()=>armSetHL(section,i,{all:true}));
+    midis.forEach((m,k)=>at(arp+k*step, ()=>armSetHL(section,i,{idx:k})));
+    at(arp+midis.length*step, ()=>armSetHL(section,i,null));
+  }
+  at(arp+midis.length*step+0.12, ()=>{ if(btn)btn.classList.remove('playing'); armRefreshPlay(section,i); });
+}
+function armRefreshPlay(section,i){
+  const ch=ARM[section].ex[i];
+  const wrap=document.getElementById('armListens_'+section+'_'+i);
+  if(wrap) wrap.innerHTML = ch.answered ? '<span style="font-size:11px;color:var(--muted)">libre</span>'
+    : Array.from({length:2},(_,d)=>'<span class="dot '+(ch.plays>d?'used':'')+'"></span>').join('');
+  const btn=document.querySelector('#armPanels_'+section+' .play-btn[data-m="'+i+'"]');
+  if(btn) btn.disabled = (ch.plays>=2 && !ch.answered);
+}
+function armSetHL(section,i,hl){ ARM._hl = hl?{section,m:i,hl}:null; armDraw(section); }
+
+/* ---- render del pentagrama (4 compases) ---- */
+function armDraw(section){
+  const host=document.getElementById('armStaff_'+section); if(!host) return;
+  const ex=ARM[section].ex;
+  host.innerHTML='';
+  const VF=Vex.Flow;
+  const W=Math.max(680, host.clientWidth-2), H=150, y=44;
+  const renderer=new VF.Renderer(host,VF.Renderer.Backends.SVG);
+  renderer.resize(W,H);
+  const ctx=renderer.getContext();
+  const x0=6, totalW=W-12, wm=totalW/4;
+  const svgAddText=(svg,cx,cy,txt,opts)=>{ if(!svg)return; const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',cx); t.setAttribute('y',cy); t.setAttribute('text-anchor','middle');
+    for(const k in (opts||{})) t.setAttribute(k,opts[k]); t.textContent=txt; svg.appendChild(t); };
+  for(let i=0;i<4;i++){
+    const x=x0+i*wm;
+    const stave=new VF.Stave(x,y,wm);
+    if(i===0) stave.addClef('treble');
+    if(i===3) stave.setEndBarType(VF.Barline.type.END);   // doble barra final tras los 4 compases
+    stave.setContext(ctx).draw();
+    const ch=ex[i];
+    if(ch && ch.answered){
+      const keys=ch.notes.map(armVexKey);
+      const sn=new VF.StaveNote({keys, duration:'w'});
+      ch.notes.forEach((n,idx)=>{ if(n.acc!==0) sn.addModifier(new VF.Accidental(armAccSym(n.acc)), idx); });
+      const hl = (ARM._hl && ARM._hl.section===section && ARM._hl.m===i) ? ARM._hl.hl : null;
+      if(hl && hl.all){ sn.setStyle({fillStyle:ARM_NOTE_BLUE,strokeStyle:ARM_NOTE_BLUE}); }
+      else {
+        sn.setStyle({fillStyle:ARM_NOTE_INK,strokeStyle:ARM_NOTE_INK});
+        if(hl && hl.idx!=null){ try{ sn.setKeyStyle(hl.idx,{fillStyle:ARM_NOTE_BLUE,strokeStyle:ARM_NOTE_BLUE}); }catch(e){} }
+      }
+      const voice=new VF.Voice({num_beats:4,beat_value:4}); voice.setStrict(false); voice.addTickables([sn]);
+      new VF.Formatter().joinVoices([voice]).format([voice], wm-(i===0?52:24));
+      voice.draw(ctx,stave);
+      // nombre del acorde encima del compás (raíz + cualidad [+ inversión en B])
+      const svg=host.querySelector('svg');
+      const cx=stave.getNoteStartX()+(x+wm-stave.getNoteStartX())/2-2;
+      const lab=armChordLabel(ch, section);
+      svgAddText(svg, cx, 15, lab.l1, {fill:'#6a44c0','font-size':'12','font-weight':'700','font-family':'Helvetica,Arial,sans-serif'});
+      if(lab.l2) svgAddText(svg, cx, 30, lab.l2, {fill:'#8a73c8','font-size':'11','font-family':'Helvetica,Arial,sans-serif'});
+    } else {
+      const svg=host.querySelector('svg');
+      const cx=stave.getNoteStartX()+(x+wm-stave.getNoteStartX())/2-2;
+      svgAddText(svg, cx, y+46, '?', {fill:'#9aa3c0','font-size':'30','font-family':'Georgia,serif','font-style':'italic'});
+    }
+  }
+}
+// raíz del acorde + etiqueta (en B incluye la inversión según el bajo)
+function armChordLabel(ch, section){
+  const root=ch.notes.find(n=>n.member===0);
+  const rn = root ? armNameES(root) : '';
+  const ql = ARM_QUAL[ch.quality].label;
+  if(section==='A') return {l1: rn+' '+ql, l2:''};
+  const bassMember = ch.notes[0].member;
+  const inv = ['estado fundamental','1ª inversión','2ª inversión','3ª inversión'][bassMember] || '';
+  return {l1: rn+' '+ql, l2: inv};
+}
+
+function armRenderPanels(section){
+  const wrap=document.getElementById('armPanels_'+section); wrap.innerHTML='';
+  for(let i=0;i<4;i++){
+    let optsHTML;
+    if(section==='A'){
+      // rejilla 2×2: PM / Aum  ·  Pm / Dis  (+ botón ancho 7D si procede)
+      const cells=[['mayor','PM','Perfecto Mayor'],['aum','Aum','Aumentado'],['menor','Pm','Perfecto menor'],['dis','Dis','Disminuido']];
+      let grid=cells.map(([v,ab,full])=>'<button class="arm-opt cell" data-sec="A" data-m="'+i+'" data-val="'+v+'"><span class="ao-ab">'+ab+'</span><span class="ao-full">'+full+'</span></button>').join('');
+      let wide = ARM.seventh ? '<button class="arm-opt arm-opt-wide" data-sec="A" data-m="'+i+'" data-val="dom7">7D (séptima dominante)</button>' : '';
+      optsHTML='<div class="arm-opts"><div class="arm-grid">'+grid+'</div>'+wide+'</div>';
+    } else {
+      // orden invertido: (Séptima ·) Quinta · Tercera · Tónica
+      const list=[]; if(ARM.seventh) list.push('septima'); list.push('quinta','tercera','tonica');
+      optsHTML='<div class="arm-opts">'+list.map(k=>'<button class="arm-opt" data-sec="B" data-m="'+i+'" data-val="'+k+'">'+ARM_MEMBER_LBL[k]+'</button>').join('')+'</div>';
+    }
+    const p=document.createElement('div'); p.className='arm-panel'; p.id='armPanel_'+section+'_'+i;
+    p.innerHTML='<div class="ap-num">Compás '+(i+1)+'</div>'+
+      '<div class="arm-playrow"><button class="play-btn" data-m="'+i+'" title="Escuchar"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button><div class="listens" id="armListens_'+section+'_'+i+'"></div></div>'+
+      optsHTML+
+      '<div class="arm-verdict" id="armVerd_'+section+'_'+i+'"></div>';
+    wrap.appendChild(p);
+  }
+  wrap.querySelectorAll('.play-btn').forEach(b=>b.addEventListener('click',()=>armPlayMeasure(section, +b.dataset.m)));
+  wrap.querySelectorAll('.arm-opt').forEach(b=>b.addEventListener('click',()=>armAnswer(section, +b.dataset.m, b.dataset.val)));
+  for(let i=0;i<4;i++) armRefreshPlay(section,i);
+}
+function armAnswer(section, i, val){
+  const ch=ARM[section].ex[i]; if(!ch || ch.answered) return;
+  ch.answered=true; ch.chosen=val;
+  const correctVal = section==='A' ? ch.quality : ch.topMember;
+  ch.correct = (val===correctVal);
+  const panel=document.getElementById('armPanel_'+section+'_'+i);
+  panel.classList.add(ch.correct?'ok':'bad');
+  panel.querySelectorAll('.arm-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.val===val) b.classList.add(ch.correct?'chosen-ok':'chosen-bad');
+    else if(!ch.correct && b.dataset.val===correctVal) b.classList.add('reveal-ok');
+  });
+  armRefreshPlay(section,i);   // tras corregir: escuchas libres
+  const v=document.getElementById('armVerd_'+section+'_'+i);
+  const solLbl = section==='A' ? ARM_QUAL[correctVal].label : ARM_MEMBER_LBL[correctVal].toLowerCase();
+  v.className='arm-verdict '+(ch.correct?'ok':'bad');
+  v.textContent = ch.correct ? '¡Bien!' : ('Era: '+solLbl);
+  armDraw(section);                  // revela el acorde + nombre encima
+  armPlayMeasure(section,i);         // reproduce con resaltado azul
+  armMaybeScore(section);
+}
+function armMaybeScore(section){
+  const ex=ARM[section].ex;
+  if(!ex.every(c=>c.answered)) return;
+  const ok=ex.filter(c=>c.correct).length;
+  const nota=(ok/4*10); const notaTxt=(Math.round(nota*10)/10).toString().replace('.',',');
+  const panel=document.getElementById('armScore_'+section);
+  const sub = section==='A' ? 'tipo de acorde' : 'nota superior (inversión)';
+  panel.innerHTML='<div class="gs-inner">'+
+    '<div class="gs-left"><span class="gs-kicker">Resultado</span><span class="gs-frac">'+ok+' <span class="gs-of">/ 4</span></span><span class="gs-sub">aciertos · '+sub+'</span></div>'+
+    '<div class="gs-sep"></div>'+
+    '<div class="gs-right"><span class="gs-kicker">Nota</span><span class="gs-nota">'+notaTxt+' <span class="gs-of">/ 10</span></span>'+
+    '<span class="gs-sub">'+ex.map((c,i)=>'C'+(i+1)+': '+(c.correct?'✓':'✗')).join(' · ')+'</span></div></div>';
+  panel.style.display='block';
+}
+
+/* ---- navegación / flujo ---- */
+function armStartAll(){
+  armStopAudio(); ARM._hl=null;
+  ['A','B'].forEach(s=>{
+    armBuildSet(s);
+    const g=document.getElementById('armScore_'+s); g.style.display='none'; g.innerHTML='';
+    armRenderPanels(s); armDraw(s);
+  });
+}
+function openArmonica(){
+  setMode(null); loadPiano();
+  document.getElementById('evaHome').classList.add('hidden');
+  document.getElementById('armonicaView').classList.add('active');
+  setBrand('predict');
+  const sw=document.getElementById('armSeventh');
+  sw.classList.toggle('on',ARM.seventh); sw.setAttribute('aria-checked',ARM.seventh?'true':'false');
+  armStartAll();
+}
+function goHomeArm(){
+  armStopAudio();
+  document.getElementById('armonicaView').classList.remove('active');
+  document.getElementById('evaHome').classList.remove('hidden');
+  setBrand('lmeav');
+}
+
+/* ---- wiring ARMÓNICA ---- */
+document.getElementById('armEntryBtn').addEventListener('click',openArmonica);
+document.getElementById('regenBtnArm').addEventListener('click',()=>{ armStartAll(); });
+(function(){
+  const sw=document.getElementById('armSeventh');
+  function toggle(){
+    ARM.seventh=!ARM.seventh;
+    sw.classList.toggle('on',ARM.seventh); sw.setAttribute('aria-checked',ARM.seventh?'true':'false');
+    toast(ARM.seventh?'Acordes de 7ª de dominante activados':'Acordes de 7ª de dominante desactivados');
+    armStartAll();   // rehace ambos ejercicios con la nueva configuración
+  }
+  sw.addEventListener('click',toggle);
+  sw.addEventListener('keydown',e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggle(); } });
+})();
 </script>
 </body>
 </html>
