@@ -120,6 +120,9 @@
   .exo{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:26px}
   .exo-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
   .exo-head-right{display:flex;align-items:center;gap:12px}
+  .clef-switch{border:1px solid var(--mel,#7c4dff);border-radius:9px;background:var(--mel-soft,rgba(124,77,255,.08));color:var(--mel,#7c4dff);font-size:13px;font-weight:800;letter-spacing:.03em;padding:8px 13px;cursor:pointer;transition:background .15s,transform .08s;white-space:nowrap}
+  .clef-switch:hover{background:var(--mel,#7c4dff);color:#fff}
+  .clef-switch:active{transform:scale(.96)}
   .exo-title{display:flex;align-items:baseline;gap:12px}
   .exo-num{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--ink);background:rgba(233,237,255,.08);border:1px solid var(--line);border-radius:4px;padding:3px 9px}
   #ritmicaView .exo{border-color:var(--rit-soft)}
@@ -243,6 +246,9 @@
   .dropzone{position:absolute;border-radius:8px;z-index:3;pointer-events:none;border:2px dashed transparent;transition:background .1s,border-color .1s}
   .board.drop-active .dropzone{pointer-events:auto;background:rgba(79,124,255,.06);border-color:rgba(79,124,255,.35)}
   .board.drop-active .dropzone.over{background:rgba(79,124,255,.22);border-color:var(--accent)}
+  .board.drop-active .delspot{pointer-events:none}
+  .cell-card.dragging{opacity:.45}
+  .cell-ghost{margin:0}
   /* resaltado del compás activo durante la reproducción */
   .barhl{position:absolute;background:rgba(34,201,138,.18);border:1px solid rgba(34,201,138,.45);border-radius:6px;pointer-events:none;z-index:1;transition:left .08s linear,width .08s linear}
   .melhl{position:absolute;background:rgba(91,157,255,.20);border:1px solid rgba(91,157,255,.5);border-radius:8px;pointer-events:none;z-index:1;transition:left .12s ease,width .12s ease}
@@ -373,6 +379,11 @@
   .mel-nums{position:absolute;left:0;right:0;bottom:8px;height:18px;z-index:2;pointer-events:none}
   .mel-nums span{position:absolute;transform:translateX(-50%);font-size:11px;font-weight:700;color:#9aa3c4}
   .mel-empty-x{position:absolute;top:50%;transform:translate(-50%,-60%);color:var(--red);font-size:32px;font-weight:800;line-height:1;pointer-events:none;z-index:3;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .sol-wrong-dot{position:absolute;top:6px;width:11px;height:11px;border-radius:50%;background:var(--red);transform:translateX(-50%);box-shadow:0 0 0 2px rgba(210,49,69,.25);pointer-events:none;z-index:4}
+  .sol-legend{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+  .sol-legend .sl{display:inline-flex;align-items:center;gap:5px}
+  .sol-legend .sw{width:14px;height:4px;border-radius:3px;display:inline-block}
+  .sol-legend .dotr{width:10px;height:10px;border-radius:50%;background:var(--red);display:inline-block}
 
   /* ---- TonCom ---- */
   .ton-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -415,6 +426,30 @@
   /* franja central que indica la selección */
   .arm-wheel-center{position:absolute;left:8px;right:8px;top:50%;height:44px;transform:translateY(-50%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:8px;pointer-events:none}
   .arm-wheel:hover .arm-wheel-center{border-color:var(--ton-soft)}
+  /* selector de TONALIDAD: rueda de nota + botones de alteración/modo */
+  .tonkey-wrap{flex:1;display:flex;gap:10px;align-items:stretch}
+  .note-wheel{position:relative;flex:1.1;min-height:132px;display:flex;align-items:center;justify-content:center;cursor:ns-resize;outline:none;user-select:none;touch-action:none}
+  .note-wheel.locked{cursor:default}
+  .note-wheel-window{position:relative;height:132px;width:100%;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent);mask-image:linear-gradient(180deg,transparent,#000 28%,#000 72%,transparent)}
+  .note-wheel-list{position:absolute;left:0;right:0;top:44px;transition:transform .18s cubic-bezier(.2,.8,.2,1)}
+  .note-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--muted2);opacity:.5;transition:color .15s,opacity .15s,font-size .15s}
+  .note-item.on{color:var(--ink);opacity:1;font-size:24px;font-weight:900}
+  .note-wheel:hover .note-item.on{color:var(--ton)}
+  .note-wheel-center{position:absolute;left:6px;right:6px;top:50%;height:44px;transform:translateY(-50%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:8px;pointer-events:none}
+  .note-wheel:hover .note-wheel-center{border-color:var(--ton-soft)}
+  .tonkey-side{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;gap:8px}
+  .acc-row,.mode-row{display:flex;gap:6px;justify-content:center}
+  .acc-btn,.mode-btn{width:38px;height:38px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);font-size:18px;font-weight:800;cursor:pointer;display:grid;place-items:center;transition:border-color .12s,background .12s,color .12s}
+  .acc-btn:hover:not(:disabled),.mode-btn:hover:not(:disabled){border-color:var(--ton)}
+  .acc-btn.sel,.mode-btn.sel{border-color:var(--ton);background:var(--ton-soft);color:var(--ton)}
+  .acc-btn:disabled,.mode-btn:disabled{opacity:.5;cursor:default}
+  .tonkey-preview{margin-top:10px;text-align:center;font-size:22px;font-weight:900;color:var(--ink);letter-spacing:.02em}
+  .ton-pick-key.key-ok .tonkey-preview{color:var(--green)}
+  .ton-pick-key.key-ok .note-item.on{color:var(--green)}
+  .ton-pick-key.key-ok .note-wheel-center{border-color:var(--green)}
+  .ton-pick-key.key-bad .tonkey-preview{color:var(--red)}
+  .ton-pick-key.key-bad .note-item.on{color:var(--red)}
+  .ton-pick-key.key-bad .note-wheel-center{border-color:var(--red)}
   /* tarjeta de play cuadrada, imita la tarjeta "Escuchar" del rítmico/melódico */
   .ton-playcard{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:14px;position:relative;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:160px;transition:border-color .15s,transform .05s}
   .ton-playcard:hover{border-color:var(--ton)} .ton-playcard:active{transform:scale(.99)}
@@ -2471,6 +2506,17 @@ function genPentagramaCompound(){
         else if(medios<maxMedio&&r<0.45){nivel='medio';medios++;}
         compas.push(pickNivel(nivel));
       }
+      // BAJAR DIFICULTAD 6/8: en cada compás, al menos un pulso debe ser
+      // negra con puntillo o 3 corcheas (ancla rítmica clara). Si ninguno
+      // de los dos lo es, forzamos uno de ellos a una de esas dos células.
+      const esAncla=cell=>cell.id==='negrap'||cell.id==='3corcheas';
+      if(!compas.some(esAncla)){
+        const anclas=CELLS_COMPOUND.facil.filter(c=>esAncla(c));
+        const elegida=pick(anclas);
+        // descontar el nivel de la célula sustituida para no descuadrar los topes
+        const sust=compas[rint(2)];
+        compas[compas.indexOf(sust)]={...elegida};
+      }
       compases.push(compas);
     }
     compases.push([
@@ -2511,6 +2557,84 @@ function endDrag(){
   dragCell=null; dragExo=-1;
   document.querySelectorAll('.board').forEach(b=>b.classList.remove('drop-active'));
   document.querySelectorAll('.dropzone.over').forEach(d=>d.classList.remove('over'));
+}
+
+/* ====== ARRASTRE TÁCTIL/PUNTERO (casi instantáneo, sin romper el "pulsar") ======
+   - Si el dedo/ratón se mueve más que DRAG_THRESH px, entra en modo arrastre
+     inmediatamente (sin esperas tipo long-press de HTML5 nativo).
+   - Si se suelta sin moverse (o casi), cuenta como toque -> addCell (orden).
+   - Funciona con Pointer Events; cubre ratón, lápiz y dedo en tablet.        */
+const DRAG_THRESH=8;      // px de movimiento para empezar a arrastrar
+let _pd=null;             // estado del puntero activo
+function attachCellPointer(card,idx,cell){
+  card.style.touchAction='none';   // evita scroll/zoom mientras se manipula la tarjeta
+  card.addEventListener('pointerdown',e=>{
+    if(e.button!=null && e.button!==0) return;   // solo botón principal
+    const ex=exos[idx]; if(ex&&ex.checked) return;
+    _pd={idx,cell,card,x0:e.clientX,y0:e.clientY,moved:false,ghost:null,pid:e.pointerId};
+    try{card.setPointerCapture(e.pointerId);}catch(_){}
+  });
+  card.addEventListener('pointermove',e=>{
+    if(!_pd||_pd.card!==card) return;
+    const dx=e.clientX-_pd.x0, dy=e.clientY-_pd.y0;
+    if(!_pd.moved && (Math.abs(dx)>DRAG_THRESH||Math.abs(dy)>DRAG_THRESH)){
+      _pd.moved=true;
+      startDrag(_pd.idx,_pd.cell);
+      _pd.ghost=makeDragGhost(_pd.card);
+      card.classList.add('dragging');
+    }
+    if(_pd.moved){
+      e.preventDefault();
+      moveDragGhost(_pd.ghost,e.clientX,e.clientY);
+      highlightDropAt(e.clientX,e.clientY,_pd.idx);
+    }
+  });
+  const finish=e=>{
+    if(!_pd||_pd.card!==card) return;
+    const st=_pd; _pd=null;
+    try{card.releasePointerCapture(st.pid);}catch(_){}
+    card.classList.remove('dragging');
+    if(st.moved){
+      const dz=dropzoneAt(e.clientX,e.clientY,st.idx);
+      if(dz){ placeCell(st.idx, parseInt(dz.dataset.slot,10), st.cell); }
+      removeDragGhost(st.ghost);
+      endDrag();
+    } else {
+      // toque limpio: añadir por orden
+      addCell(st.idx,st.cell);
+    }
+  };
+  card.addEventListener('pointerup',finish);
+  card.addEventListener('pointercancel',()=>{
+    if(!_pd||_pd.card!==card) return;
+    const st=_pd; _pd=null;
+    card.classList.remove('dragging');
+    removeDragGhost(st.ghost); endDrag();
+  });
+}
+function makeDragGhost(card){
+  const g=card.cloneNode(true);
+  g.className='cell-card cell-ghost';
+  g.style.position='fixed'; g.style.zIndex='9999'; g.style.pointerEvents='none';
+  g.style.width=card.offsetWidth+'px'; g.style.height=card.offsetHeight+'px';
+  g.style.opacity='.92'; g.style.transform='translate(-50%,-50%) scale(.92)';
+  g.style.boxShadow='0 10px 30px rgba(0,0,0,.45)';
+  document.body.appendChild(g);
+  return g;
+}
+function moveDragGhost(g,x,y){ if(g){ g.style.left=x+'px'; g.style.top=y+'px'; } }
+function removeDragGhost(g){ if(g&&g.parentNode) g.parentNode.removeChild(g); }
+function dropzoneAt(x,y,idx){
+  const el=document.elementFromPoint(x,y);
+  if(!el) return null;
+  const dz=el.closest? el.closest('.dropzone') : null;
+  if(dz && dz.dataset && parseInt(dz.dataset.exo,10)===idx) return dz;
+  return null;
+}
+function highlightDropAt(x,y,idx){
+  document.querySelectorAll('.dropzone.over').forEach(d=>d.classList.remove('over'));
+  const dz=dropzoneAt(x,y,idx);
+  if(dz) dz.classList.add('over');
 }
 function startsWithRest(compases){
   // ¿la primera figura del primer compás es un silencio?
@@ -2785,9 +2909,14 @@ function drawBoard(idx){
   const ctx=renderer.getContext();ctx.setFont('Arial',10);
   // fuente de datos por slot: solución (si revelado) o las casillas del alumno
   const source = ex.revealed ? ex.flatSolution.slice() : ex.slots;
+  const COL_OK='#15a06a', COL_BAD='#d23145', COL_SOL='#2563eb';
   let colorMap=null;
-  if(ex.checked&&!ex.revealed){
-    colorMap=ex.slots.map((c,i)=>{ if(!c) return '#d23145'; return (ex.flatSolution[i]&&ex.flatSolution[i].id===c.id)?'#15a06a':'#d23145'; });
+  if(ex.revealed){
+    // SOLUCIÓN: la respuesta correcta se dibuja en AZUL; los pulsos que el
+    // alumno falló (o dejó vacíos) se señalan además con marca roja encima.
+    colorMap=ex.flatSolution.map(()=>COL_SOL);
+  } else if(ex.checked){
+    colorMap=ex.slots.map((c,i)=>{ if(!c) return COL_BAD; return (ex.flatSolution[i]&&ex.flatSolution[i].id===c.id)?COL_OK:COL_BAD; });
   }
   const slotBoxes=[]; // {slot, x, w, hasCell}
   dibujarPentagramaRitmico(ctx,ex.spec,source,8,16,W-16,66,colorMap,slotBoxes);
@@ -2813,6 +2942,19 @@ function drawBoard(idx){
         z.innerHTML='<span class="delx">×</span>';
         z.addEventListener('click',()=>removeSlot(idx,b.slot));
         cont.appendChild(z);
+      }
+    });
+  } else if(ex.revealed){
+    // SOLUCIÓN mostrada (en azul): marcar con punto rojo los pulsos que el
+    // alumno falló o dejó en blanco, para que vea de un vistazo qué corregir.
+    slotBoxes.forEach(b=>{
+      const stu=ex.slots[b.slot];
+      const wrong = !stu || !ex.flatSolution[b.slot] || ex.flatSolution[b.slot].id!==stu.id;
+      if(wrong){
+        const mark=document.createElement('div'); mark.className='sol-wrong-dot';
+        mark.style.left=(b.x+b.w/2)+'px';
+        mark.title='Aquí no acertaste';
+        cont.appendChild(mark);
       }
     });
   } else {
@@ -3013,14 +3155,11 @@ function renderExos(){
     const pal=block.querySelector('#palette-'+idx);
     ex._pool.forEach((cell,ci)=>{
       const card=document.createElement('div');
-      card.className='cell-card';card.title='Clic para añadir · arrastra a un pulso';
-      card.draggable=true;
+      card.className='cell-card';card.title='Pulsa para añadir · arrastra a un pulso';
       const svg=drawCellMini(cell,ex.spec.compound,'#1a1a1a');
       card.appendChild(svg);
       requestAnimationFrame(()=>fitSvgToContent(svg));
-      card.addEventListener('click',()=>addCell(idx,cell));
-      card.addEventListener('dragstart',e=>{ startDrag(idx,cell); try{e.dataTransfer.setData('text/plain','c');e.dataTransfer.effectAllowed='copy';}catch(_){} });
-      card.addEventListener('dragend',()=>endDrag());
+      attachCellPointer(card,idx,cell);
       pal.appendChild(card);
     });
     block.querySelector('#play-'+idx).addEventListener('click',()=>playExo(idx));
@@ -3088,7 +3227,17 @@ function onCheck(idx){
 function onReveal(idx){
   const ex=exos[idx];
   if(!ex.checked){ ex.checked=true; const ok=scoreOf(ex); const sc=document.getElementById('score-'+idx); if(sc) sc.innerHTML='<b>'+ok+' / '+ex.nslots+'</b> pulsos correctos'; maybeShowGlobal(); }
-  if(!ex.revealed){ ex.revealed=true; drawBoard(idx); }
+  if(!ex.revealed){
+    ex.revealed=true; drawBoard(idx);
+    const sc=document.getElementById('score-'+idx);
+    if(sc && !sc.querySelector('.sol-legend')){
+      sc.insertAdjacentHTML('beforeend',
+        '<div class="sol-legend">'+
+          '<span class="sl"><span class="sw" style="background:#2563eb"></span>solución correcta</span>'+
+          '<span class="sl"><span class="dotr"></span>tu fallo aquí</span>'+
+        '</div>');
+    }
+  }
   refreshPlay(idx);refreshControls(idx);
 }
 function scoreOf(ex){
@@ -3300,17 +3449,28 @@ let melExos=[];        // {key, sol:[midiVF...], midis:[...], slots:[null/midi],
 let melActive=-1;      // ejercicio cuyo pentagrama tiene el ratón
 const MEL_NOTE_SEC=2, MEL_GAP_SEC=1;
 
+function makeMelExo(key,clef){
+  const mel=genMelodia(key,clef);
+  const {midis}=buildPitches(key);
+  const sigPCs=keySigPCs(key.sig);
+  const slots=new Array(10).fill(null);
+  slots[0]=mel.midis[0]; // tónica inicial dada
+  return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1};
+}
 function buildMelExos(){
-  const keys=chooseKeysForExercise();
-  melExos=keys.map(key=>{
-    const clef = (MEL_RND()<0.50) ? 'bass' : 'treble';   // 50% clave de fa
-    const mel=genMelodia(key,clef);
-    const {midis}=buildPitches(key);
-    const sigPCs=keySigPCs(key.sig);
-    const slots=new Array(10).fill(null);
-    slots[0]=mel.midis[0]; // tónica inicial dada
-    return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1};
-  });
+  // UNA sola tarjeta. Tonalidad hasta 2 alteraciones (cualquiera del catálogo KEYS).
+  const key=mpick(KEYS);
+  const clef=(MEL_RND()<0.50)?'bass':'treble';
+  melExos=[ makeMelExo(key,clef) ];
+}
+// Cambiar de clave (Sol/Fa) en la tarjeta: regenera la melodía en la nueva clave,
+// dentro del registro propio de cada clave (Fa: Sol2–Do4, sonido real grave).
+function switchMelClef(idx){
+  const ex=melExos[idx]; if(!ex) return;
+  stopMelAudio();
+  const newClef = (ex.clef==='bass') ? 'treble' : 'bass';
+  melExos[idx]=makeMelExo(ex.key,newClef);   // misma tonalidad, nueva clave + nueva melodía en rango
+  renderMelExos();
 }
 
 /* --- Piano sintético (aditivo, decaimiento por parcial + martillo) --- */
@@ -3684,12 +3844,15 @@ function renderMelExos(){
     const block=document.createElement('section');
     block.className='exo'; block.id='melexo-'+idx;
     const altTxt = ex.key.sig===0?'sin alteraciones':(Math.abs(ex.key.sig)===1?'1 alteración':'2 alteraciones');
+    const clefTxt = (ex.clef==='bass')?'clave de Fa':'clave de Sol';
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
-        '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
+        '<span class="exo-num">Dictado melódico</span>'+
         '<h2>'+altTxt+'</h2>'+
-        '<span class="ts">tónica dada · 10 notas</span>'+
-      '</div><div class="exo-head-right"><div class="beatmon" id="melbeat-'+idx+'"></div></div></div>'+
+        '<span class="ts">'+clefTxt+' · tónica dada · 10 notas</span>'+
+      '</div><div class="exo-head-right">'+
+        '<button class="clef-switch" id="melclef-'+idx+'" title="Cambiar de clave">⇄ '+(ex.clef==='bass'?'Sol':'Fa')+'</button>'+
+        '<div class="beatmon" id="melbeat-'+idx+'"></div></div></div>'+
       '<div class="exo-main">'+
         '<div class="board" id="melboard-'+idx+'" style="min-height:150px"></div>'+
         '<div class="exo-side">'+
@@ -3717,6 +3880,8 @@ function renderMelExos(){
       '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Mueve sobre el pentagrama y la redonda salta de nota en nota: colócala donde corresponda. En tablet puedes ampliar si necesitas más precisión, y pulsar otra vez para reescribir. Para borrar una nota: clic derecho (ordenador) o dos dedos (tablet). Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.</span></div>';
     cont.appendChild(block);
     block.querySelector('#melplay-'+idx).addEventListener('click',()=>playMel(idx));
+    const clefBtn=block.querySelector('#melclef-'+idx);
+    if(clefBtn) clefBtn.addEventListener('click',()=>switchMelClef(idx));
     block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
     block.querySelector('#melsol-'+idx).addEventListener('click',()=>onMelReveal(idx));
     block.querySelectorAll('.melspeed-btn').forEach(b=>{
@@ -3762,16 +3927,15 @@ function onMelReveal(idx){
   refreshMelPlay(idx); refreshMelControls(idx);
 }
 function maybeShowMelGlobal(){
-  // se muestra (y se recalcula) cuando los tres han sido comprobados al menos una vez
+  // se muestra (y se recalcula) cuando la tarjeta ha sido comprobada al menos una vez
   if(!melExos.every(e=>e.scored||e.revealed)) return;
-  const total=30, ok=melExos.reduce((a,e)=>a+melScoreOf(e),0);
+  const total=10*melExos.length, ok=melExos.reduce((a,e)=>a+melScoreOf(e),0);
   const nota=(ok/total*10); const notaTxt=(Math.round(nota*10)/10).toString().replace('.',',');
   const panel=document.getElementById('globalScoreMel');
   panel.innerHTML='<div class="gs-inner">'+
     '<div class="gs-left"><span class="gs-kicker">Resultado total</span><span class="gs-frac">'+ok+' <span class="gs-of">/ '+total+'</span></span><span class="gs-sub">notas correctas</span></div>'+
     '<div class="gs-sep"></div>'+
-    '<div class="gs-right"><span class="gs-kicker">Nota</span><span class="gs-nota">'+notaTxt+' <span class="gs-of">/ 10</span></span>'+
-    '<span class="gs-sub">'+melExos.map((e,i)=>'Ej.'+(i+1)+': '+melScoreOf(e)+'/10').join(' · ')+'</span></div></div>';
+    '<div class="gs-right"><span class="gs-kicker">Nota</span><span class="gs-nota">'+notaTxt+' <span class="gs-of">/ 10</span></span></div></div>';
   panel.style.display='block';
 }
 // La marca arriba a la izquierda muestra su destino: dentro de un apartado -> "PreDict at home" (vuelve a la portada);
@@ -4237,7 +4401,8 @@ function buildTonExos(){
       key, compas,
       dict,                       // {events:[{midi,dur,bar,phraseStart}], ...}
       usesAcordes:0, usesCompleto:0,
-      chosenKey:null, chosenArm:null, chosenCompas:null, showSol:false,
+      chosenKey:null, chosenNote:'—', chosenAcc:'', chosenMode:'M',
+      chosenArm:null, chosenCompas:null, showSol:false,
       checked:false, revealed:false
     };
   });
@@ -4522,6 +4687,108 @@ function initArmWheel(idx){
     el.addEventListener('click',()=>{ if(i!==curIdx()){ setArmWheel(idx,i); armTick(); } });
   });
 }
+/* ===== Selector de TONALIDAD: rueda de nota (—, Do..Si) + ♭/♯ + M/m ===== */
+// El primer elemento "—" es "sin nota elegida": queda arriba del todo y Do justo debajo.
+const NOTE_WHEEL=['—','Do','Re','Mi','Fa','Sol','La','Si'];
+const NOTE_ITEM_H=44;   // alto de cada item (coincide con CSS)
+// compone el nombre de tonalidad a partir del estado elegido (nota+alteración+modo)
+function tonComposeKey(ex){
+  if(!ex.chosenNote || ex.chosenNote==='—') return '';   // "—" = sin tonalidad elegida
+  const acc=ex.chosenAcc||'';
+  const mode=ex.chosenMode||'M';
+  return ex.chosenNote+acc+' '+mode;   // p.ej. "Sib M", "Do M", "La m"
+}
+// vuelca el estado del selector a ex.chosenKey (lo que comprueba el corrector)
+function syncTonKey(idx){
+  const ex=tonExos[idx]; if(!ex) return;
+  ex.chosenKey=tonComposeKey(ex);
+  const prev=document.getElementById('tonkeyprev-'+idx);
+  if(prev) prev.textContent=ex.chosenKey||'—';
+}
+function setNoteWheel(idx, wheelIndex){
+  const ex=tonExos[idx]; if(!ex) return;
+  wheelIndex=Math.max(0,Math.min(NOTE_WHEEL.length-1,wheelIndex));
+  if(!ex.checked){ ex.chosenNote=NOTE_WHEEL[wheelIndex]; }
+  const list=document.getElementById('notelist-'+idx);
+  if(list){
+    list.style.transform='translateY('+(-(wheelIndex)*NOTE_ITEM_H)+'px)';
+    list.querySelectorAll('.note-item').forEach((el,i)=>el.classList.toggle('on',i===wheelIndex));
+  }
+  syncTonKey(idx);
+}
+function noteIndexOf(n){ const i=NOTE_WHEEL.indexOf(n); return i<0?0:i; }
+function initNoteWheel(idx){
+  const wheel=document.getElementById('tonnote-'+idx); if(!wheel) return;
+  const ex=tonExos[idx];
+  // por defecto NO hay nota elegida: arranca en "—"
+  if(ex.chosenNote==null && !ex.checked) ex.chosenNote='—';
+  if(ex.chosenMode==null) ex.chosenMode='M';
+  if(ex.chosenAcc==null) ex.chosenAcc='';
+  setNoteWheel(idx, noteIndexOf(ex.chosenNote||'—'));
+  if(ex.checked) return;
+  const curIdx=()=>noteIndexOf(ex.chosenNote||'—');
+  // avanza N escalones de golpe (clamp a los extremos)
+  const move=(n)=>{
+    const before=curIdx();
+    const after=Math.max(0,Math.min(NOTE_WHEEL.length-1,before+n));
+    if(after!==before){ setNoteWheel(idx, after); armTick(); }
+  };
+  // RUEDA DEL RATÓN: varios escalones por gesto según la fuerza del scroll.
+  let wheelAcc=0, wheelLock=false;
+  const WHEEL_STEP=26;   // px de delta por cada escalón
+  wheel.addEventListener('wheel',(e)=>{
+    e.preventDefault();
+    if(wheelLock) return;
+    wheelAcc+=e.deltaY;
+    const n=Math.trunc(wheelAcc/WHEEL_STEP);
+    if(n!==0){
+      move(n);                         // avanza tantos como permita la fuerza del gesto
+      wheelAcc-=n*WHEEL_STEP;
+      wheelLock=true; setTimeout(()=>{wheelLock=false;},90);
+    }
+  },{passive:false});
+  // ARRASTRE con INERCIA: durante el arrastre avanza según los px recorridos;
+  // al soltar, si ibas rápido sigue deslizando unos escalones más (momentum).
+  const DRAG_STEP=26;            // px por escalón mientras arrastras
+  let dragging=false,lastY=0,accY=0,lastT=0,vel=0,inertiaRAF=0;
+  const stopInertia=()=>{ if(inertiaRAF){ cancelAnimationFrame(inertiaRAF); inertiaRAF=0; } };
+  const down=(y)=>{ stopInertia(); dragging=true; lastY=y; accY=0; lastT=performance.now(); vel=0; };
+  const move2=(y)=>{ if(!dragging)return;
+    const now=performance.now(), dt=Math.max(1,now-lastT);
+    const dy=lastY-y; lastY=y; lastT=now;
+    vel=0.8*vel + 0.2*(dy/dt);        // velocidad suavizada (px/ms), + = hacia arriba
+    accY+=dy;
+    let n=Math.trunc(accY/DRAG_STEP);
+    if(n!==0){ move(n); accY-=n*DRAG_STEP; }
+  };
+  const up=()=>{
+    if(!dragging) return;
+    dragging=false;
+    // INERCIA: convierte la velocidad final en escalones extra que se van frenando.
+    let v=vel;                         // px/ms
+    if(Math.abs(v)<0.25){ return; }    // gesto lento: sin inercia
+    let carry=0;
+    const friction=0.92;
+    const tick=()=>{
+      v*=friction;
+      carry+=v*16;                     // ~px por frame (16 ms)
+      let n=Math.trunc(carry/DRAG_STEP);
+      if(n!==0){ move(n); carry-=n*DRAG_STEP; }
+      if(Math.abs(v)>0.02){ inertiaRAF=requestAnimationFrame(tick); }
+      else inertiaRAF=0;
+    };
+    inertiaRAF=requestAnimationFrame(tick);
+  };
+  wheel.addEventListener('mousedown',e=>{e.preventDefault();down(e.clientY);});
+  window.addEventListener('mousemove',e=>move2(e.clientY));
+  window.addEventListener('mouseup',up);
+  wheel.addEventListener('touchstart',e=>{down(e.touches[0].clientY);},{passive:true});
+  wheel.addEventListener('touchmove',e=>{e.preventDefault();move2(e.touches[0].clientY);},{passive:false});
+  wheel.addEventListener('touchend',up);
+  wheel.addEventListener('keydown',e=>{ if(e.key==='ArrowUp'){e.preventDefault();move(-1);} else if(e.key==='ArrowDown'){e.preventDefault();move(1);} });
+  wheel.querySelectorAll('.note-item').forEach((el,i)=>{ el.addEventListener('click',()=>{ if(i!==curIdx()){ setNoteWheel(idx,i); armTick(); } }); });
+}
+
 function renderTonExos(){
   const cont=document.getElementById('tonContainer');
   cont.innerHTML='';
@@ -4537,12 +4804,36 @@ function renderTonExos(){
         '<h2>Tonalidad, armadura y compás</h2>'+
       '</div></div>'+
       '<div class="ton-row">'+
-        // 1) TONALIDAD (escrita)
-        '<div class="ton-pick">'+
+        // 1) TONALIDAD (selector: rueda de nota + alteración + modo)
+        '<div class="ton-pick ton-pick-key'+(ex.checked?(keyOk?' key-ok':' key-bad'):'')+'">'+
           '<h4>Tonalidad</h4>'+
-          '<input class="ton-input '+(ex.checked?(keyOk?'ok':'bad'):'')+'" id="tonkey-'+idx+'" type="text" '+
-            'placeholder="ej. Do m  ·  Lab M" value="'+(ex.chosenKey?ex.chosenKey.replace(/"/g,'&quot;'):'')+'" '+(ex.checked?'disabled':'')+' autocomplete="off" spellcheck="false">'+
-          (ex.checked&&!keyOk&&ex.showSol?'<div class="ton-correct">Correcta: '+ex.key.name+'</div>':'')+
+          '<div class="tonkey-wrap">'+
+            '<div class="note-wheel'+(ex.checked?' locked':'')+'" id="tonnote-'+idx+'" data-idx="'+idx+'" tabindex="0">'+
+              '<div class="note-wheel-window">'+
+                '<div class="note-wheel-list" id="notelist-'+idx+'">'+
+                  NOTE_WHEEL.map(n=>'<div class="note-item" data-n="'+n+'">'+n+'</div>').join('')+
+                '</div>'+
+              '</div>'+
+              '<div class="note-wheel-center"></div>'+
+            '</div>'+
+            '<div class="tonkey-side">'+
+              '<div class="acc-row">'+
+                ['b','','#'].map(a=>{
+                  const lab=a===''?'♮':(a==='b'?'♭':'♯');
+                  const sel=(ex.chosenAcc||'')===a?' sel':'';
+                  return '<button class="acc-btn'+sel+'" data-a="'+a+'" '+(ex.checked?'disabled':'')+'>'+lab+'</button>';
+                }).join('')+
+              '</div>'+
+              '<div class="mode-row">'+
+                ['M','m'].map(md=>{
+                  const sel=(ex.chosenMode||'M')===md?' sel':'';
+                  return '<button class="mode-btn'+sel+'" data-m="'+md+'" '+(ex.checked?'disabled':'')+'>'+md+'</button>';
+                }).join('')+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="tonkey-preview" id="tonkeyprev-'+idx+'">'+(tonComposeKey(ex)||'—')+'</div>'+
+          (ex.checked&&!keyOk&&ex.showSol?'<div class="ton-correct" style="color:var(--red)">Correcta: '+ex.key.name+'</div>':'')+
         '</div>'+
         // 2) ARMADURA (selector)
         '<div class="ton-pick">'+
@@ -4597,8 +4888,15 @@ function renderTonExos(){
       '</div>';
     cont.appendChild(block);
 
-    const inp=block.querySelector('#tonkey-'+idx);
-    if(inp) inp.addEventListener('input',()=>{ ex.chosenKey=inp.value; });
+    initNoteWheel(idx);
+    block.querySelectorAll('#tonexo-'+idx+' .acc-btn').forEach(b=>{
+      b.addEventListener('click',()=>{ if(ex.checked)return; ex.chosenAcc=b.dataset.a; syncTonKey(idx);
+        block.querySelectorAll('.acc-btn').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); });
+    });
+    block.querySelectorAll('#tonexo-'+idx+' .mode-btn').forEach(b=>{
+      b.addEventListener('click',()=>{ if(ex.checked)return; ex.chosenMode=b.dataset.m; syncTonKey(idx);
+        block.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); });
+    });
     block.querySelector('#ton-acordes-'+idx).addEventListener('click',()=>{
       if(tonPlaying===idx && tonPlayingWhich==='acordes'){ stopTonAudio(); } else { playTonAcordes(idx); }
     });
