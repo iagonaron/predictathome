@@ -127,6 +127,26 @@
   .exo-num{font-size:11px;font-weight:800;letter-spacing:.18em;color:var(--ink);background:rgba(233,237,255,.08);border:1px solid var(--line);border-radius:4px;padding:3px 9px}
   #ritmicaView .exo{border-color:var(--rit-soft)}
   #melodicaView .exo{border-color:var(--mel-soft)}
+  /* selector de modo (dictado / detección de errores) — rítmico y melódico */
+  .melmode-tabs,.ritmode-tabs{display:flex;gap:10px;justify-content:center;align-items:center;margin:0 0 26px;position:relative}
+  .mode-gen{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:9px}
+  .melmode-tab,.ritmode-tab{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.02em;
+    padding:9px 20px;border-radius:999px;cursor:pointer;transition:all .15s;
+  }
+  .melmode-tab:hover{border-color:var(--mel);color:var(--ink)}
+  .melmode-tab.sel{background:var(--mel);border-color:var(--mel);color:#fff;box-shadow:0 4px 16px rgba(91,157,255,.32)}
+  .ritmode-tab:hover{border-color:var(--rit);color:var(--ink)}
+  .ritmode-tab.sel{background:var(--rit);border-color:var(--rit);color:#fff;box-shadow:0 4px 16px rgba(34,201,138,.32)}
+  /* detección de errores rítmica: capa de clic invisible + flecha indicadora bajo el pulso */
+  .rit-click{position:absolute;cursor:pointer;background:transparent;border-radius:8px;transition:background .12s}
+  .rit-click:hover{background:rgba(34,201,138,.10)}
+  .beat-arrow{position:absolute;transform:translateX(-50%);font-size:22px;line-height:1;color:var(--red);pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));z-index:7}
+  .beat-arrow.pick{color:var(--red)}
+  .beat-arrow.ok{color:#15a06a}
+  .beat-arrow.bad{color:var(--red)}
+  .beat-arrow.blue{color:#2563eb}
   #toncomView .exo{border-color:var(--ton-soft)}
   #toncomView .now-tag{color:var(--ton);background:var(--ton-soft)}
   .now-tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;padding:4px 12px;border-radius:999px}
@@ -244,6 +264,8 @@
   .delspot:hover .delx{opacity:1;transform:scale(1)}
   /* dropzones: solo visibles mientras se arrastra una célula sobre ese ejercicio */
   .dropzone{position:absolute;border-radius:8px;z-index:3;pointer-events:none;border:2px dashed transparent;transition:background .1s,border-color .1s}
+  .beat-guide{position:absolute;transform:translateX(-50%);font-size:13px;line-height:1;color:rgba(79,124,255,.45);pointer-events:none;z-index:2;transition:color .12s}
+  .board.drop-active .beat-guide{color:rgba(79,124,255,.9)}
   .board.drop-active .dropzone{pointer-events:auto;background:rgba(79,124,255,.06);border-color:rgba(79,124,255,.35)}
   .board.drop-active .dropzone.over{background:rgba(79,124,255,.22);border-color:var(--accent)}
   .board.drop-active .delspot{pointer-events:none}
@@ -652,10 +674,12 @@
   </div>
 
   <div class="ex-view" id="ritmicaView">
-    <div class="backbar">
-      <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtn" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
-    </div>
     <h1 class="section-title rit"><span class="hl">RÍT</span><span class="dim">MICO</span></h1>
+    <div class="ritmode-tabs" id="ritModeTabs">
+      <button class="ritmode-tab sel" data-mode="dictado" id="ritTabDictado">Dictado rítmico</button>
+      <button class="ritmode-tab" data-mode="errores" id="ritTabErrores">Detección de errores</button>
+      <div class="gen mode-gen"><button class="dice-btn" id="regenBtn" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevo ejercicio</span></div>
+    </div>
     <div id="exoContainer"></div>
     <div class="global-score" id="globalScore"></div>
     <div class="edit-bar"><button class="btn-edit" onclick="openRitEdit()">⚙ Edición</button></div>
@@ -663,10 +687,12 @@
 
   <!-- ============ MELÓDICO ============ -->
   <div class="ex-view" id="melodicaView">
-    <div class="backbar">
-      <div class="gen" style="margin-left:auto"><button class="dice-btn" id="regenBtnMel" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevos ejercicios</span></div>
-    </div>
     <h1 class="section-title mel"><span class="hl">MEL</span><span class="dim">ÓDICO</span></h1>
+    <div class="melmode-tabs" id="melModeTabs">
+      <button class="melmode-tab sel" data-mode="dictado" id="melTabDictado">Dictado melódico</button>
+      <button class="melmode-tab" data-mode="errores" id="melTabErrores">Detección de errores</button>
+      <div class="gen mode-gen"><button class="dice-btn" id="regenBtnMel" title="Nuevo ejercicio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="16" cy="8" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="8" cy="16" r="1.6" fill="currentColor"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg></button><span class="dice-label">Nuevo ejercicio</span></div>
+    </div>
     <div id="melContainer"></div>
     <div class="global-score" id="globalScoreMel"></div>
   </div>
@@ -2544,6 +2570,7 @@ const SPECS=[
   {ts:'3/4',pulsos:3,compound:false,bpm:50},
 ];
 let exos=[];
+let ritMode='dictado';   // 'dictado' (oír y escribir) | 'errores' (detección de errores)
 const MAX_LISTENS=3;
 const MEL_MAX_LISTENS=2;
 // estado de arrastre
@@ -2555,8 +2582,12 @@ function startDrag(idx,cell){
 }
 function endDrag(){
   dragCell=null; dragExo=-1;
+  _pd=null;                                   // descartar cualquier puntero activo
   document.querySelectorAll('.board').forEach(b=>b.classList.remove('drop-active'));
   document.querySelectorAll('.dropzone.over').forEach(d=>d.classList.remove('over'));
+  document.querySelectorAll('.cell-card.dragging').forEach(c=>c.classList.remove('dragging'));
+  // barrido de seguridad: eliminar cualquier fantasma de arrastre huérfano
+  document.querySelectorAll('.cell-ghost').forEach(g=>{ if(g.parentNode) g.parentNode.removeChild(g); });
 }
 
 /* ====== ARRASTRE TÁCTIL/PUNTERO (casi instantáneo, sin romper el "pulsar") ======
@@ -2596,9 +2627,10 @@ function attachCellPointer(card,idx,cell){
     card.classList.remove('dragging');
     if(st.moved){
       const dz=dropzoneAt(e.clientX,e.clientY,st.idx);
-      if(dz){ placeCell(st.idx, parseInt(dz.dataset.slot,10), st.cell); }
+      const slot = dz ? parseInt(dz.dataset.slot,10) : -1;
       removeDragGhost(st.ghost);
       endDrag();
+      if(slot>=0){ placeCell(st.idx, slot, st.cell); }
     } else {
       // toque limpio: añadir por orden
       addCell(st.idx,st.cell);
@@ -2644,17 +2676,84 @@ function startsWithRest(compases){
   const n0=firstCell.notes[0];
   return !!(n0.rest || /r$/.test(n0.dur));
 }
+function genCompasesForSpec(spec){
+  let compases, tries=0;
+  do{
+    compases=spec.compound?genPentagramaCompound():genPentagramaSimple(spec.pulsos);
+    tries++;
+  }while(startsWithRest(compases) && tries<40);   // que no empiece por silencio
+  return compases;
+}
+function makeRitExo(spec){
+  const compases=genCompasesForSpec(spec);
+  const flat=[]; compases.forEach(c=>c.forEach(cell=>flat.push(cell)));
+  const slots=new Array(flat.length).fill(null);
+  return {spec,compases,flatSolution:flat,slots,nslots:flat.length,listens:0,checked:false,revealed:false,tempoOffset:0,_pool:paletteForSpec(spec)};
+}
+
+/* ===== DETECCIÓN DE ERRORES (rítmico) =====
+   El audio reproduce el ritmo CORRECTO (ex.compases). La partitura muestra una
+   versión con UN pulso cambiado (ex.shownCompases / ex.shownFlat). El alumno
+   detecta el pulso cuya figura no coincide con lo que oye.
+   El pulso erróneo: nunca el primero ni el último, y siempre uno "de dificultad"
+   (no negra/silencio de negra/negra con puntillo sola: figuras de pulso simple). */
+const RIT_SIMPLE_PULSE_IDS=new Set(['negra','sil_negra','negrap','sil_negrap']); // figuras "de pulso", no aptas como error
+function _cellsSameDuration(a,b){
+  // mismo nº de pulsos (siempre 1 aquí) — comparten la duración total del pulso
+  return a && b && a.beats===b.beats;
+}
+function corruptRitmo(ex){
+  const flat=ex.flatSolution;
+  const n=flat.length;
+  const spec=ex.spec;
+  // pool de células candidatas a SUSTITUTO: del mismo tipo de compás, "con dificultad"
+  const pool = spec.compound
+    ? [...CELLS_COMPOUND.facil,...CELLS_COMPOUND.medio,...CELLS_COMPOUND.dificil]
+    : [...CELLS_SIMPLE.facil,...CELLS_SIMPLE.medio];
+  // posiciones candidatas a llevar el error: ni la primera ni la última, y la
+  // figura ORIGINAL de ese pulso debe ser "de dificultad" (no figura de pulso simple)
+  const candPos=[];
+  for(let i=1;i<n-1;i++){ if(!RIT_SIMPLE_PULSE_IDS.has(flat[i].id)) candPos.push(i); }
+  // si no hubiera ninguna (ritmo muy plano), permitir cualquier interior
+  const positions = candPos.length?candPos:Array.from({length:Math.max(0,n-2)},(_,k)=>k+1);
+  if(!positions.length){ // ritmo degenerado: sin error posible -> devolver copia intacta
+    ex.shownFlat=flat.slice(); ex.shownCompases=ex.compases.map(c=>c.slice()); ex.errIndex=-1; return;
+  }
+  const pos=positions[rint(positions.length)];
+  const orig=flat[pos];
+  // sustituto: una célula DISTINTA, "con dificultad", de la misma duración de pulso
+  let cands=pool.filter(c=>c.id!==orig.id && !RIT_SIMPLE_PULSE_IDS.has(c.id) && _cellsSameDuration(c,orig));
+  if(!cands.length) cands=pool.filter(c=>c.id!==orig.id && _cellsSameDuration(c,orig));
+  if(!cands.length) cands=pool.filter(c=>c.id!==orig.id);
+  const repl=cands[rint(cands.length)];
+  // construir versión MOSTRADA: copia de compases con el pulso pos sustituido
+  const shownFlat=flat.slice(); shownFlat[pos]={...repl};
+  // reconstruir compases mostrados (misma partición por compás)
+  const shownCompases=[]; let k=0;
+  ex.compases.forEach(compas=>{ const nc=compas.map(()=>shownFlat[k++]); shownCompases.push(nc); });
+  ex.shownFlat=shownFlat;
+  ex.shownCompases=shownCompases;
+  ex.errIndex=pos;
+}
+function makeRitErrExo(spec){
+  const ex=makeRitExo(spec);
+  ex.picks=new Array(ex.nslots).fill(false);
+  let guard=0;
+  do{ corruptRitmo(ex); guard++; }while(ex.errIndex<0 && guard<20);
+  if(ex.errIndex<0){ // último recurso: regenerar
+    const ex2=makeRitExo(spec); ex2.picks=new Array(ex2.nslots).fill(false); corruptRitmo(ex2); return ex2;
+  }
+  return ex;
+}
+function pickRitSpec(){ return SPECS[rint(SPECS.length)]; }
+
 function buildExos(){
-  exos=SPECS.map(spec=>{
-    let compases, tries=0;
-    do{
-      compases=spec.compound?genPentagramaCompound():genPentagramaSimple(spec.pulsos);
-      tries++;
-    }while(startsWithRest(compases) && tries<40);   // que no empiece por silencio
-    const flat=[]; compases.forEach(c=>c.forEach(cell=>flat.push(cell)));
-    const slots=new Array(flat.length).fill(null);
-    return {spec,compases,flatSolution:flat,slots,nslots:flat.length,listens:0,checked:false,revealed:false,tempoOffset:0,_pool:paletteForSpec(spec)};
-  });
+  if(ritMode==='errores'){
+    exos=[ makeRitErrExo(pickRitSpec()) ];
+    return;
+  }
+  // DICTADO: una sola tarjeta, alternando 2/4 · 3/4 · 6/8 en cada generación
+  exos=[ makeRitExo(pickRitSpec()) ];
 }
 
 /* ====== AUDIO ====== */
@@ -2897,6 +2996,7 @@ function startBeatMonitor(idx, pulseSec, pulsosCompas, audioStart, ctx){
 
 /* ====== RENDER PARTITURA (modelo de casillas) ====== */
 function drawBoard(idx){
+  if(ritMode==='errores'){ drawRitErrBoard(idx); return; }
   const ex=exos[idx];
   const cont=document.getElementById('board-'+idx);
   if(!cont) return;
@@ -2920,24 +3020,32 @@ function drawBoard(idx){
   }
   const slotBoxes=[]; // {slot, x, w, hasCell}
   dibujarPentagramaRitmico(ctx,ex.spec,source,8,16,W-16,66,colorMap,slotBoxes);
+  const off=svgOffsetBoard(idx);
   const clickable = !ex.checked;
-  // overlays: borrar (X) sobre slots con célula + dropzones sobre todos los slots
+  // overlays: dropzones (invisibles) + flecha-guía azul bajo cada pulso + borrar
   if(clickable){
     slotBoxes.forEach(b=>{
-      // dropzone (recibe arrastre) en todos los slots
+      const cx=b.x+b.w/2+off.dx;
+      // dropzone (recibe arrastre) en todos los slots, bien posicionada con el offset del SVG
       const dz=document.createElement('div');
       dz.className='dropzone';
       dz.dataset.slot=b.slot; dz.dataset.exo=idx;
-      dz.style.left=b.x+'px'; dz.style.top='34px'; dz.style.width=b.w+'px'; dz.style.height='66px';
+      dz.style.left=(b.x+off.dx)+'px'; dz.style.top=(34+off.dy)+'px'; dz.style.width=b.w+'px'; dz.style.height='66px';
       dz.addEventListener('dragover',e=>{ if(dragCell&&dragExo===idx){ e.preventDefault(); dz.classList.add('over'); } });
       dz.addEventListener('dragenter',e=>{ if(dragCell&&dragExo===idx){ e.preventDefault(); dz.classList.add('over'); } });
       dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
       dz.addEventListener('drop',e=>{ e.preventDefault(); dz.classList.remove('over'); if(dragCell&&dragExo===idx){ placeCell(idx,b.slot,dragCell); } endDrag(); });
       cont.appendChild(dz);
+      // flecha-guía azul bajo el pulso (indica dónde caería la célula)
+      const guide=document.createElement('div'); guide.className='beat-guide';
+      guide.style.left=cx+'px';
+      guide.style.top=(34+off.dy+66+4)+'px';
+      guide.innerHTML='▲';
+      cont.appendChild(guide);
       if(b.hasCell){
         const z=document.createElement('div');
         z.className='delspot';
-        z.style.left=b.x+'px'; z.style.top='34px'; z.style.width=b.w+'px'; z.style.height='66px';
+        z.style.left=(b.x+off.dx)+'px'; z.style.top=(34+off.dy)+'px'; z.style.width=b.w+'px'; z.style.height='66px';
         z.title='Quitar';
         z.innerHTML='<span class="delx">×</span>';
         z.addEventListener('click',()=>removeSlot(idx,b.slot));
@@ -2952,7 +3060,7 @@ function drawBoard(idx){
       const wrong = !stu || !ex.flatSolution[b.slot] || ex.flatSolution[b.slot].id!==stu.id;
       if(wrong){
         const mark=document.createElement('div'); mark.className='sol-wrong-dot';
-        mark.style.left=(b.x+b.w/2)+'px';
+        mark.style.left=(b.x+b.w/2+off.dx)+'px';
         mark.title='Aquí no acertaste';
         cont.appendChild(mark);
       }
@@ -2962,7 +3070,7 @@ function drawBoard(idx){
     slotBoxes.forEach(b=>{
       if(!b.hasCell){
         const mark=document.createElement('div'); mark.className='mel-empty-x';
-        mark.style.left=(b.x+b.w/2)+'px';
+        mark.style.left=(b.x+b.w/2+off.dx)+'px';
         mark.innerHTML='×';
         cont.appendChild(mark);
       }
@@ -2977,6 +3085,96 @@ function removeSlot(idx,slot){
   if(ex.checked) return;
   ex.slots[slot]=null;
   drawBoard(idx); refreshControls(idx);
+}
+
+/* --- Pentagrama en modo DETECCIÓN DE ERRORES (rítmico) --- */
+function svgOffsetBoard(idx){
+  const cont=document.getElementById('board-'+idx);
+  const svg=cont? cont.querySelector('svg'):null;
+  if(!cont||!svg) return {dx:0,dy:0};
+  const cr=cont.getBoundingClientRect(), sr=svg.getBoundingClientRect();
+  return {dx:sr.left-cr.left, dy:sr.top-cr.top};
+}
+function drawRitErrBoard(idx){
+  const ex=exos[idx];
+  const cont=document.getElementById('board-'+idx);
+  if(!cont) return;
+  cont.innerHTML=''; cont.style.position='relative';
+  const VF=Vex.Flow;
+  const renderer=new VF.Renderer(cont,VF.Renderer.Backends.SVG);
+  const W=Math.max(560,cont.clientWidth-6),rowH=148;   // algo más de alto para la flecha inferior
+  renderer.resize(W,rowH);
+  const ctx=renderer.getContext();ctx.setFont('Arial',10);
+  // al revelar: mostrar el ritmo CORRECTO; si no, la versión con el error
+  const source = ex.revealed ? ex.flatSolution.slice() : ex.shownFlat;
+  // coloreado de las figuras
+  let colorMap=null;
+  if(ex.revealed){
+    colorMap=source.map((c,i)=>{
+      const picked=ex.picks[i], isErr=(i===ex.errIndex);
+      if(isErr && picked) return '#15a06a';     // acertaste el pulso erróneo -> verde
+      if(isErr && !picked) return '#2563eb';     // el correcto que no señalaste -> azul
+      if(!isErr && picked) return '#d23145';     // señalaste otro -> rojo
+      return null;
+    });
+  } else if(ex.checked){
+    colorMap=source.map((c,i)=>{
+      const picked=ex.picks[i], isErr=(i===ex.errIndex);
+      if(isErr && picked) return '#15a06a';     // acierto
+      if(!isErr && picked) return '#d23145';     // falso positivo
+      return null;
+    });
+  } else {
+    colorMap=source.map((c,i)=> ex.picks[i]?'#d23145':null );  // marcado por el alumno: rojo
+  }
+  const slotBoxes=[];
+  dibujarPentagramaRitmico(ctx,ex.spec,source,8,16,W-16,66,colorMap,slotBoxes);
+  ex._slotBoxes=slotBoxes;
+  const off=svgOffsetBoard(idx);
+  slotBoxes.forEach(b=>{
+    const cx=b.x+b.w/2+off.dx;   // centro del pulso en coords del contenedor
+    // capa de clic sobre cada pulso (mientras no esté corregido/revelado)
+    if(!ex.checked && !ex.revealed){
+      const layer=document.createElement('div');
+      layer.className='rit-click';
+      layer.style.left=(b.x+off.dx)+'px'; layer.style.top=(34+off.dy)+'px';
+      layer.style.width=b.w+'px'; layer.style.height='66px';
+      layer.addEventListener('click',()=>onRitErrClick(idx,b.slot));
+      cont.appendChild(layer);
+    }
+    // flecha indicadora bajo el pulso
+    const picked=ex.picks[b.slot], isErr=(b.slot===ex.errIndex);
+    let cls=null;
+    if(ex.revealed){
+      if(isErr && picked) cls='ok';
+      else if(isErr && !picked) cls='blue';
+      else if(!isErr && picked) cls='bad';
+    } else if(ex.checked){
+      if(picked) cls=isErr?'ok':'bad';
+    } else if(picked){
+      cls='pick';
+    }
+    if(cls){
+      const arr=document.createElement('div'); arr.className='beat-arrow '+cls;
+      arr.style.left=cx+'px';
+      arr.style.top=(34+off.dy+66+4)+'px';   // justo debajo del pentagrama
+      arr.innerHTML='▲';
+      cont.appendChild(arr);
+    }
+  });
+  const marker=document.createElement('div');
+  marker.className='barhl'; marker.id='barhl-'+idx; marker.style.display='none';
+  cont.appendChild(marker);
+}
+function onRitErrClick(idx,slot){
+  const ex=exos[idx];
+  if(ex.checked||ex.revealed) return;
+  // solo se marca UN pulso: marcar uno nuevo sustituye al anterior
+  const was=ex.picks[slot];
+  ex.picks=ex.picks.map(()=>false);
+  ex.picks[slot]=!was;
+  const sc=document.getElementById('score-'+idx); if(sc) sc.innerHTML='';
+  drawRitErrBoard(idx); refreshControls(idx);
 }
 // dibuja por slots: cada compás toma pulsosCompas slots consecutivos.
 // slotBoxes recibe la caja de cada slot (para dropzone y borrado).
@@ -3114,12 +3312,19 @@ function paletteForSpec(spec){
 function renderExos(){
   const cont=document.getElementById('exoContainer');
   cont.innerHTML='';
+  const isErr=(ritMode==='errores');
   exos.forEach((ex,idx)=>{
     const block=document.createElement('section');
     block.className='exo';block.id='exo-'+idx;
+    const tituloApartado = isErr ? 'Detección de errores' : 'Dictado rítmico';
+    const paletteSection = isErr ? '' :
+      ('<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Pulsa para añadir por orden · mantén y arrastra para soltar en un pulso concreto · cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir</span></div>'+
+      '<div class="palette" id="palette-'+idx+'"></div>');
+    const errHint = isErr ?
+      ('<div class="palette-head"><h3>Cómo responder</h3><span class="hint"><b>Escucha</b> el ritmo: suena correcto. Pero en la partitura <b>un pulso no coincide</b> con lo que oyes (nunca el primero ni el último). Haz <b>clic</b> sobre el pulso que creas equivocado para señalarlo; vuelve a pulsar para cambiarlo. Cuando lo tengas, pulsa <b>¿Qué tal fue?</b> para corregir.</span></div>') : '';
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
-        '<span class="exo-num">Ejercicio '+(idx+1)+'</span>'+
+        '<span class="exo-num">'+tituloApartado+'</span>'+
         '<h2>'+ex.spec.ts+'</h2>'+
       '</div>'+
       '<div class="exo-head-right">'+
@@ -3148,20 +3353,21 @@ function renderExos(){
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Pulsa para añadir por orden · mantén y arrastra para soltar en un pulso concreto · cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir</span></div>'+
-      '<div class="palette" id="palette-'+idx+'"></div>';
+      paletteSection + errHint;
     cont.appendChild(block);
 
-    const pal=block.querySelector('#palette-'+idx);
-    ex._pool.forEach((cell,ci)=>{
-      const card=document.createElement('div');
-      card.className='cell-card';card.title='Pulsa para añadir · arrastra a un pulso';
-      const svg=drawCellMini(cell,ex.spec.compound,'#1a1a1a');
-      card.appendChild(svg);
-      requestAnimationFrame(()=>fitSvgToContent(svg));
-      attachCellPointer(card,idx,cell);
-      pal.appendChild(card);
-    });
+    if(!isErr){
+      const pal=block.querySelector('#palette-'+idx);
+      ex._pool.forEach((cell,ci)=>{
+        const card=document.createElement('div');
+        card.className='cell-card';card.title='Pulsa para añadir · arrastra a un pulso';
+        const svg=drawCellMini(cell,ex.spec.compound,'#1a1a1a');
+        card.appendChild(svg);
+        requestAnimationFrame(()=>fitSvgToContent(svg));
+        attachCellPointer(card,idx,cell);
+        pal.appendChild(card);
+      });
+    }
     block.querySelector('#play-'+idx).addEventListener('click',()=>playExo(idx));
     block.querySelector('#check-'+idx).addEventListener('click',()=>onCheck(idx));
     block.querySelector('#sol-'+idx).addEventListener('click',()=>onReveal(idx));
@@ -3215,6 +3421,19 @@ function placeCell(idx,slot,cell){
 }
 function onCheck(idx){
   const ex=exos[idx];
+  if(ritMode==='errores'){
+    if(!ex.checked){
+      ex.checked=true;
+      const picked=ex.picks.findIndex(Boolean);
+      const ok=(picked===ex.errIndex && picked>=0);
+      const sc=document.getElementById('score-'+idx);
+      if(sc) sc.innerHTML = ok ? '<b>¡Correcto!</b> Has detectado el pulso erróneo'
+                               : (picked<0 ? 'No has señalado ningún pulso' : 'No es ese pulso');
+      drawBoard(idx); maybeShowGlobal();
+    }
+    refreshPlay(idx); refreshControls(idx);
+    return;
+  }
   if(!ex.checked){
     ex.checked=true;
     const ok=scoreOf(ex);
@@ -3226,6 +3445,19 @@ function onCheck(idx){
 }
 function onReveal(idx){
   const ex=exos[idx];
+  if(ritMode==='errores'){
+    if(!ex.checked){
+      ex.checked=true;
+      const picked=ex.picks.findIndex(Boolean);
+      const ok=(picked===ex.errIndex && picked>=0);
+      const sc=document.getElementById('score-'+idx);
+      if(sc) sc.innerHTML = ok ? '<b>¡Correcto!</b> Has detectado el pulso erróneo' : 'El pulso erróneo está marcado en verde';
+      maybeShowGlobal();
+    }
+    if(!ex.revealed){ ex.revealed=true; drawBoard(idx); }
+    refreshPlay(idx); refreshControls(idx);
+    return;
+  }
   if(!ex.checked){ ex.checked=true; const ok=scoreOf(ex); const sc=document.getElementById('score-'+idx); if(sc) sc.innerHTML='<b>'+ok+' / '+ex.nslots+'</b> pulsos correctos'; maybeShowGlobal(); }
   if(!ex.revealed){
     ex.revealed=true; drawBoard(idx);
@@ -3241,14 +3473,30 @@ function onReveal(idx){
   refreshPlay(idx);refreshControls(idx);
 }
 function scoreOf(ex){
+  if(ritMode==='errores'){
+    const picked=ex.picks?ex.picks.findIndex(Boolean):-1;
+    return (picked===ex.errIndex && picked>=0)?1:0;
+  }
   let ok=0;
   for(let i=0;i<ex.nslots;i++){ const c=ex.slots[i]; if(c && ex.flatSolution[i] && ex.flatSolution[i].id===c.id) ok++; }
   return ok;
 }
-// muestra el resumen global cuando los 3 ejercicios están corregidos
+// muestra el resumen global cuando los ejercicios están corregidos
 function maybeShowGlobal(){
   if(!exos.every(e=>e.checked)) return;
-  const totalSlots=exos.reduce((a,e)=>a+e.nslots,0);   // 28
+  if(ritMode==='errores'){
+    const ex=exos[0];
+    const picked=ex.picks.findIndex(Boolean);
+    const ok=(picked===ex.errIndex && picked>=0);
+    const panel=document.getElementById('globalScore');
+    panel.innerHTML='<div class="gs-inner">'+
+      '<div class="gs-left"><span class="gs-kicker">Resultado</span><span class="gs-frac">'+(ok?1:0)+' <span class="gs-of">/ 1</span></span><span class="gs-sub">'+(ok?'pulso erróneo detectado':'no detectado')+'</span></div>'+
+      '<div class="gs-sep"></div>'+
+      '<div class="gs-right"><span class="gs-kicker">Nota</span><span class="gs-nota">'+(ok?'10':'0')+' <span class="gs-of">/ 10</span></span></div></div>';
+    panel.style.display='block';
+    return;
+  }
+  const totalSlots=exos.reduce((a,e)=>a+e.nslots,0);
   const totalOk=exos.reduce((a,e)=>a+scoreOf(e),0);
   const nota=(totalOk/totalSlots*10);
   const notaTxt=(Math.round(nota*10)/10).toString().replace('.',',');
@@ -3447,6 +3695,7 @@ function chooseKeysForExercise(){
 /* --- Estado melódico --- */
 let melExos=[];        // {key, sol:[midiVF...], midis:[...], slots:[null/midi], listens, checked, revealed, allowed:[midis]}
 let melActive=-1;      // ejercicio cuyo pentagrama tiene el ratón
+let melMode='dictado'; // 'dictado' (oír y escribir) | 'errores' (detección de errores)
 const MEL_NOTE_SEC=2, MEL_GAP_SEC=1;
 
 function makeMelExo(key,clef){
@@ -3461,7 +3710,95 @@ function buildMelExos(){
   // UNA sola tarjeta. Tonalidad hasta 2 alteraciones (cualquiera del catálogo KEYS).
   const key=mpick(KEYS);
   const clef=(MEL_RND()<0.50)?'bass':'treble';
+  if(melMode==='errores'){ melExos=[ makeErroresExo(key,clef) ]; return; }
   melExos=[ makeMelExo(key,clef) ];
+}
+
+/* ===== DETECCIÓN DE ERRORES =====
+   Reutiliza genMelodia (misma estética y leyes). Genera la melodía correcta y
+   corrompe DOS notas (índices 2..8, nunca consecutivas, nunca la 1ª ni la 10ª).
+   La corrupción es SUTIL pero detectable: se sustituye la nota original por una
+   nota DIATÓNICA vecina (±1 o ±2 grados de la escala) que respete los intervalos
+   permitidos respecto a la anterior y la siguiente, de modo que "no dé el cante"
+   gráficamente pero rompa la lógica melódica original. */
+
+// vecinos diatónicos de un midi dentro del catálogo de la escala (ordenado)
+function _diatNeighbors(midis, midi, maxGrades){
+  const i=midis.indexOf(midi); if(i<0) return [];
+  const out=[];
+  for(let g=1; g<=maxGrades; g++){
+    if(i-g>=0) out.push(midis[i-g]);
+    if(i+g<midis.length) out.push(midis[i+g]);
+  }
+  return out;
+}
+// ¿es esta sustitución un cambio "creíble"? respeta intervalos permitidos con vecinas
+function _corruptCandValid(midis, seq, pos, cand){
+  if(cand===seq[pos]) return false;
+  if(cand<43||cand>79) return false;
+  const prev=seq[pos-1], next=(pos<seq.length-1)?seq[pos+1]:null;
+  if(prev!=null && !intervaloPermitido(midis, prev, cand)) return false;
+  if(next!=null && !intervaloPermitido(midis, next, cand)) return false;
+  if(prev!=null && cand===prev) return false;   // no crear unísono
+  if(next!=null && cand===next) return false;
+  return true;
+}
+function corruptMelodia(mel, key){
+  const {midis}=buildPitches(key);
+  const seq=mel.midis.slice();
+  const lo=Math.min(...seq), hi=Math.max(...seq);  // mantener dentro del registro usado
+  // posiciones candidatas a error: 2..8 (1-indexado 3..9), no la tónica inicial ni la final
+  const positions=[2,3,4,5,6,7,8];
+  // elegir 2 no consecutivas
+  let p1,p2,guard=0;
+  do{
+    p1=mpick(positions); p2=mpick(positions); guard++;
+  }while((p1===p2 || Math.abs(p1-p2)<2) && guard<200);
+  if(Math.abs(p1-p2)<2){ p1=3; p2=6; }            // fallback seguro
+  const errPos=[p1,p2].sort((a,b)=>a-b);
+  const errSet={};
+  for(const pos of errPos){
+    // candidatos: vecinos diatónicos a 1 o 2 grados, dentro del rango de la melodía
+    let cands=_diatNeighbors(midis, seq[pos], 2)
+      .filter(c=>c>=lo-2 && c<=hi+2)
+      .filter(c=>_corruptCandValid(midis, seq, pos, c));
+    if(!cands.length){
+      // ampliar registro si no hay vecina válida en rango estricto
+      cands=_diatNeighbors(midis, seq[pos], 2).filter(c=>_corruptCandValid(midis, seq, pos, c));
+    }
+    if(!cands.length){
+      // último recurso: cualquier nota de la escala que case por intervalo con las vecinas
+      cands=midis.filter(c=>_corruptCandValid(midis, seq, pos, c));
+    }
+    if(cands.length){
+      // preferir la vecina más cercana (1 grado) para máxima sutileza
+      const i=midis.indexOf(seq[pos]);
+      cands.sort((a,b)=>Math.abs(midis.indexOf(a)-i)-Math.abs(midis.indexOf(b)-i));
+      const pick = cands.length<=2 ? cands[0] : cands[mrint(Math.min(3,cands.length))];
+      seq[pos]=pick; errSet[pos]=true;
+    }
+  }
+  return {seq, errPos:Object.keys(errSet).map(Number)};
+}
+function makeErroresExo(key,clef){
+  let mel, corr, tries=0;
+  do{
+    mel=genMelodia(key,clef);
+    corr=corruptMelodia(mel,key);
+    tries++;
+  }while(corr.errPos.length<2 && tries<40);  // exigir 2 errores reales
+  const shownMidis=corr.seq;
+  const correctMidis=mel.midis;
+  return {
+    key, clef,
+    midis:correctMidis,                         // melodía correcta (solución)
+    shown:shownMidis,                           // lo que ve el alumno (con 2 errores)
+    errPos:corr.errPos,                         // índices de las notas mal escritas
+    picks:new Array(10).fill(false),            // notas marcadas por el alumno
+    sol:correctMidis.map(m=>midiToVF(m,key)),
+    allowed:buildPitches(key).midis,
+    listens:0, checked:false, scored:false, revealed:false, melSpeed:1
+  };
 }
 // Cambiar de clave (Sol/Fa) en la tarjeta: regenera la melodía en la nueva clave,
 // dentro del registro propio de cada clave (Fa: Sol2–Do4, sonido real grave).
@@ -3469,7 +3806,7 @@ function switchMelClef(idx){
   const ex=melExos[idx]; if(!ex) return;
   stopMelAudio();
   const newClef = (ex.clef==='bass') ? 'treble' : 'bass';
-  melExos[idx]=makeMelExo(ex.key,newClef);   // misma tonalidad, nueva clave + nueva melodía en rango
+  melExos[idx]=(melMode==='errores') ? makeErroresExo(ex.key,newClef) : makeMelExo(ex.key,newClef);
   renderMelExos();
 }
 
@@ -3599,6 +3936,7 @@ function startMelMonitor(idx,audioStart,ctx){
 // posiciones verticales: una entrada por cada midi permitido (la altura define línea/espacio)
 // dibujamos el pentagrama y las 10 redondas (slots). hueco = nada.
 function drawMelBoard(idx){
+  if(melMode==='errores'){ drawErroresBoard(idx); return; }
   const ex=melExos[idx];
   const cont=document.getElementById('melboard-'+idx);
   if(!cont) return;
@@ -3688,6 +4026,105 @@ function drawMelBoard(idx){
   // contenedor de la nota fantasma
   const gh=document.createElement('div'); gh.className='mel-ghost'; gh.id='melghost-'+idx; gh.style.display='none';
   cont.appendChild(gh);
+}
+
+/* --- Render del pentagrama en modo DETECCIÓN DE ERRORES --- */
+function drawErroresBoard(idx){
+  const ex=melExos[idx];
+  const cont=document.getElementById('melboard-'+idx);
+  if(!cont) return;
+  cont.innerHTML=''; cont.style.position='relative';
+  const VF=Vex.Flow;
+  const renderer=new VF.Renderer(cont,VF.Renderer.Backends.SVG);
+  const W=Math.max(620,cont.clientWidth-6),H=200;
+  renderer.resize(W,H);
+  const ctx=renderer.getContext();
+  const stave=new VF.Stave(8,40,W-16);
+  stave.addClef(ex.clef||'treble');
+  if(ex.key.vfsig!=='C') stave.addKeySignature(ex.key.vfsig);
+  stave.setContext(ctx).draw();
+  // fuente: al revelar mostramos la melodía correcta; si no, lo que ve el alumno (con errores)
+  const source = ex.revealed ? ex.midis : ex.shown;
+  const notes=[];
+  for(let i=0;i<10;i++){
+    const m=source[i];
+    const vf=midiToVF(m,ex.key);
+    const sn=new VF.StaveNote({keys:[vf.key],duration:'w',clef:ex.clef||'treble'});
+    if(vf.accidental) sn.addModifier(new VF.Accidental(vf.accidental),0);
+    // coloreado:
+    let col=null;
+    if(ex.revealed){
+      const isErr=ex.errPos.includes(i), picked=ex.picks[i];
+      if(isErr && picked) col='#15a06a';           // acertaste este error -> verde
+      else if(isErr && !picked) col='#2563eb';     // error que NO señalaste -> azul (la correcta)
+      else if(!isErr && picked) col='#d23145';     // lo señalaste y no era error -> rojo
+    } else if(ex.scored){
+      const isErr=ex.errPos.includes(i), picked=ex.picks[i];
+      if(isErr && picked) col='#15a06a';           // acierto
+      else if(!isErr && picked) col='#d23145';     // falso positivo
+      // los errores no detectados se dejan en negro hasta pulsar "Solución"
+    } else if(ex.picks[i]){
+      col='#d23145';                                // marcada por el alumno: rojo
+    }
+    if(col) sn.setStyle({fillStyle:col,strokeStyle:col});
+    notes.push(sn);
+  }
+  const voice=new VF.Voice({num_beats:40,beat_value:4});
+  voice.setStrict(false); voice.addTickables(notes);
+  new VF.Formatter().joinVoices([voice]).format([voice],W-70);
+  voice.draw(ctx,stave);
+  ex._noteX=notes.map(n=>{try{return n.getAbsoluteX();}catch(e){return null;}});
+  ex._geom={stave,notes,W,H};
+  drawMelNumbers(idx);
+  const off=svgOffsetMel(idx);
+  // capa interactiva (clic para marcar/desmarcar), salvo tras revelar
+  if(!ex.revealed){
+    const layer=document.createElement('div'); layer.className='mel-ilayer'; layer.id='mellayer-'+idx;
+    cont.appendChild(layer);
+    layer.addEventListener('click',e=>onErroresClick(idx,e));
+  }
+  // flecha indicadora bajo cada nota relevante
+  let staffBottom=90; try{ staffBottom=stave.getYForLine(4); }catch(e){}
+  const arrowY = staffBottom + off.dy + 10;   // justo bajo la última línea del pentagrama
+  for(let i=0;i<10;i++){
+    const isErr=ex.errPos.includes(i), picked=ex.picks[i];
+    let cls=null;
+    if(ex.revealed){
+      if(isErr && picked) cls='ok';              // verde: acertaste
+      else if(isErr && !picked) cls='blue';      // azul: la correcta que no señalaste
+      else if(!isErr && picked) cls='bad';       // rojo: falso positivo
+    } else if(ex.scored){
+      if(picked) cls=isErr?'ok':'bad';
+    } else if(picked){
+      cls='pick';                                // rojo mientras seleccionas
+    }
+    if(!cls) continue;
+    const x=ex._noteX[i]; if(x==null) continue;
+    const arr=document.createElement('div'); arr.className='beat-arrow '+cls;
+    arr.style.left=(x+off.dx)+'px';
+    arr.style.top=arrowY+'px';
+    arr.innerHTML='▲';
+    cont.appendChild(arr);
+  }
+}
+function onErroresClick(idx,e){
+  const ex=melExos[idx];
+  if(ex.revealed) return;
+  const cont=document.getElementById('melboard-'+idx);
+  const rect=cont.getBoundingClientRect();
+  const off=svgOffsetMel(idx);
+  const mx=e.clientX-rect.left-off.dx;
+  // nota más cercana (puede marcarse cualquiera de las 10)
+  let slot=-1,bx=1e9;
+  for(let i=0;i<10;i++){ const x=ex._noteX[i]; if(x==null)continue; const d=Math.abs(x-mx); if(d<bx){bx=d;slot=i;} }
+  if(slot<0) return;
+  const already=ex.picks[slot];
+  const count=ex.picks.filter(Boolean).length;
+  if(!already && count>=2){ toast('Solo hay dos notas mal escritas: deselecciona una antes de marcar otra'); return; }
+  ex.picks[slot]=!already;
+  ex.scored=false;                  // al editar, se retira el coloreado hasta re-comprobar
+  const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
+  drawErroresBoard(idx); refreshMelControls(idx);
 }
 function drawMelNumbers(idx){
   const ex=melExos[idx];
@@ -3840,48 +4277,57 @@ function onMelDelete(idx,e){
 function renderMelExos(){
   const cont=document.getElementById('melContainer');
   cont.innerHTML='';
+  const isErr=(melMode==='errores');
   melExos.forEach((ex,idx)=>{
     const block=document.createElement('section');
     block.className='exo'; block.id='melexo-'+idx;
     const altTxt = ex.key.sig===0?'sin alteraciones':(Math.abs(ex.key.sig)===1?'1 alteración':'2 alteraciones');
     const clefTxt = (ex.clef==='bass')?'clave de Fa':'clave de Sol';
+    const tituloApartado = isErr ? 'Detección de errores' : 'Dictado melódico';
+    const subtitulo = isErr ? (clefTxt+' · 2 notas mal escritas · 10 notas')
+                            : (clefTxt+' · tónica dada · 10 notas');
+    // bloque de escucha: presente en ambos modos.
+    // En detección de errores el audio es la melodía CORRECTA; la partitura muestra 2 notas que no coinciden.
+    const listenBlock =
+      '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
+        '<div class="pr-right"><div class="listens" id="mellistens-'+idx+'"></div>'+
+        '<button class="play-btn" id="melplay-'+idx+'" title="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>'+
+        '<div class="melspeed-ctl">'+
+          '<span class="metro-lbl">velocidad</span>'+
+          '<div class="melspeed-row">'+
+            ['Lento','Normal','Rápido'].map((lab,si)=>{
+              const val=[2,1,0.5][si];
+              const sel=(ex.melSpeed||1)===val?' sel':'';
+              return '<button class="melspeed-btn'+sel+'" data-sp="'+val+'" id="melsp-'+idx+'-'+si+'">'+lab+'</button>';
+            }).join('')+
+          '</div>'+
+        '</div>'+
+        '<div class="score-line" id="melscore-'+idx+'"></div>'+
+      '</div>';
+    const hintTxt = isErr
+      ? '<b>Escucha</b> la melodía: suena correcta. Pero en la partitura <b>dos notas no coinciden</b> con lo que oyes (nunca la primera ni la última, y nunca seguidas). Haz <b>clic</b> sobre esas dos notas para señalarlas; vuelve a pulsar para desmarcar. Cuando tengas las dos, pulsa <b>¿Qué tal fue?</b> para corregir.'
+      : 'Mueve sobre el pentagrama y la redonda salta de nota en nota: colócala donde corresponda. En tablet puedes ampliar si necesitas más precisión, y pulsar otra vez para reescribir. Para borrar una nota: clic derecho (ordenador) o dos dedos (tablet). Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.';
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
-        '<span class="exo-num">Dictado melódico</span>'+
+        '<span class="exo-num">'+tituloApartado+'</span>'+
         '<h2>'+altTxt+'</h2>'+
-        '<span class="ts">'+clefTxt+' · tónica dada · 10 notas</span>'+
+        '<span class="ts">'+subtitulo+'</span>'+
       '</div><div class="exo-head-right">'+
-        '<button class="clef-switch" id="melclef-'+idx+'" title="Cambiar de clave">⇄ '+(ex.clef==='bass'?'Sol':'Fa')+'</button>'+
         '<div class="beatmon" id="melbeat-'+idx+'"></div></div></div>'+
       '<div class="exo-main">'+
         '<div class="board" id="melboard-'+idx+'" style="min-height:150px"></div>'+
         '<div class="exo-side">'+
-          '<div class="play-row"><div class="pr-edge"></div><div class="pr-label">Escuchar</div>'+
-            '<div class="pr-right"><div class="listens" id="mellistens-'+idx+'"></div>'+
-            '<button class="play-btn" id="melplay-'+idx+'" title="Reproducir"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div>'+
-            '<div class="melspeed-ctl">'+
-              '<span class="metro-lbl">velocidad</span>'+
-              '<div class="melspeed-row">'+
-                ['Lento','Normal','Rápido'].map((lab,si)=>{
-                  const val=[2,1,0.5][si];
-                  const sel=(ex.melSpeed||1)===val?' sel':'';
-                  return '<button class="melspeed-btn'+sel+'" data-sp="'+val+'" id="melsp-'+idx+'-'+si+'">'+lab+'</button>';
-                }).join('')+
-              '</div>'+
-            '</div>'+
-            '<div class="score-line" id="melscore-'+idx+'"></div>'+
-          '</div>'+
+          listenBlock +
           '<div class="check-bar">'+
             '<button class="check-link" id="melcheck-'+idx+'">¿Qué tal fue?</button>'+
             '<button class="btn-sol" id="melsol-'+idx+'">Solución</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
-      '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">Mueve sobre el pentagrama y la redonda salta de nota en nota: colócala donde corresponda. En tablet puedes ampliar si necesitas más precisión, y pulsar otra vez para reescribir. Para borrar una nota: clic derecho (ordenador) o dos dedos (tablet). Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.</span></div>';
+      '<div class="palette-head"><h3>Cómo responder</h3><span class="hint">'+hintTxt+'</span></div>';
     cont.appendChild(block);
-    block.querySelector('#melplay-'+idx).addEventListener('click',()=>playMel(idx));
-    const clefBtn=block.querySelector('#melclef-'+idx);
-    if(clefBtn) clefBtn.addEventListener('click',()=>switchMelClef(idx));
+    const playBtn=block.querySelector('#melplay-'+idx);
+    if(playBtn) playBtn.addEventListener('click',()=>playMel(idx));
     block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
     block.querySelector('#melsol-'+idx).addEventListener('click',()=>onMelReveal(idx));
     block.querySelectorAll('.melspeed-btn').forEach(b=>{
@@ -3891,7 +4337,9 @@ function renderMelExos(){
         b.classList.add('sel');
       });
     });
-    drawMelBoard(idx); refreshMelPlay(idx); refreshMelControls(idx);
+    drawMelBoard(idx);
+    refreshMelPlay(idx);
+    refreshMelControls(idx);
   });
 }
 function refreshMelPlay(idx){
@@ -3909,12 +4357,30 @@ function refreshMelControls(idx){
   if(solBtn){ solBtn.disabled=ex.revealed; solBtn.textContent=ex.revealed?'Solución mostrada':'Solución'; }
 }
 function melScoreOf(ex){
+  if(melMode==='errores'){
+    // 2 errores; cada error detectado +1 (máx 2); cada falso positivo resta. Sobre 10 para homogeneidad.
+    let hits=0, fps=0;
+    for(let i=0;i<10;i++){
+      if(ex.picks[i]){ if(ex.errPos.includes(i)) hits++; else fps++; }
+    }
+    const raw=Math.max(0, hits-fps);   // 0..2
+    return raw*5;                       // escala a 0..10
+  }
   let ok=0; for(let i=0;i<10;i++){ if(ex.slots[i]!==null && ex.slots[i]===ex.midis[i]) ok++; } return ok;
 }
 function onMelCheck(idx){
   const ex=melExos[idx];
-  // comprobar (o re-comprobar tras editar): colorea y puntúa, sigue editable
   ex.scored=true; ex.checked=true;
+  if(melMode==='errores'){
+    let hits=0,fps=0;
+    for(let i=0;i<10;i++){ if(ex.picks[i]){ if(ex.errPos.includes(i)) hits++; else fps++; } }
+    let msg='<b>'+hits+' / 2</b> errores detectados';
+    if(fps>0) msg+=' · '+fps+(fps===1?' fallo':' fallos');
+    document.getElementById('melscore-'+idx).innerHTML=msg;
+    drawMelBoard(idx); maybeShowMelGlobal();
+    refreshMelPlay(idx); refreshMelControls(idx);
+    return;
+  }
   const ok=melScoreOf(ex);
   document.getElementById('melscore-'+idx).innerHTML='<b>'+ok+' / 10</b> notas correctas';
   drawMelBoard(idx); maybeShowMelGlobal();
@@ -3922,16 +4388,37 @@ function onMelCheck(idx){
 }
 function onMelReveal(idx){
   const ex=melExos[idx];
-  if(!ex.scored){ ex.scored=true; ex.checked=true; const ok=melScoreOf(ex); const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='<b>'+ok+' / 10</b> notas correctas'; maybeShowMelGlobal(); }
+  if(!ex.scored){
+    ex.scored=true; ex.checked=true;
+    const sl=document.getElementById('melscore-'+idx);
+    if(melMode==='errores'){
+      let hits=0,fps=0; for(let i=0;i<10;i++){ if(ex.picks[i]){ if(ex.errPos.includes(i)) hits++; else fps++; } }
+      if(sl){ let msg='<b>'+hits+' / 2</b> errores detectados'; if(fps>0) msg+=' · '+fps+(fps===1?' fallo':' fallos'); sl.innerHTML=msg; }
+    } else {
+      const ok=melScoreOf(ex); if(sl) sl.innerHTML='<b>'+ok+' / 10</b> notas correctas';
+    }
+    maybeShowMelGlobal();
+  }
   if(!ex.revealed){ ex.revealed=true; drawMelBoard(idx); }
   refreshMelPlay(idx); refreshMelControls(idx);
 }
 function maybeShowMelGlobal(){
   // se muestra (y se recalcula) cuando la tarjeta ha sido comprobada al menos una vez
   if(!melExos.every(e=>e.scored||e.revealed)) return;
+  const panel=document.getElementById('globalScoreMel');
+  if(melMode==='errores'){
+    const ex=melExos[0];
+    let hits=0,fps=0; for(let i=0;i<10;i++){ if(ex.picks[i]){ if(ex.errPos.includes(i)) hits++; else fps++; } }
+    const nota=(melScoreOf(ex)/10*10); const notaTxt=(Math.round(nota*10)/10).toString().replace('.',',');
+    panel.innerHTML='<div class="gs-inner">'+
+      '<div class="gs-left"><span class="gs-kicker">Resultado</span><span class="gs-frac">'+hits+' <span class="gs-of">/ 2</span></span><span class="gs-sub">errores detectados'+(fps>0?(' · '+fps+(fps===1?' fallo':' fallos')):'')+'</span></div>'+
+      '<div class="gs-sep"></div>'+
+      '<div class="gs-right"><span class="gs-kicker">Nota</span><span class="gs-nota">'+notaTxt+' <span class="gs-of">/ 10</span></span></div></div>';
+    panel.style.display='block';
+    return;
+  }
   const total=10*melExos.length, ok=melExos.reduce((a,e)=>a+melScoreOf(e),0);
   const nota=(ok/total*10); const notaTxt=(Math.round(nota*10)/10).toString().replace('.',',');
-  const panel=document.getElementById('globalScoreMel');
   panel.innerHTML='<div class="gs-inner">'+
     '<div class="gs-left"><span class="gs-kicker">Resultado total</span><span class="gs-frac">'+ok+' <span class="gs-of">/ '+total+'</span></span><span class="gs-sub">notas correctas</span></div>'+
     '<div class="gs-sep"></div>'+
@@ -3963,6 +4450,13 @@ function openMelodica(){
   startMelodica();
 }
 function startMelodica(){buildMelExos();renderMelExos();const g=document.getElementById('globalScoreMel');if(g){g.style.display='none';g.innerHTML='';}}
+function setMelMode(mode){
+  if(mode===melMode) { startMelodica(); return; }
+  melMode=mode;
+  document.querySelectorAll('.melmode-tab').forEach(t=>t.classList.toggle('sel', t.dataset.mode===mode));
+  stopMelAudio();
+  startMelodica();
+}
 function goHomeMel(){
   setMode(null);
   stopMelAudio();
@@ -4978,7 +5472,14 @@ function openRitmica(){
   setBrand('predict');
   startRitmica();
 }
-function startRitmica(){buildExos();renderExos();const g=document.getElementById('globalScore');if(g){g.style.display='none';g.innerHTML='';}}
+function startRitmica(){endDrag();buildExos();renderExos();const g=document.getElementById('globalScore');if(g){g.style.display='none';g.innerHTML='';}}
+function setRitMode(mode){
+  if(mode===ritMode){ startRitmica(); return; }
+  ritMode=mode;
+  document.querySelectorAll('.ritmode-tab').forEach(t=>t.classList.toggle('sel', t.dataset.mode===mode));
+  stopAudio();
+  startRitmica();
+}
 function goHome(){
   setMode(null);
   document.getElementById('ritmicaView').classList.remove('active');
@@ -5146,7 +5647,9 @@ document.getElementById('maintClose').addEventListener('click',()=>document.getE
 document.getElementById('maintBackdrop').addEventListener('click',e=>{ if(e.target.id==='maintBackdrop') document.getElementById('maintBackdrop').classList.remove('open'); });
 
 document.getElementById('regenBtn').addEventListener('click',startRitmica);
+document.querySelectorAll('.ritmode-tab').forEach(t=>t.addEventListener('click',()=>setRitMode(t.dataset.mode)));
 document.getElementById('regenBtnMel').addEventListener('click',startMelodica);
+document.querySelectorAll('.melmode-tab').forEach(t=>t.addEventListener('click',()=>setMelMode(t.dataset.mode)));
 document.getElementById('regenBtnTon').addEventListener('click',startToncom);
 document.getElementById('roadClose').addEventListener('click',closeRoad);
 document.getElementById('roadBackdrop').addEventListener('click',e=>{ if(e.target.id==='roadBackdrop') closeRoad(); });
