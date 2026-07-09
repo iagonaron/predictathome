@@ -401,6 +401,12 @@
   .mel-nums{position:absolute;left:0;right:0;bottom:8px;height:18px;z-index:2;pointer-events:none}
   .mel-nums span{position:absolute;transform:translateX(-50%);font-size:11px;font-weight:700;color:#9aa3c4}
   .mel-empty-x{position:absolute;top:50%;transform:translate(-50%,-60%);color:var(--red);font-size:32px;font-weight:800;line-height:1;pointer-events:none;z-index:3;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+  /* GN-UNIF 8-jul-2026 */
+  .gn-delx{position:absolute;z-index:7;width:30px;height:30px;margin-left:-15px;margin-top:-15px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation}
+  .gn-delx span{display:block;width:16px;height:16px;line-height:14px;text-align:center;border-radius:50%;background:rgba(20,24,48,.85);color:#fff;border:1px solid rgba(255,255,255,.55);font-size:11px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.35);pointer-events:none}
+  .gn-undo{background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;touch-action:manipulation;transition:background .15s,border-color .15s,color .15s}
+  .gn-undo:hover:not(:disabled){border-color:var(--mel);color:var(--mel)}
+  .gn-undo:disabled{opacity:.45;cursor:not-allowed}
   .sol-wrong-dot{position:absolute;top:6px;width:11px;height:11px;border-radius:50%;background:var(--red);transform:translateX(-50%);box-shadow:0 0 0 2px rgba(210,49,69,.25);pointer-events:none;z-index:4}
   .sol-legend{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
   .sol-legend .sl{display:inline-flex;align-items:center;gap:5px}
@@ -3704,7 +3710,7 @@ function makeMelExo(key,clef){
   const sigPCs=keySigPCs(key.sig);
   const slots=new Array(10).fill(null);
   slots[0]=mel.midis[0]; // tónica inicial dada
-  return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1};
+  return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1, _gnUndo:[]}; /* GN-UNIF 8-jul-2026 */
 }
 function buildMelExos(){
   // UNA sola tarjeta. Tonalidad hasta 2 alteraciones (cualquiera del catálogo KEYS).
@@ -4018,14 +4024,25 @@ function drawMelBoard(idx){
   if(!ex.revealed){
     const layer=document.createElement('div'); layer.className='mel-ilayer'; layer.id='mellayer-'+idx;
     cont.appendChild(layer);
-    layer.addEventListener('mousemove',e=>onMelHover(idx,e));
+    layer.addEventListener('mousemove',e=>{ if(cont._touchHandled) return; onMelHover(idx,e); }); /* GN-UNIF 8-jul-2026 */
     layer.addEventListener('mouseleave',()=>clearGhost(idx));
-    layer.addEventListener('click',e=>onMelClick(idx,e));
+    layer.addEventListener('click',e=>{ if(cont._touchHandled) return; onMelClick(idx,e); }); /* GN-UNIF 8-jul-2026 */
     layer.addEventListener('contextmenu',e=>{ e.preventDefault(); onMelDelete(idx,e); });
+    /* GN-UNIF 8-jul-2026 */ // táctil: pulsar → arrastrar (la fantasma sigue al dedo) → soltar = colocar
+    layer.addEventListener('touchstart',e=>{ if(e.touches&&e.touches[0]) onMelHover(idx,e.touches[0]); },{passive:true});
+    layer.addEventListener('touchmove',e=>{ if(e.touches&&e.touches[0]){ onMelHover(idx,e.touches[0]); e.preventDefault(); } },{passive:false});
+    layer.addEventListener('touchend',e=>{
+      cont._touchHandled=true;                                  // guarda anti click/mousemove sintéticos
+      if(melGhostMidi[idx]) onMelClick(idx,e);                  // coloca donde estaba la fantasma
+      clearGhost(idx);
+      setTimeout(()=>{cont._touchHandled=false;},450);
+      e.preventDefault();
+    },{passive:false});
   }
   // contenedor de la nota fantasma
   const gh=document.createElement('div'); gh.className='mel-ghost'; gh.id='melghost-'+idx; gh.style.display='none';
   cont.appendChild(gh);
+  gnMelDelXs(idx); /* GN-UNIF 8-jul-2026 */ // × fijas de borrado (se re-crean en cada redraw)
 }
 
 /* --- Render del pentagrama en modo DETECCIÓN DE ERRORES --- */
@@ -4245,6 +4262,7 @@ function onMelClick(idx,e){
   if(!g) return;
   const ex=melExos[idx];
   if(ex.revealed) return;
+  (ex._gnUndo=ex._gnUndo||[]).push({slot:g.slot, valorAnterior:ex.slots[g.slot]}); /* GN-UNIF 8-jul-2026 */ // apila colocación o reescritura
   ex.slots[g.slot]=g.midi;
   ex.scored=false;                 // al editar, se retira el coloreado hasta re-comprobar
   const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
@@ -4264,13 +4282,59 @@ function onMelDelete(idx,e){
   const ex=melExos[idx];
   if(ex.revealed) return;
   const slot=slotUnderCursor(idx,e);
-  if(slot>=1 && ex.slots[slot]!==null){
-    ex.slots[slot]=null;
-    ex.scored=false;
-    const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
-    clearGhost(idx);
-    drawMelBoard(idx); refreshMelControls(idx);
+  if(slot>=1 && ex.slots[slot]!==null) gnMelDeleteSlot(idx,slot); /* GN-UNIF 8-jul-2026 */ // clic derecho: método adicional de borrado
+}
+/* GN-UNIF 8-jul-2026 */ // borra un slot colocado por el alumno (apila en deshacer) y re-renderiza
+function gnMelDeleteSlot(idx,slot){
+  const ex=melExos[idx];
+  if(!ex || ex.revealed || slot<1 || ex.slots[slot]==null) return;
+  (ex._gnUndo=ex._gnUndo||[]).push({slot, valorAnterior:ex.slots[slot]});
+  ex.slots[slot]=null;
+  ex.scored=false;
+  const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
+  clearGhost(idx);
+  drawMelBoard(idx); refreshMelControls(idx);
+}
+/* GN-UNIF 8-jul-2026 */ // × fija a la derecha de cada nota colocada por el alumno (slots 1..9; la tónica dada no lleva)
+function gnMelDelXs(idx){
+  const ex=melExos[idx];
+  const cont=document.getElementById('melboard-'+idx);
+  if(!ex || !cont || ex.revealed) return;                        // nada de × tras revelar la solución
+  const off=svgOffsetMel(idx);
+  for(let i=1;i<10;i++){
+    const m=ex.slots[i];
+    if(m===null || m===undefined) continue;
+    const x=ex._noteX[i]; const y=melYForMidi(idx,m);
+    if(x==null || y==null) continue;
+    const d=document.createElement('div'); d.className='gn-delx';
+    d.innerHTML='<span>×</span>';
+    d.style.left=(x+off.dx+20)+'px';                             // a la derecha de la cabeza (izquierda hay alteraciones)
+    d.style.top=(y+off.dy)+'px';
+    const stop=e=>{ e.stopPropagation(); };                      // que el pentagrama no pinte la fantasma debajo
+    d.addEventListener('pointerdown',stop);
+    d.addEventListener('mousedown',stop);
+    d.addEventListener('touchstart',stop,{passive:true});
+    d.addEventListener('click',e=>{ e.stopPropagation(); if(cont._touchHandled) return; gnMelDeleteSlot(idx,i); });
+    d.addEventListener('touchend',e=>{
+      e.preventDefault(); e.stopPropagation();
+      cont._touchHandled=true; setTimeout(()=>{cont._touchHandled=false;},450); // guarda anti click sintético
+      gnMelDeleteSlot(idx,i);
+    },{passive:false});
+    cont.appendChild(d);
   }
+}
+/* GN-UNIF 8-jul-2026 */ // deshace la última colocación/reescritura/borrado del ejercicio
+function gnMelUndo(idx){
+  const ex=melExos[idx];
+  if(!ex || ex.revealed) return;
+  const st=ex._gnUndo;
+  if(!st || !st.length) return;
+  const a=st.pop();
+  ex.slots[a.slot]=a.valorAnterior;                              // puede ser null o la nota machacada
+  ex.scored=false;
+  const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
+  clearGhost(idx);
+  drawMelBoard(idx); refreshMelControls(idx);
 }
 
 /* --- UI bloque melódico --- */
@@ -4306,7 +4370,7 @@ function renderMelExos(){
       '</div>';
     const hintTxt = isErr
       ? '<b>Escucha</b> la melodía: suena correcta. Pero en la partitura <b>dos notas no coinciden</b> con lo que oyes (nunca la primera ni la última, y nunca seguidas). Haz <b>clic</b> sobre esas dos notas para señalarlas; vuelve a pulsar para desmarcar. Cuando tengas las dos, pulsa <b>¿Qué tal fue?</b> para corregir.'
-      : 'Mueve sobre el pentagrama y la redonda salta de nota en nota: colócala donde corresponda. En tablet puedes ampliar si necesitas más precisión, y pulsar otra vez para reescribir. Para borrar una nota: clic derecho (ordenador) o dos dedos (tablet). Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.';
+      : 'Mueve el cursor (o <b>arrastra el dedo</b> en tablet) sobre el pentagrama y la redonda salta de nota en nota: <b>suelta</b> o haz clic para colocarla donde corresponda. Si te equivocas, toca encima para reescribirla, o bórrala con la <b>×</b> que aparece a su derecha (también con clic derecho en ordenador). El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.'; /* GN-UNIF 8-jul-2026 */
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
         '<span class="exo-num">'+tituloApartado+'</span>'+
@@ -4319,6 +4383,7 @@ function renderMelExos(){
         '<div class="exo-side">'+
           listenBlock +
           '<div class="check-bar">'+
+            (isErr?'':'<button class="gn-undo" id="melundo-'+idx+'">↶ Deshacer</button>')+ /* GN-UNIF 8-jul-2026 */
             '<button class="check-link" id="melcheck-'+idx+'">¿Qué tal fue?</button>'+
             '<button class="btn-sol" id="melsol-'+idx+'">Solución</button>'+
           '</div>'+
@@ -4330,6 +4395,7 @@ function renderMelExos(){
     if(playBtn) playBtn.addEventListener('click',()=>playMel(idx));
     block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
     block.querySelector('#melsol-'+idx).addEventListener('click',()=>onMelReveal(idx));
+    const undoBtn=block.querySelector('#melundo-'+idx); if(undoBtn) undoBtn.addEventListener('click',()=>gnMelUndo(idx)); /* GN-UNIF 8-jul-2026 */
     block.querySelectorAll('.melspeed-btn').forEach(b=>{
       b.addEventListener('click',()=>{
         ex.melSpeed=parseFloat(b.dataset.sp);
@@ -4355,6 +4421,8 @@ function refreshMelControls(idx){
   const solBtn=document.getElementById('melsol-'+idx);
   if(checkBtn){ checkBtn.textContent=ex.scored?'Corregido':'¿Qué tal fue?'; checkBtn.disabled=false; }
   if(solBtn){ solBtn.disabled=ex.revealed; solBtn.textContent=ex.revealed?'Solución mostrada':'Solución'; }
+  const undoBtn=document.getElementById('melundo-'+idx); /* GN-UNIF 8-jul-2026 */
+  if(undoBtn) undoBtn.disabled = ex.revealed || !ex._gnUndo || !ex._gnUndo.length;
 }
 function melScoreOf(ex){
   if(melMode==='errores'){
@@ -5961,7 +6029,7 @@ document.getElementById('regenBtnArm').addEventListener('click',()=>{ armStartAl
   'use strict';
   try{
     var ses=null; try{ ses=JSON.parse(localStorage.getItem('lmeav_session')||'null'); }catch(e){}
-    var cuenta=ses&&ses.cuenta_id; if(!cuenta) return;
+    var cuenta=(ses&&ses.id&&ses.estado==='validado')?ses.id:null; if(!cuenta) return;   // FIX: la sesión guarda s.id
     var URL_SB='https://woiptkyrxkbpnvioypit.supabase.co';
     var ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvaXB0a3lyeGticG52aW95cGl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzI2ODYsImV4cCI6MjA5MjA0ODY4Nn0.B2nKgj5rD0rkdLeMIrd9KgD8lUPWsBT4Y7aCtmnvbjA';
     function ping(){
