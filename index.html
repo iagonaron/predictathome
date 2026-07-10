@@ -3710,7 +3710,7 @@ function makeMelExo(key,clef){
   const sigPCs=keySigPCs(key.sig);
   const slots=new Array(10).fill(null);
   slots[0]=mel.midis[0]; // tónica inicial dada
-  return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1, _gnUndo:[]}; /* GN-UNIF 8-jul-2026 */
+  return {key, clef, sol:mel.notes, midis:mel.midis, allowed:midis, sigPCs, slots, listens:0, checked:false, scored:false, revealed:false, melSpeed:1, _gnUndo:[], _selSlot:null}; /* GN-UNIF 8-jul-2026 */ /* SEL-UNICA 10-jul-2026 */ // _selSlot: índice del slot seleccionado (o null); solo esa nota muestra la ×
 }
 function buildMelExos(){
   // UNA sola tarjeta. Tonalidad hasta 2 alteraciones (cualquiera del catálogo KEYS).
@@ -3968,6 +3968,8 @@ function drawMelBoard(idx){
       const col=colorMap?colorMap[i]:null;
       if(i===0 && !ex.scored && !ex.revealed) sn.setStyle({fillStyle:'#5b9dff',strokeStyle:'#5b9dff'}); // tónica dada en azul (color del apartado)
       else if(col) sn.setStyle({fillStyle:col,strokeStyle:col});
+      /* SEL-UNICA 10-jul-2026 */ // la nota SELECCIONADA (editable, sin corregir/revelar) se pinta en el azul del apartado; las demás del alumno siguen en negro
+      else if(i>=1 && i===ex._selSlot && !ex.scored && !ex.revealed) sn.setStyle({fillStyle:'#2563eb',strokeStyle:'#2563eb'});
       notes.push(sn);
     } else {
       const _emptyKey=(ex.clef==='bass')?'d/3':'b/4';   // nota central de la clave: sin líneas adicionales fantasma
@@ -4259,11 +4261,27 @@ function ghostSvg(vf, ledgers){
 function clearGhost(idx){const gh=document.getElementById('melghost-'+idx);if(gh)gh.style.display='none';melGhostMidi[idx]=null;}
 function onMelClick(idx,e){
   const g=melGhostMidi[idx];
-  if(!g) return;
   const ex=melExos[idx];
-  if(ex.revealed) return;
+  if(!ex || ex.revealed) return;
+  /* SEL-UNICA 10-jul-2026 */
+  // Sin fantasma activa (p.ej. clic fuera de cualquier slot) → deseleccionar.
+  if(!g){ if(ex._selSlot!=null){ ex._selSlot=null; drawMelBoard(idx); refreshMelControls(idx); } return; }
+  /* SEL-UNICA 10-jul-2026 */
+  // Criterio SELECCIONAR vs REESCRIBIR:
+  // Si el slot ya tiene nota y el alumno apunta a ESA MISMA altura (el midi que
+  // resuelve nearestMidiByY coincide con el ya colocado) → interpretamos que
+  // "apunta a la nota", así que solo la SELECCIONAMOS (no la machacamos).
+  // Si apunta claramente a otra altura (midi distinto) → REESCRIBIMOS y
+  // auto-seleccionamos. La tónica (slot 0) nunca es editable.
+  const existente = ex.slots[g.slot];
+  if(existente!==null && existente!==undefined && existente===g.midi){
+    // misma altura sobre una nota existente → solo seleccionar
+    if(ex._selSlot!==g.slot){ ex._selSlot=g.slot; drawMelBoard(idx); refreshMelControls(idx); }
+    return;
+  }
   (ex._gnUndo=ex._gnUndo||[]).push({slot:g.slot, valorAnterior:ex.slots[g.slot]}); /* GN-UNIF 8-jul-2026 */ // apila colocación o reescritura
   ex.slots[g.slot]=g.midi;
+  ex._selSlot=g.slot;              /* SEL-UNICA 10-jul-2026 */ // colocar/reescribir auto-selecciona la nota
   ex.scored=false;                 // al editar, se retira el coloreado hasta re-comprobar
   const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
   drawMelBoard(idx); refreshMelControls(idx);
@@ -4290,38 +4308,39 @@ function gnMelDeleteSlot(idx,slot){
   if(!ex || ex.revealed || slot<1 || ex.slots[slot]==null) return;
   (ex._gnUndo=ex._gnUndo||[]).push({slot, valorAnterior:ex.slots[slot]});
   ex.slots[slot]=null;
+  if(ex._selSlot===slot) ex._selSlot=null;   /* SEL-UNICA 10-jul-2026 */ // al borrar la seleccionada, no queda selección
   ex.scored=false;
   const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
   clearGhost(idx);
   drawMelBoard(idx); refreshMelControls(idx);
 }
-/* GN-UNIF 8-jul-2026 */ // × fija a la derecha de cada nota colocada por el alumno (slots 1..9; la tónica dada no lleva)
+/* GN-UNIF 8-jul-2026 */ /* SEL-UNICA 10-jul-2026 */ // × SOLO a la derecha de la nota SELECCIONADA (slot 1..9 con valor, editable). Sin selección → ninguna ×
 function gnMelDelXs(idx){
   const ex=melExos[idx];
   const cont=document.getElementById('melboard-'+idx);
-  if(!ex || !cont || ex.revealed) return;                        // nada de × tras revelar la solución
+  if(!ex || !cont || ex.revealed || ex.scored) return;           // nada de × tras revelar/corregir la solución
+  const i=ex._selSlot;                                           /* SEL-UNICA 10-jul-2026 */ // única selección
+  if(i==null || i<1) return;                                     // sin selección válida → sin ×
+  const m=ex.slots[i];
+  if(m===null || m===undefined) return;                          // el slot seleccionado debe tener nota
   const off=svgOffsetMel(idx);
-  for(let i=1;i<10;i++){
-    const m=ex.slots[i];
-    if(m===null || m===undefined) continue;
-    const x=ex._noteX[i]; const y=melYForMidi(idx,m);
-    if(x==null || y==null) continue;
-    const d=document.createElement('div'); d.className='gn-delx';
-    d.innerHTML='<span>×</span>';
-    d.style.left=(x+off.dx+20)+'px';                             // a la derecha de la cabeza (izquierda hay alteraciones)
-    d.style.top=(y+off.dy)+'px';
-    const stop=e=>{ e.stopPropagation(); };                      // que el pentagrama no pinte la fantasma debajo
-    d.addEventListener('pointerdown',stop);
-    d.addEventListener('mousedown',stop);
-    d.addEventListener('touchstart',stop,{passive:true});
-    d.addEventListener('click',e=>{ e.stopPropagation(); if(cont._touchHandled) return; gnMelDeleteSlot(idx,i); });
-    d.addEventListener('touchend',e=>{
-      e.preventDefault(); e.stopPropagation();
-      cont._touchHandled=true; setTimeout(()=>{cont._touchHandled=false;},450); // guarda anti click sintético
-      gnMelDeleteSlot(idx,i);
-    },{passive:false});
-    cont.appendChild(d);
-  }
+  const x=ex._noteX[i]; const y=melYForMidi(idx,m);
+  if(x==null || y==null) return;
+  const d=document.createElement('div'); d.className='gn-delx';
+  d.innerHTML='<span>×</span>';
+  d.style.left=(x+off.dx+20)+'px';                               // a la derecha de la cabeza (izquierda hay alteraciones)
+  d.style.top=(y+off.dy)+'px';
+  const stop=e=>{ e.stopPropagation(); };                        // que el pentagrama no pinte la fantasma debajo
+  d.addEventListener('pointerdown',stop);
+  d.addEventListener('mousedown',stop);
+  d.addEventListener('touchstart',stop,{passive:true});
+  d.addEventListener('click',e=>{ e.stopPropagation(); if(cont._touchHandled) return; gnMelDeleteSlot(idx,i); });
+  d.addEventListener('touchend',e=>{
+    e.preventDefault(); e.stopPropagation();
+    cont._touchHandled=true; setTimeout(()=>{cont._touchHandled=false;},450); // guarda anti click sintético
+    gnMelDeleteSlot(idx,i);
+  },{passive:false});
+  cont.appendChild(d);
 }
 /* GN-UNIF 8-jul-2026 */ // deshace la última colocación/reescritura/borrado del ejercicio
 function gnMelUndo(idx){
@@ -4331,6 +4350,8 @@ function gnMelUndo(idx){
   if(!st || !st.length) return;
   const a=st.pop();
   ex.slots[a.slot]=a.valorAnterior;                              // puede ser null o la nota machacada
+  /* SEL-UNICA 10-jul-2026 */ // tras deshacer: si el slot afectado vuelve a tener nota, queda seleccionado; si no, sin selección
+  ex._selSlot = (a.valorAnterior!==null && a.valorAnterior!==undefined) ? a.slot : null;
   ex.scored=false;
   const sl=document.getElementById('melscore-'+idx); if(sl) sl.innerHTML='';
   clearGhost(idx);
@@ -4370,7 +4391,7 @@ function renderMelExos(){
       '</div>';
     const hintTxt = isErr
       ? '<b>Escucha</b> la melodía: suena correcta. Pero en la partitura <b>dos notas no coinciden</b> con lo que oyes (nunca la primera ni la última, y nunca seguidas). Haz <b>clic</b> sobre esas dos notas para señalarlas; vuelve a pulsar para desmarcar. Cuando tengas las dos, pulsa <b>¿Qué tal fue?</b> para corregir.'
-      : 'Mueve el cursor (o <b>arrastra el dedo</b> en tablet) sobre el pentagrama y la redonda salta de nota en nota: <b>suelta</b> o haz clic para colocarla donde corresponda. Si te equivocas, toca encima para reescribirla, o bórrala con la <b>×</b> que aparece a su derecha (también con clic derecho en ordenador). El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.'; /* GN-UNIF 8-jul-2026 */
+      : 'Mueve el cursor (o <b>arrastra el dedo</b> en tablet) sobre el pentagrama y la redonda salta de nota en nota: <b>suelta</b> o haz clic para colocarla donde corresponda. La nota que acabas de colocar queda <b>seleccionada</b> (en azul y con una <b>×</b> a su derecha para borrarla). Solo se ve <b>una ×</b> a la vez: para borrar otra nota, <b>tócala primero</b> para seleccionarla y aparecerá su ×. Si apuntas a otra altura sobre una nota ya puesta, la reescribes. También puedes borrar con clic derecho en ordenador. El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.'; /* GN-UNIF 8-jul-2026 */ /* SEL-UNICA 10-jul-2026 */
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
         '<span class="exo-num">'+tituloApartado+'</span>'+
