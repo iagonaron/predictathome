@@ -4190,6 +4190,25 @@ function drawMelNumbers(idx){
   const modoCirculos = ES_TACTIL && !!ex.slots && !ex.revealed;
   if(modoCirculos){
     const wrap=document.createElement('div'); wrap.className='mel-nums taps';
+    /* R6 10-jul-2026 · posición vertical de la banda de círculos calculada dinámicamente
+       para que NUNCA molesten a la nota más grave posible del ejercicio, y a una
+       distancia INTERMEDIA (entre lo muy pegado de R5 y lo muy bajo de R4).
+       yGrave = Y (en coords del board) de la nota más grave permitida; los círculos
+       van MARGEN px por debajo de esa nota. */
+    (function(){
+      let yGrave=null;
+      try{
+        const graves=(ex.allowed||[]).slice().sort((a,b)=>a-b);
+        if(graves.length){ const yg=melYForMidi(idx,graves[0]); if(yg!=null) yGrave=yg+off.dy; }
+      }catch(e){}
+      const MARGEN=26;                       // separación bajo la nota más grave (punto intermedio; la cabeza mide ~10px, así no se solapa pero no queda tan bajo como antes)
+      let topPx = (yGrave!=null) ? (yGrave+MARGEN) : 205;   // fallback intermedio si no hay dato
+      // no dejar que se salga del board (deja hueco para el círculo de 34px de alto)
+      const cont2=document.getElementById('melboard-'+idx);
+      const maxTop=(cont2? cont2.clientHeight : 294) - 36;
+      if(topPx>maxTop) topPx=maxTop;
+      wrap.style.top=topPx+'px'; wrap.style.bottom='auto';
+    })();
     for(let i=0;i<10;i++){
       const x=ex._noteX[i]; if(x==null) continue;
       const btn=document.createElement('button'); btn.type='button'; btn.className='mel-tap';
