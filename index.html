@@ -610,7 +610,7 @@
 
   <header class="top">
     <a class="brand" id="brandHome" href="#" onclick="brandNav();return false;" style="cursor:pointer;text-decoration:none;color:inherit">
-      <h1><span class="a">LM</span><span class="eav">EAV</span> <span class="home2">at home</span></h1>
+      <h1><span class="a">LM</span><span class="eav">GE</span> <span class="home2">at home</span></h1>
       <span class="brand-inline">Recursos interactivos LM y EAV desde tu casa</span>
     </a>
     <div class="tagline">by Iago González Alonso</div>
@@ -4667,11 +4667,11 @@ function maybeShowMelGlobal(){
   panel.style.display='block';
 }
 // La marca arriba a la izquierda muestra su destino: dentro de un apartado -> "PreDict at home" (vuelve a la portada);
-// en la portada -> "LMEAV at home" (va al portal Elemental). Sirve de "volver atrás".
+// en la portada -> "LMGE at home" (va al portal Elemental). Sirve de "volver atrás".
 function setBrand(dest){
   const h=document.querySelector('#brandHome h1'); if(!h) return;
   if(dest==='predict') h.innerHTML='<span class="a">PRE</span><span class="eav">DICT</span> <span class="home2">at home</span>';
-  else h.innerHTML='<span class="a">LM</span><span class="eav">EAV</span> <span class="home2">at home</span>';
+  else h.innerHTML='<span class="a">LM</span><span class="eav">GE</span> <span class="home2">at home</span>';
 }
 function brandNav(){
   const R=id=>{ const el=document.getElementById(id); return el && el.classList.contains('active'); };
@@ -4680,7 +4680,7 @@ function brandNav(){
   else if(R('toncomView')) goHomeTon();
   else if(R('armonicaView')) goHomeArm();
   else if(R('ritEditView')) closeRitEdit();
-  else window.location.href='https://iagonaron.github.io/LMEAVathome/';
+  else window.location.href='https://iagonaron.github.io/LMGEathome/';
 }
 function openMelodica(){
   setMode('mel');
