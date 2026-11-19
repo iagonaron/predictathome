@@ -107,8 +107,7 @@ function pintaLobby(){
     const botones=abierta
       ? '<button class="btn pri" data-a="entrar" data-id="'+p.id+'">Entrar</button>'
       : '<button class="btn pri'+(resp==='si'?' sel':'')+'" data-a="si" data-id="'+p.id+'">'+(resp==='si'?'✓ Me apunto':'Me apunto')+'</button>'+
-        '<button class="btn'+(resp==='quiza'?' sel':'')+'" data-a="quiza" data-id="'+p.id+'">'+(resp==='quiza'?'✓ Visto':'Marcar como visto')+'</button>'+
-        (resp?'<button class="btn peq" data-a="no" data-id="'+p.id+'" title="Quitarme de la lista">✕</button>':'');
+        (resp==='quiza'?'':'<button class="btn peq" data-a="'+(resp==='si'?'no':'quiza')+'" data-id="'+p.id+'" title="'+(resp==='si'?'Quitarme de la partida':'Marcar como visto')+'">✕</button>');
     return '<div class="partida"><div class="info"><div class="quien">'+quien+cancel+'</div>'+
       '<div class="cuando">'+cabecera+' · <span data-t="'+p.programada+'">'+cuando(p.programada)+'</span></div>'+
       '<div class="cuando">'+p.apuntados+' apuntado'+(p.apuntados==1?'':'s')+(p.dentro>0?' · '+p.dentro+' en el lobby':'')+'</div></div>'+
