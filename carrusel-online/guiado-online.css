@@ -726,6 +726,9 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 
 /* (19-nov 22:41, Iago) en la solución del rítmico, debajo, lo que pusiste */
 .co-rit.rev .co-pool{display:none}
-.co-tuya{width:1400px;max-width:100%;margin-top:-92px;position:relative;z-index:2}
+.co-tuya{width:1400px;max-width:100%;margin-top:-34px;position:relative;z-index:2}
 .co-tuya .etq{position:absolute;left:40px;top:50%;transform:translateY(-35%);width:130px;font:800 15px/1.25 "Helvetica Neue",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8a84a8;text-align:center}
 .co-tuya-box svg{display:block}
+
+/* (19-nov 22:58, Iago) solución del rítmico: arriba del todo (sitio para ✓/✕) y más separada de «lo que pusiste» */
+.pcg-hoja.co-rit-rev{align-items:flex-start;padding-top:58px}

@@ -523,7 +523,7 @@ function dibujaRitmo(host,M){
       const group=[];
       cell.notes.forEach(n=>{
         const isRest=n.rest||/r$/.test(n.dur);
-        const sn=new VF.StaveNote({keys:['b/4'],duration:isRest&&!/r$/.test(n.dur)?n.dur+'r':n.dur,stem_direction:1});
+        const sn=new VF.StaveNote({keys:isRest?['d/5']:['b/4'],duration:isRest&&!/r$/.test(n.dur)?n.dur+'r':n.dur,stem_direction:1});
         if(n.dots){ for(let d=0;d<n.dots;d++) VF.Dot.buildAndAttach([sn],{all:true}); }
         sn.setAttribute('id','pcgrn'+(k++));
         nts.push(sn); group.push(sn); notas.push(sn);
@@ -587,7 +587,7 @@ function celdaVF(host,cell,compound){
   try{ st.setBegBarType(VF.Barline.type.NONE); st.setEndBarType(VF.Barline.type.NONE); }catch(e){}
   st.setContext(ctx).draw();
   const nts=cell.notes.map(nn=>{ const isRest=nn.rest||/r$/.test(nn.dur);
-    const sn=new VF.StaveNote({keys:['b/4'],duration:isRest&&!/r$/.test(nn.dur)?nn.dur+'r':nn.dur,stem_direction:1});
+    const sn=new VF.StaveNote({keys:isRest?['d/5']:['b/4'],duration:isRest&&!/r$/.test(nn.dur)?nn.dur+'r':nn.dur,stem_direction:1});
     if(nn.dots){ for(let d=0;d<nn.dots;d++) VF.Dot.buildAndAttach([sn],{all:true}); } return sn; });
   const tup=cell.tuplet?new VF.Tuplet(nts,{num_notes:cell.tuplet,notes_occupied:cell.tuplet===3?2:3}):null;
   const beams=[];
@@ -1696,6 +1696,17 @@ function coSwoosh(t){ try{ const c=ac(), n=Math.floor(c.sampleRate*0.5), bf=c.cr
   const s=c.createBufferSource(), fl=c.createBiquadFilter(), g=c.createGain(); s.buffer=bf; fl.type='bandpass'; fl.Q.value=1.2;
   fl.frequency.setValueAtTime(500,t); fl.frequency.exponentialRampToValueAtTime(3200,t+0.45); g.gain.value=0.16;
   s.connect(fl); fl.connect(g); g.connect(FX||c.destination); s.start(t); }catch(e){} }
+/* (19-nov 23:01, Iago: «el sonidito de recolocar no me gusta, poco satisfactorio») un aire suave, un arpegio de arpa que
+   sube mientras las tarjetas se deslizan y un «toc» blando cuando se asientan */
+function coRecoloca(t){ try{ const c=ac(), out=FX||c.destination;
+  const n=Math.floor(c.sampleRate*0.7), bf=c.createBuffer(1,n,c.sampleRate), d=bf.getChannelData(0);
+  for(let k=0;k<n;k++) d[k]=(Math.random()*2-1)*Math.pow(Math.sin(Math.PI*k/n),2);
+  const s=c.createBufferSource(), fl=c.createBiquadFilter(), g=c.createGain(); s.buffer=bf; fl.type='lowpass'; fl.Q.value=0.7;
+  fl.frequency.setValueAtTime(350,t); fl.frequency.exponentialRampToValueAtTime(2200,t+0.55); g.gain.value=0.07;
+  s.connect(fl); fl.connect(g); g.connect(out); s.start(t);
+  [523.25,659.25,783.99,1046.5,1318.5].forEach((f,k)=>{ const tk=t+0.06+k*0.075; coBlip(f,tk,0.9,0.05,'triangle'); coBlip(f*2,tk,0.5,0.012,'sine'); });
+  const tt=t+1.05; coBlip(196,tt,0.16,0.07,'sine'); coBlip(392,tt+0.005,0.09,0.03,'triangle');
+}catch(e){} }
 /* (19-nov, Iago) online: la solución se muestra, suena y se pasa enseguida a la clasificación (en clase hay tiempo de libreta; aquí no) */
 /* (19-nov 20:57, Iago) online: 4 s para terminar (se puede cambiar) + 5 s de velo (bloqueado): 9 s en vez de 12+5 */
 async function coFinEjercicio(sub,pieTexto,soloVelo){
@@ -1772,7 +1783,7 @@ async function coRanking(i,finOff){
     const susp=yoN&&yoN.pos>N; orden.forEach((f,k)=>{ if(susp&&f.yo) L.appendChild(el('div','puntos-susp','…')); const o=filas[f.id]; L.appendChild(o.d); o.d.querySelector('.pos').textContent=f.pos; });
     let mov=false; Object.values(filas).forEach(o=>{ const dy=y0[o.f.id]-o.d.getBoundingClientRect().top; if(Math.abs(dy)>2){ mov=true;
       o.d.style.transition='none'; o.d.style.transform='translateY('+dy+'px)'; o.d.getBoundingClientRect(); o.d.style.transition='transform 1.1s cubic-bezier(.25,.8,.25,1)'; o.d.style.transform=''; } });
-    if(mov){ coSwoosh(ahora()+0.01); }
+    if(mov){ coRecoloca(ahora()+0.01); }
     const yoA=yoN&&ini.findIndex(q=>q.f.yo), sube=yoN&&yoA>=0&&yoN.pos-1<yoA;
     if(sube){ [0,0.09,0.18].forEach((d,k)=>coBlip([784,988,1318][k],ahora()+0.35+d,0.22,0.08,'triangle')); filas[yoN.id].d.classList.add('sube'); }
   }
@@ -1846,7 +1857,7 @@ function coRitmoUI(D,M){
         const estilo=!cell?null:estiloDe(sl,cell,{HID,RED});
         if(!cell){ const g=new VF.GhostNote({duration:spec.compound?'qd':'q'}); nts.push(g); grupo.push(g); }
         else cell.notes.forEach(n=>{ const isRest=n.rest||/r$/.test(n.dur);
-          const sn=new VF.StaveNote({keys:['b/4'],duration:isRest&&!/r$/.test(n.dur)?n.dur+'r':n.dur,stem_direction:1});
+          const sn=new VF.StaveNote({keys:isRest?['d/5']:['b/4'],duration:isRest&&!/r$/.test(n.dur)?n.dur+'r':n.dur,stem_direction:1});
           if(n.dots){ for(let d=0;d<n.dots;d++) VF.Dot.buildAndAttach([sn],{all:true}); }
           if(estilo) sn.setStyle(estilo); nts.push(sn); grupo.push(sn); });
         porPulso.push({sl,grupo});
@@ -1904,7 +1915,7 @@ function coRitmoUI(D,M){
   return {
     bloquea(){ bloq=true; marca(); wrap.classList.add('bloq'); },
     cierra(){ const ok=slots.filter(s=>s.ans&&s.ans.id===s.sol.id).length; return {puntos:Math.round(1000*ok/slots.length),detalle:{ok,de:slots.length,resp:slots.map(s=>s.ans?s.ans.id:null)}}; },
-    revela(){ wrap.classList.add('rev'); respBox.style.display='none';
+    revela(){ wrap.classList.add('rev'); respBox.style.display='none'; host.classList.add('co-rit-rev');
       /* (19-nov 22:41, Iago) arriba la solución: verde lo que acertaste, azul la buena donde fallaste; abajo, lo que pusiste
          tú: negro lo bueno, rojo lo que estaba mal */
       try{ const svD=nota.querySelector('svg'), VERDE='#16a34a', AZUL2='#2563eb';
@@ -1971,11 +1982,13 @@ function coMelUI(D,key,mel){
                 for(let yy=bot+10;yy<=y+1;yy+=10) sv('line',{x1:x-15,x2:x+15,y1:yy,y2:yy,stroke:col,'stroke-width':2.2},g); }
     const h=coGlyph(g,hueco?'noteheadWhole':'noteheadBlack',x,y,col);   /* colocada = redonda; fantasma = negra */
     if(sostenido) coGlyph(g,typeof sostenido==='string'?sostenido:'accidentalSharp',h.x0-3,y,col,'r'); };
+  let revHasta=0;
   function dibuja(){
     gA.innerHTML=''; gS.innerHTML='';
+    if(bloq||rev){ try{ svg.querySelectorAll('.co-col-hov').forEach(h=>h.setAttribute('width',0)); }catch(e){} }
     for(let i=1;i<=8;i++){ const a=ans[i]; if(!a) continue;
       let col=(!bloq&&!rev&&i===sel)?'#2563eb':'#16132b';   /* (19-nov 21:50, Iago) la nota que estás cambiando, en azul */
-      if(rev){ const ok=midiDe(a)===mel.seq[i]; if(ok) continue; col='#dc2626'; }
+      if(rev){ const ok=midiDe(a)===mel.seq[i]; col=i<=revHasta?(ok?'#16a34a':'#dc2626'):'#16132b'; }   /* (19-nov 23:00, Iago) en la corrección, según va saliendo: verde la cabeza bien puesta, roja la que no */
       cabeza(gA,P[i].cx,yDn(a.dn),col,true,coAltGlyph(a.dn,a.sharp,key),true); }
     if(!bloq&&!rev&&ans[sel]){ const a=ans[sel], x=P[sel].cx, y=yDn(a.dn);
       const g=sv('g',{class:'co-x'},gS); const c=sv('circle',{cx:x+22,cy:y-17,r:9,fill:'#9a95b6'},g);   /* (19-nov 21:29, Iago) discreta: gris y pequeña, que no parezca «mal» */   /* (19-nov 21:0x, Iago) tocas la nota y sale la ✕ roja para quitarla, como en el rítmico */
@@ -2047,6 +2060,8 @@ function coMelUI(D,key,mel){
        · si la columna está vacía (y tocas en el pentagrama), pone la nota ahí, a ojo;
        · para afinar, ARRASTRA arriba/abajo (cuenta lo que mueves el dedo, despacio: no salta a donde está) o usa ▲ ▼.
        Nada cambia de nota solo (ni la que suena ni la siguiente). Con el ratón, como siempre. */
+    /* (19-nov 22:59, Iago) tocar OTRA nota ya puesta primero solo la elige (se pone azul), sin cambiarla; después ya la colocas */
+    if(!num&&k!==sel&&ans[k]){ sel=k; gG.innerHTML=''; dibuja(); dedo={id:ev.pointerId,k,num:true,soloSel:true,y0:p.y,f:null}; ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
     ev.preventDefault(); });
   const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; if(dedo.dedo){ dedo=null; return; } const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;
@@ -2065,7 +2080,7 @@ function coMelUI(D,key,mel){
   /* (19-nov 20:59, Iago) sostenido y también bemol */
   const bS=el('button','co-btn','<b>♯</b><span>Sostenido</span>'), bF=el('button','co-btn','<b>♭</b><span>Bemol</span>'), bB=el('button','co-btn','<b>⌫</b><span>Borrar</span>');
   const bU=el('button','co-btn co-ud','<b>▲</b>'), bD=el('button','co-btn co-ud','<b>▼</b>'); bU.title='Subir la nota elegida'; bD.title='Bajar la nota elegida';
-  tools.appendChild(bU); tools.appendChild(bD); tools.appendChild(bS); tools.appendChild(bF); tools.appendChild(bB);
+  tools.appendChild(bS); tools.appendChild(bF); tools.appendChild(bB);
   const mueve=d=>{ if(bloq||rev) return; const a=ans[sel]; if(!a||a.fijo) return; const nd=Math.max(topdn-13,Math.min(topdn+5,a.dn+d)); if(nd!==a.dn){ a.dn=nd; dibuja(); coTic(); } };
   bU.onclick=()=>mueve(1); bD.onclick=()=>mueve(-1);
   const sube=a=>a.sharp===true||a.sharp===1;
@@ -2085,7 +2100,8 @@ function coMelUI(D,key,mel){
     intOk(i){ const a=midiDe(ans[i]), pa=midiDe(ans[i-1]); return a!=null&&pa!=null&&(a-pa)===(mel.seq[i]-mel.seq[i-1]); },
     bloquea(){ bloq=true; gG.innerHTML=''; dibuja(); tools.classList.add('off'); document.removeEventListener('keydown',onKey); },
     cierra(){ const e=errores(); return {puntos:Math.round(1000*Math.max(0,8-e)/8),detalle:{errores:e,resp:ans.map(midiDe)}}; },
-    empiezaRev(){ rev=true; dibuja(); },
+    empiezaRev(){ rev=true; revHasta=0; dibuja(); },
+    revNota(i){ revHasta=i; dibuja(); },
     nota(i){ /* la nota i de la solución aparece: la tuya (si estaba bien) cede su sitio */ }
   };
 }
@@ -2108,7 +2124,7 @@ async function coMel(b){
   I.empiezaRev();
   const PASO=2.0;
   await coCorreccion(()=>{ cartel('Solución',(8-res.detalle.errores)+' de 8 notas · '+res.puntos+' puntos'); const t=ahora()+0.35;
-    mel.seq.forEach((m,i)=>{ const ti=t+S(i*PASO); nota(ti,m,0.95,S(1.3)); enTiempo(ti,()=>{ D.verNota(i); D.marca(i); if(i>0){ D.intervalo(i);
+    mel.seq.forEach((m,i)=>{ const ti=t+S(i*PASO); nota(ti,m,0.95,S(1.3)); enTiempo(ti,()=>{ D.verNota(i); D.marca(i); I.revNota(i); if(i>0){ D.intervalo(i);
       /* (19-nov, Iago) el intervalo que acertaste (aunque la nota no), con el nombre en verde */
       if(I.intOk(i)){ const ts=D.svg.querySelectorAll('.pcg-int-t'), bs=D.svg.querySelectorAll('.pcg-int-b'), t2=ts[ts.length-1], b2=bs[bs.length-1];
         if(t2) t2.style.fill='#15803d'; if(b2){ b2.style.stroke='#22c55e'; b2.style.strokeWidth='2'; b2.style.fill='#ecfdf3'; } } } }); });
