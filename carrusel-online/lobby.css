@@ -118,3 +118,17 @@ html.co-on,html.co-on body{overflow:hidden}
 /* (19-nov, Iago) «Cancelar partida» ocupa exactamente lo mismo que «Me apunto» + ✕ */
 #co .partida > .row{width:250px;flex:none;flex-wrap:nowrap;justify-content:flex-end}
 #co .partida > .row .btn.pri,#co .partida > .row .btn.ko{flex:1;display:inline-flex;align-items:center;justify-content:center}
+
+/* (19-nov 21:05) lobby centrado en vertical y a escala de la pantalla (--z lo calcula lobby.js) */
+#co{display:flex;flex-direction:column;--z:1}
+#co>#cab{margin-top:auto;width:100%;zoom:var(--z)}
+#co>#app{margin-bottom:auto;width:100%;zoom:var(--z)}
+/* actitud ganada, al volver al lobby */
+#co #coAct{position:fixed;left:50%;top:22px;transform:translate(-50%,-30px);opacity:0;transition:opacity .4s,transform .4s;z-index:5;
+  display:flex;align-items:center;gap:14px;padding:12px 14px 12px 16px;border-radius:12px;background:rgba(14,10,42,.92);border:1.5px solid rgba(255,210,63,.75);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+#co #coAct.on{opacity:1;transform:translate(-50%,0)}
+#co #coAct .ic{width:40px;height:40px;border-radius:10px;background:var(--ama);color:#1a1238;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
+#co #coAct .tx{display:flex;flex-direction:column;gap:2px}
+#co #coAct .tx b{font-size:19px}
+#co #coAct .tx span{font-size:14px;color:var(--muted)}
+#co #coAct button{background:none;border:0;color:var(--muted);font-size:16px;padding:6px;margin-left:6px}

@@ -135,7 +135,7 @@ function pintaLobby(){
     '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora. <b style="color:#fff">Serás el anfitrión.</b></p><div class="row"><input type="datetime-local" id="hora" min="'+minHora()+'" value="'+esc(ST.hora||'')+'"><button class="btn pri" id="bAnunciar"'+(ST.hora?'':' disabled')+'>'+I.cal+'Anunciar</button></div></div>'+
     '<div class="card"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Empieza una partida tú solo, ahora mismo.</p><button class="btn" id="bAhora">'+I.play+'Jugar ahora</button></div></div>'+
     '<div class="card"><h2>Partidas anunciadas</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</p>')+'</div>')+
-    (ST.solo||cerrado()?'':'<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias.</p>');
+    (ST.solo||cerrado()?'':'<p class="muted" style="font-size:13px">Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias. Si la terminas, su tiempo se suma a tu actitud (mismos topes de siempre).</p>');
   if(enInput){ const h=document.getElementById('hora'); if(h&&valorHora) h.value=valorHora; }
   enlaza();
 }
@@ -256,9 +256,26 @@ function empiezaJuego(est){
   PCOnline.jugar({id:p.id,inicio:new Date(p.inicio).getTime(),semilla:p.semilla,now:sNow,cr:cr,est:est,
     bots:(ST.tester&&ST.bots===p.id)?8:0, solo:ST.soloId===p.id,   /* (19-nov, Iago) el Tester juega su partida individual con 8 compañeros inventados */
     /* (19-nov) sin pings: la actitud se apunta al terminar la partida (suite_cr_actividad) */
-    onFin:()=>{ try{ localStorage.removeItem('co_partida'); }catch(e){} raiz.style.display=''; arrancaLobby(); }});
+    onFin:(act)=>{ try{ localStorage.removeItem('co_partida'); }catch(e){} raiz.style.display=''; arrancaLobby(); muestraActitud(act); }});
   avisoSonido();
 }
+/* (19-nov 21:05, Iago) al volver al lobby, cuánto has ganado de actitud con esta partida */
+async function muestraActitud(p){
+  let r=null; try{ r=p?await p:null; }catch(e){}
+  const v=document.getElementById('coAct'); if(v) v.remove();
+  const d=document.createElement('div'); d.id='coAct';
+  let t;
+  if(r&&r.ok&&r.practicas) t='<b>Partida terminada</b><span>Cuenta de prácticas: no suma actitud</span>';
+  else if(r&&r.ok){ const m=Math.max(1,Math.round((r.segundos||0)/60)); t='<b>+'+m+' min de actitud</b><span>'+(r.ya?'Ya estaban sumados':'Sumados por terminar el carrusel')+'</span>'; }
+  else if(r&&r.error==='sin_terminar') t='<b>Esta vez no suma actitud</b><span>Para sumar, juega hasta la cadencia final</span>';
+  else t='<b>Partida terminada</b><span>No se ha podido comprobar la actitud</span>';
+  d.innerHTML='<div class="ic">'+(r&&r.ok&&!r.practicas?'★':'·')+'</div><div class="tx">'+t+'</div><button aria-label="Cerrar">✕</button>';
+  d.querySelector('button').onclick=()=>d.remove();
+  raiz.appendChild(d); setTimeout(()=>d.classList.add('on'),30); setTimeout(()=>{ d.classList.remove('on'); setTimeout(()=>d.remove(),500); },9000);
+}
+/* (19-nov 21:05, Iago: «el lobby está muy desaprovechado, todo súper arriba») centrado en vertical y a escala de la pantalla */
+function ajustaLobby(){ const z=Math.max(1,Math.min(1.5,innerWidth/1100,innerHeight/720)); raiz.style.setProperty('--z',z.toFixed(3)); }
+addEventListener('resize',ajustaLobby); ajustaLobby();
 window.LobbyOnline={ arranca:async function(){
   document.documentElement.classList.add('co-on');
   if(!CUENTA){ sinCuenta(); return; }

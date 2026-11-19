@@ -651,7 +651,7 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 
 /* ✕ para borrar la figura del pulso elegido */
 .co-slot{position:absolute}
-.co-x{position:absolute;right:-6px;top:-8px;width:30px;height:30px;border-radius:50%;background:#dc2626;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:3;cursor:pointer}
+.co-x:not(g){position:absolute;right:-6px;top:-8px;width:30px;height:30px;border-radius:50%;background:#dc2626;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:3;cursor:pointer}
 .co-x .co-ic{margin:0;width:16px;height:16px;stroke-width:3.4}
 
 /* acorde 2: etiquetas a la izquierda */
@@ -659,3 +659,16 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 #pcg .pcg-voz text.co-etq-izq,#pcg .pcg-slots.foco .pcg-voz text.co-etq-izq{opacity:1!important;fill:#7c3aed;font-size:12.5px}
 #pcg .pcg-voz rect,#pcg .pcg-slots.foco .pcg-voz:not(.luz) rect{opacity:.10}
 #pcg .pcg-voz.luz rect{opacity:.22}
+
+/* acorde 2: al llegar, la nota real se rodea */
+#pcg .co-rodea{fill:none;stroke:#7c3aed;stroke-width:2.6;animation:coRodea .9s ease-out 1}
+@keyframes coRodea{0%{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(2)}100%{opacity:1;transform-box:fill-box;transform-origin:center;transform:scale(1)}}
+/* la cuenta de la corrección, legible sobre la tarjeta blanca */
+.pcg-corr.on{opacity:1}
+.pcg-corr b{background:rgba(14,10,42,.9);color:#fff}
+
+/* cadencias: barras de frecuencias del reproductor */
+.co-player .co-eq{position:absolute;left:11%;width:78%;top:50%;height:200px;transform:translateY(-50%);opacity:.9;pointer-events:none}
+.co-player .pista{z-index:1}
+/* el reloj de abajo, legible aunque quede encima de la tarjeta blanca */
+.pcg-pie .pcg-reloj{background:rgba(14,10,42,.9);border-radius:50%}
