@@ -720,3 +720,6 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 
 /* (19-nov 22:33, Iago) online: nunca el velo oscuro de «Solución en»; la cuenta va abajo y se puede seguir respondiendo */
 #pcg.online .pcg-velo{display:none!important}
+
+/* (19-nov 22:34) la flechita de la nota que suena */
+#pcg .co-suena{fill:#0b7fc4;pointer-events:none}

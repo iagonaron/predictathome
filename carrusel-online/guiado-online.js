@@ -1947,6 +1947,7 @@ function coMelUI(D,key,mel){
                 for(let yy=bot+10;yy<=y+1;yy+=10) sv('line',{x1:x-15,x2:x+15,y1:yy,y2:yy,stroke:col,'stroke-width':2.2},g); }
     const h=coGlyph(g,hueco?'noteheadWhole':'noteheadBlack',x,y,col);   /* colocada = redonda; fantasma = negra */
     if(sostenido) coGlyph(g,typeof sostenido==='string'?sostenido:'accidentalSharp',h.x0-3,y,col,'r'); };
+  let marcaSel=null;
   function dibuja(){
     gA.innerHTML=''; gS.innerHTML='';
     for(let i=1;i<=8;i++){ const a=ans[i]; if(!a) continue;
@@ -1960,7 +1961,7 @@ function coMelUI(D,key,mel){
     svg.querySelectorAll('.co-col').forEach(n=>n.remove());
     if(!bloq&&!rev){ const w=(P[2].cx-P[1].cx);
       const r=sv('rect',{class:'co-col',x:P[sel].cx-w/2+3,y:P[0].cy-58,width:w-6,height:150,rx:10},svg); svg.insertBefore(r,svg.firstChild); }
-    pintaBtn();
+    pintaBtn(); try{ marcaSel&&marcaSel(); }catch(e){}
   }
   function errores(){
     let e=0;
@@ -1986,7 +1987,18 @@ function coMelUI(D,key,mel){
   const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
   const PASO=16;   /* px de dedo por escalón */
   let tipoPtr='touch';
-  svg.addEventListener('pointerdown',ev=>{ tipoPtr=ev.pointerType||'touch'; },true);
+  svg.addEventListener('pointerdown',ev=>{ tipoPtr=ev.pointerType||'touch'; sinc=false; },true);
+  /* (19-nov 22:34, Iago) la nota que SUENA lleva una flechita; el círculo del número es la nota ELEGIDA (la azul). Por defecto
+     el elegido va con la flecha; en cuanto eliges otra (número, columna o nota), se queda donde la pusiste hasta la siguiente
+     escucha, que vuelve a sincronizarse. */
+  let sinc=true; const m0=D.marca;
+  const fle=sv('path',{class:'co-suena',d:'M -11 0 L 11 0 L 0 13 Z'},svg); fle.style.display='none';
+  const flecha=i=>{ if(i<1||i>8){ fle.style.display='none'; return; } fle.setAttribute('transform','translate('+P[i].cx+','+(numY-46)+')'); fle.style.display=''; };
+  D.marca=i=>{ if(rev||bloq){ fle.style.display='none'; m0(i); return; }
+    if(i===0) sinc=true;   /* empieza otra escucha */
+    flecha(i);
+    if(sinc&&i>=1&&i<=8&&sel!==i){ sel=i; dibuja(); } };
+  marcaSel=()=>{ if(rev||bloq) return; m0(sel); };
   const hov=sv('rect',{class:'co-col-hov',x:0,y:0,width:0,height:0,rx:10},svg); svg.insertBefore(hov,svg.firstChild);
   const pintaHov=k=>{ if(k<1||k>8||bloq||rev){ hov.setAttribute('width',0); return; } const w=(P[2].cx-P[1].cx);
     hov.setAttribute('x',P[k].cx-w/2+3); hov.setAttribute('y',P[0].cy-58); hov.setAttribute('width',w-6); hov.setAttribute('height',150); };
@@ -2055,8 +2067,8 @@ function coMelUI(D,key,mel){
   bB.onclick=()=>borra(sel);
   function pintaBtn(){ const a=ans[sel]; bS.classList.toggle('on',!!(a&&sube(a))); bF.classList.toggle('on',!!(a&&a.sharp===-1)); bS.disabled=bF.disabled=!a||bloq; bB.disabled=!a||bloq; bU.disabled=bD.disabled=!a||bloq; }
   function onKey(e){ if(bloq||rev) return;
-    if(e.key==='ArrowLeft'){ sel=Math.max(1,sel-1); dibuja(); e.preventDefault(); }
-    else if(e.key==='ArrowRight'){ sel=Math.min(8,sel+1); dibuja(); e.preventDefault(); }
+    if(e.key==='ArrowLeft'){ sinc=false; sel=Math.max(1,sel-1); dibuja(); e.preventDefault(); }
+    else if(e.key==='ArrowRight'){ sinc=false; sel=Math.min(8,sel+1); dibuja(); e.preventDefault(); }
     else if(e.key==='ArrowUp'||e.key==='ArrowDown'){ const a=ans[sel]; pon(sel,(a?a.dn:topdn-4)+(e.key==='ArrowUp'?1:-1)); e.preventDefault(); }
     else if(e.key==='#'||e.key==='+'||e.key==='s'){ bS.click(); }
     else if(e.key==='Backspace'||e.key==='Delete'){ borra(sel); e.preventDefault(); } }
@@ -2064,7 +2076,7 @@ function coMelUI(D,key,mel){
   dibuja();
   return {
     intOk(i){ const a=midiDe(ans[i]), pa=midiDe(ans[i-1]); return a!=null&&pa!=null&&(a-pa)===(mel.seq[i]-mel.seq[i-1]); },
-    bloquea(){ bloq=true; gG.innerHTML=''; dibuja(); tools.classList.add('off'); document.removeEventListener('keydown',onKey); },
+    bloquea(){ bloq=true; gG.innerHTML=''; dibuja(); try{ m0(-1); fle.style.display='none'; }catch(e){} tools.classList.add('off'); document.removeEventListener('keydown',onKey); },
     cierra(){ const e=errores(); return {puntos:Math.round(1000*Math.max(0,8-e)/8),detalle:{errores:e,resp:ans.map(midiDe)}}; },
     empiezaRev(){ rev=true; dibuja(); },
     nota(i){ /* la nota i de la solución aparece: la tuya (si estaba bien) cede su sitio */ }
