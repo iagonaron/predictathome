@@ -1828,21 +1828,22 @@ function coRitmoUI(D,M){
   /* (19-nov 22:03, Iago) lo que vas poniendo se escribe ya como en la solución: el compás entero con VexFlow (mismas
      distancias y tamaños); los pulsos vacíos ocupan su sitio sin verse. Las casillas para pulsar se recolocan sobre cada pulso. */
   const respBox=el('div','co-resp'); bd.insertBefore(respBox,cap);
-  const dibResp=()=>{ try{
-    const VF=Vex.Flow; respBox.innerHTML='';
+  /* dibuja una fila con VexFlow: box, qué figura va en cada pulso, su color, si recoloca las casillas y recorte vertical */
+  const dibFila=(box,celdaDe,estiloDe,recoloca,recorte,pauta)=>{ try{
+    const VF=Vex.Flow; box.innerHTML='';
     const W=D.W, H=D.H, y=46, x0=12, totalW=W-24, firstExtra=70, barW=(totalW-firstExtra)/4, rev=wrap.classList.contains('rev');
-    const ren=new VF.Renderer(respBox,VF.Renderer.Backends.SVG); ren.resize(W,H); const ctx=ren.getContext(); ctx.setFont('Arial',10);
+    const ren=new VF.Renderer(box,VF.Renderer.Backends.SVG); ren.resize(W,H); const ctx=ren.getContext(); ctx.setFont('Arial',10);
     let x=x0; const HID={fillStyle:'rgba(0,0,0,0)',strokeStyle:'rgba(0,0,0,0)'}, RED={fillStyle:'#dc2626',strokeStyle:'#dc2626'};
     R.compases.forEach((compas,ci)=>{
       const isFirst=ci===0, w=isFirst?barW+firstExtra:barW, st=new VF.Stave(x,y,w);
       for(let ln=0;ln<5;ln++) st.setConfigForLine(ln,{visible:false});
       if(isFirst) st.addClef('treble').addTimeSignature(spec.ts);
-      st.setContext(ctx);
+      st.setContext(ctx); if(pauta){ const sd=new VF.Stave(x,y,w); for(let ln=0;ln<5;ln++) sd.setConfigForLine(ln,{visible:false}); if(ci===3) sd.setEndBarType(VF.Barline.type.END); sd.setContext(ctx).draw(); }   /* solo las barras, sin clave (la fila es más baja) */
       if(isFirst){ try{ st.setNoteStartX(st.getNoteStartX()+12); }catch(e){} }
       const nts=[], tups=[], beams=[], porPulso=[];
       compas.forEach((celdaSol,pi)=>{
-        const sl=slots.find(q=>q.ci===ci&&q.pi===pi), cell=sl&&sl.ans, grupo=[];
-        const estilo=!cell?null:(rev?((cell.id===sl.sol.id)?HID:RED):null);
+        const sl=slots.find(q=>q.ci===ci&&q.pi===pi), cell=sl?celdaDe(sl):null, grupo=[];
+        const estilo=!cell?null:estiloDe(sl,cell,{HID,RED});
         if(!cell){ const g=new VF.GhostNote({duration:spec.compound?'qd':'q'}); nts.push(g); grupo.push(g); }
         else cell.notes.forEach(n=>{ const isRest=n.rest||/r$/.test(n.dur);
           const sn=new VF.StaveNote({keys:['b/4'],duration:isRest&&!/r$/.test(n.dur)?n.dur+'r':n.dur,stem_direction:1});
@@ -1859,12 +1860,13 @@ function coRitmoUI(D,M){
       /* casillas: de la mitad entre un pulso y el anterior a la mitad con el siguiente */
       const xs=porPulso.map(p=>{ const a=p.grupo.map(n=>n.getAbsoluteX()); return {a:Math.min.apply(null,a),b:Math.max.apply(null,a)+14}; });
       const ini=isFirst?st.getNoteStartX()-6:x+4, fin=x+w-4;
-      porPulso.forEach((p,i)=>{ if(!p.sl) return; const l=i===0?ini:(xs[i-1].b+xs[i].a)/2, r=i===porPulso.length-1?fin:(xs[i].b+xs[i+1].a)/2;
+      if(recoloca) porPulso.forEach((p,i)=>{ if(!p.sl) return; const l=i===0?ini:(xs[i-1].b+xs[i].a)/2, r=i===porPulso.length-1?fin:(xs[i].b+xs[i+1].a)/2;
         const e=p.sl.el; e.style.left=(l/W*100)+'%'; e.style.width=(Math.max(20,r-l-4)/W*100)+'%'; p.sl.cx=((l+r)/2)/W*100; });
       x+=w;
     });
-    const sv2=respBox.querySelector('svg'); ajustaSVG(sv2,W,H); if(slots[sel]) fl.style.left=slots[sel].cx+'%';
-  }catch(e){ console.error('[online] dibResp',e); } };
+    const sv2=box.querySelector('svg'); if(recorte) ajustaSVG(sv2,W,H,recorte[0],recorte[1]); else ajustaSVG(sv2,W,H); if(recoloca&&slots[sel]) fl.style.left=slots[sel].cx+'%';
+  }catch(e){ console.error('[online] dibFila',e); } };
+  const dibResp=()=>dibFila(respBox,sl=>sl.ans,()=>null,true,null);
   const pinta=()=>dibResp();
   /* (19-nov, Iago) para cambiar algo: tocas la figura puesta → sale una ✕ encima; la ✕ la borra y ese pulso queda listo para otra */
   const marca=()=>{ slots.forEach((s,i)=>{ const on=i===sel&&!bloq; s.el.classList.toggle('sel',on);
@@ -1902,7 +1904,20 @@ function coRitmoUI(D,M){
   return {
     bloquea(){ bloq=true; marca(); wrap.classList.add('bloq'); },
     cierra(){ const ok=slots.filter(s=>s.ans&&s.ans.id===s.sol.id).length; return {puntos:Math.round(1000*ok/slots.length),detalle:{ok,de:slots.length,resp:slots.map(s=>s.ans?s.ans.id:null)}}; },
-    revela(){ wrap.classList.add('rev'); respBox.style.display='none'; slots.forEach(s=>{   /* en la solución, solo la buena (las ✕ dicen dónde fallaste) */ const ok=!!(s.ans&&s.ans.id===s.sol.id); s.el.classList.remove('sel'); s.el.classList.add(ok?'ok':'ko'); }); }
+    revela(){ wrap.classList.add('rev'); respBox.style.display='none';
+      /* (19-nov 22:41, Iago) arriba la solución: verde lo que acertaste, azul la buena donde fallaste; abajo, lo que pusiste
+         tú: negro lo bueno, rojo lo que estaba mal */
+      try{ const svD=nota.querySelector('svg'), VERDE='#16a34a', AZUL2='#2563eb';
+        const pinta1=(e,c)=>{ e.querySelectorAll('path,rect,text').forEach(x=>{ if(x.getAttribute('fill')!=='none') x.setAttribute('fill',c); if(x.getAttribute('stroke')&&x.getAttribute('stroke')!=='none') x.setAttribute('stroke',c); }); };
+        const beams=[...svD.querySelectorAll('.vf-beam')]; let k=0, kb=0;
+        const bm=n=>!(n.rest||/r$/.test(n.dur))&&/^(8|16|32)$/.test(String(n.dur).replace(/d+$/,''));
+        slots.forEach(sl=>{ const ok=!!(sl.ans&&sl.ans.id===sl.sol.id), col=ok?VERDE:AZUL2;
+          sl.sol.notes.forEach(()=>{ const g=svD.querySelector('#vf-pcgrn'+(k++)); if(g) pinta1(g,col); });
+          if(sl.sol.beam){ let run=0; const fin=()=>{ if(run>1){ const e=beams[kb++]; if(e) pinta1(e,col); } run=0; }; sl.sol.notes.forEach(n=>{ if(bm(n)) run++; else fin(); }); fin(); } });
+      }catch(e){ console.error('[online] colorea',e); }
+      try{ const tu=el('div','co-tuya','<div class="etq">Lo que pusiste</div>'); const bx=el('div','co-tuya-box'); tu.appendChild(bx); wrap.appendChild(tu);
+        dibFila(bx,sl=>sl.ans,(sl,c,E)=>c.id===sl.sol.id?null:E.RED,false,[24,70],true); }catch(e){ console.error('[online] tuya',e); }
+      slots.forEach(s=>{   /* en la solución, solo la buena (las ✕ dicen dónde fallaste) */ const ok=!!(s.ans&&s.ans.id===s.sol.id); s.el.classList.remove('sel'); s.el.classList.add(ok?'ok':'ko'); }); }
   };
 }
 async function coRit(b){
@@ -1932,6 +1947,15 @@ async function coRit(b){
 /* ============================================================================
    2 · MELÓDICO — nota fantasma azul (como en PreDict at home)
    ============================================================================ */
+/* (19-nov 22:42, Iago: «siempre calibra más a la izquierda de lo que pulso») en Safari del iPad getScreenCTM() no tiene en
+   cuenta bien el escalado de la pantalla y el dedo caía ~3 cm a la izquierda. Se calcula a mano: rectángulo real del <svg> en
+   pantalla frente a su viewBox (mismo encaje «meet» centrado que usa el navegador). */
+function coPuntoSVG(svg,ev){
+  const r=svg.getBoundingClientRect(), vb=svg.viewBox&&svg.viewBox.baseVal;
+  if(!vb||!vb.width||!r.width){ const p=svg.createSVGPoint(); p.x=ev.clientX; p.y=ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+  const k=Math.min(r.width/vb.width,r.height/vb.height), ox=r.left+(r.width-vb.width*k)/2, oy=r.top+(r.height-vb.height*k)/2;
+  return {x:vb.x+(ev.clientX-ox)/k, y:vb.y+(ev.clientY-oy)/k};
+}
 function coMelUI(D,key,mel){
   const svg=D.svg, P=D.P, clef=mel.clef||'treble', topdn=clef==='bass'?26:38;
   const sol=mel.seq.map(m=>coMidiDn(m,key));
@@ -1947,7 +1971,6 @@ function coMelUI(D,key,mel){
                 for(let yy=bot+10;yy<=y+1;yy+=10) sv('line',{x1:x-15,x2:x+15,y1:yy,y2:yy,stroke:col,'stroke-width':2.2},g); }
     const h=coGlyph(g,hueco?'noteheadWhole':'noteheadBlack',x,y,col);   /* colocada = redonda; fantasma = negra */
     if(sostenido) coGlyph(g,typeof sostenido==='string'?sostenido:'accidentalSharp',h.x0-3,y,col,'r'); };
-  let marcaSel=null;
   function dibuja(){
     gA.innerHTML=''; gS.innerHTML='';
     for(let i=1;i<=8;i++){ const a=ans[i]; if(!a) continue;
@@ -1961,7 +1984,7 @@ function coMelUI(D,key,mel){
     svg.querySelectorAll('.co-col').forEach(n=>n.remove());
     if(!bloq&&!rev){ const w=(P[2].cx-P[1].cx);
       const r=sv('rect',{class:'co-col',x:P[sel].cx-w/2+3,y:P[0].cy-58,width:w-6,height:150,rx:10},svg); svg.insertBefore(r,svg.firstChild); }
-    pintaBtn(); try{ marcaSel&&marcaSel(); }catch(e){}
+    pintaBtn();
   }
   function errores(){
     let e=0;
@@ -1975,7 +1998,7 @@ function coMelUI(D,key,mel){
   }
   function pon(i,dn){ if(bloq||rev||i<1||i>8) return; dn=Math.max(topdn-13,Math.min(topdn+5,dn)); const a=ans[i]||{dn,sharp:false}; a.dn=dn; ans[i]=a; sel=i; dibuja(); coTic(); }
   function borra(i){ if(bloq||rev||i<1||i>8) return; ans[i]=null; dibuja(); }
-  function punto(ev){ const p=svg.createSVGPoint(); p.x=ev.clientX; p.y=ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+  function punto(ev){ return coPuntoSVG(svg,ev); }
   function col(x){ let k=-1,bd=1e9; for(let i=1;i<=8;i++){ const d=Math.abs(P[i].cx-x); if(d<bd){ bd=d; k=i; } } return bd<(P[2].cx-P[1].cx)*0.55?k:-1; }
   svg.style.touchAction='none';
   /* (19-nov, Iago: en el iPad la nota se quedaba donde empezabas a arrastrar) la fantasma sigue al dedo o al ratón y la nota
@@ -1987,18 +2010,7 @@ function coMelUI(D,key,mel){
   const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
   const PASO=16;   /* px de dedo por escalón */
   let tipoPtr='touch';
-  svg.addEventListener('pointerdown',ev=>{ tipoPtr=ev.pointerType||'touch'; sinc=false; },true);
-  /* (19-nov 22:34, Iago) la nota que SUENA lleva una flechita; el círculo del número es la nota ELEGIDA (la azul). Por defecto
-     el elegido va con la flecha; en cuanto eliges otra (número, columna o nota), se queda donde la pusiste hasta la siguiente
-     escucha, que vuelve a sincronizarse. */
-  let sinc=true; const m0=D.marca;
-  const fle=sv('path',{class:'co-suena',d:'M -11 0 L 11 0 L 0 13 Z'},svg); fle.style.display='none';
-  const flecha=i=>{ if(i<1||i>8){ fle.style.display='none'; return; } fle.setAttribute('transform','translate('+P[i].cx+','+(numY-46)+')'); fle.style.display=''; };
-  D.marca=i=>{ if(rev||bloq){ fle.style.display='none'; m0(i); return; }
-    if(i===0) sinc=true;   /* empieza otra escucha */
-    flecha(i);
-    if(sinc&&i>=1&&i<=8&&sel!==i){ sel=i; dibuja(); } };
-  marcaSel=()=>{ if(rev||bloq) return; m0(sel); };
+  svg.addEventListener('pointerdown',ev=>{ tipoPtr=ev.pointerType||'touch'; },true);
   const hov=sv('rect',{class:'co-col-hov',x:0,y:0,width:0,height:0,rx:10},svg); svg.insertBefore(hov,svg.firstChild);
   const pintaHov=k=>{ if(k<1||k>8||bloq||rev){ hov.setAttribute('width',0); return; } const w=(P[2].cx-P[1].cx);
     hov.setAttribute('x',P[k].cx-w/2+3); hov.setAttribute('y',P[0].cy-58); hov.setAttribute('width',w-6); hov.setAttribute('height',150); };
@@ -2035,11 +2047,6 @@ function coMelUI(D,key,mel){
        · si la columna está vacía (y tocas en el pentagrama), pone la nota ahí, a ojo;
        · para afinar, ARRASTRA arriba/abajo (cuenta lo que mueves el dedo, despacio: no salta a donde está) o usa ▲ ▼.
        Nada cambia de nota solo (ni la que suena ni la siguiente). Con el ratón, como siempre. */
-    if(ev.pointerType!=='mouse'){
-      sel=k; let dn0=null;
-      if(ans[k]) dn0=ans[k].dn;
-      else if(!num){ ans[k]={dn:dnDe(p.y),sharp:false}; dn0=ans[k].dn; coTic(); }
-      dedo={id:ev.pointerId,k,dedo:true,cy0:ev.clientY,dn0,mov:false}; gG.innerHTML=''; dibuja(); ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
     ev.preventDefault(); });
   const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; if(dedo.dedo){ dedo=null; return; } const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;
@@ -2067,8 +2074,8 @@ function coMelUI(D,key,mel){
   bB.onclick=()=>borra(sel);
   function pintaBtn(){ const a=ans[sel]; bS.classList.toggle('on',!!(a&&sube(a))); bF.classList.toggle('on',!!(a&&a.sharp===-1)); bS.disabled=bF.disabled=!a||bloq; bB.disabled=!a||bloq; bU.disabled=bD.disabled=!a||bloq; }
   function onKey(e){ if(bloq||rev) return;
-    if(e.key==='ArrowLeft'){ sinc=false; sel=Math.max(1,sel-1); dibuja(); e.preventDefault(); }
-    else if(e.key==='ArrowRight'){ sinc=false; sel=Math.min(8,sel+1); dibuja(); e.preventDefault(); }
+    if(e.key==='ArrowLeft'){ sel=Math.max(1,sel-1); dibuja(); e.preventDefault(); }
+    else if(e.key==='ArrowRight'){ sel=Math.min(8,sel+1); dibuja(); e.preventDefault(); }
     else if(e.key==='ArrowUp'||e.key==='ArrowDown'){ const a=ans[sel]; pon(sel,(a?a.dn:topdn-4)+(e.key==='ArrowUp'?1:-1)); e.preventDefault(); }
     else if(e.key==='#'||e.key==='+'||e.key==='s'){ bS.click(); }
     else if(e.key==='Backspace'||e.key==='Delete'){ borra(sel); e.preventDefault(); } }
@@ -2076,7 +2083,7 @@ function coMelUI(D,key,mel){
   dibuja();
   return {
     intOk(i){ const a=midiDe(ans[i]), pa=midiDe(ans[i-1]); return a!=null&&pa!=null&&(a-pa)===(mel.seq[i]-mel.seq[i-1]); },
-    bloquea(){ bloq=true; gG.innerHTML=''; dibuja(); try{ m0(-1); fle.style.display='none'; }catch(e){} tools.classList.add('off'); document.removeEventListener('keydown',onKey); },
+    bloquea(){ bloq=true; gG.innerHTML=''; dibuja(); tools.classList.add('off'); document.removeEventListener('keydown',onKey); },
     cierra(){ const e=errores(); return {puntos:Math.round(1000*Math.max(0,8-e)/8),detalle:{errores:e,resp:ans.map(midiDe)}}; },
     empiezaRev(){ rev=true; dibuja(); },
     nota(i){ /* la nota i de la solución aparece: la tuya (si estaba bien) cede su sitio */ }
@@ -2254,7 +2261,7 @@ function coArmUI(A,a,bb){
   const fl=keys.querySelector('.fl');
   [['-1','♭'],['0','♮'],['1','♯']].forEach(([v,h])=>{ const bt=el('button','co-k acc',h); bt.dataset.a=v;
     bt.onclick=()=>{ if(b2) return; if(foco==='ord'&&selO!=null&&ordN.has(selO)){ ordN.set(selO,v==='0'?2:Number(v)); pintaOrd(); pintaVoz(); coTic(); return; } if(!resp[selV].l) return; resp[selV].a=Number(v); pintaVoz(); coTic(); }; fl.appendChild(bt); });
-  const punto=ev=>{ const p=svg.createSVGPoint(); p.x=ev.clientX; p.y=ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+  const punto=ev=>coPuntoSVG(svg,ev);
   const zona=ev=>{ const p=punto(ev); if(Math.abs(p.x-cx)>46) return null; const dn=dnM-Math.round((p.y-yM)/5);
     if(dn>dnM&&dn<=dnM+7) return {k:'tiple',dn}; if(dn<dnM&&dn>=dnM-7) return {k:'bajo',dn}; return null; };
   svg.style.touchAction='none';

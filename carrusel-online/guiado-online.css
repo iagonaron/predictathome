@@ -707,7 +707,7 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 /* (19-nov 22:13, Iago) tarjetas con su anchura normal y bien separadas (dos filas si hace falta); en la solución, las ✓/✕ dentro */
 .co-pool{gap:12px 20px!important;width:1340px}
 .co-card{padding:8px 16px!important}
-.co-rit.rev{padding-top:30px}
+.co-rit.rev{padding-top:4px}
 .co-rit:not(.rev) .co-pool{margin-top:-14px}
 .co-card{min-height:calc(var(--fig-h) + 18px)}
 
@@ -723,3 +723,9 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 
 /* (19-nov 22:34) la flechita de la nota que suena */
 #pcg .co-suena{fill:#0b7fc4;pointer-events:none}
+
+/* (19-nov 22:41, Iago) en la solución del rítmico, debajo, lo que pusiste */
+.co-rit.rev .co-pool{display:none}
+.co-tuya{width:1400px;max-width:100%;margin-top:-92px;position:relative;z-index:2}
+.co-tuya .etq{position:absolute;left:40px;top:50%;transform:translateY(-35%);width:130px;font:800 15px/1.25 "Helvetica Neue",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8a84a8;text-align:center}
+.co-tuya-box svg{display:block}
