@@ -9,6 +9,8 @@ const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6
 const QS=new URLSearchParams(location.search);
 let SALTO=Number(QS.get('salto'))||0;              // solo para probar deprisa (desplaza el reloj de ESTA pantalla)
 window.__coSalto=v=>{ SALTO=v; };
+const SV=(d,x)=>'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>';
+const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>')};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function pintaPiano(){ const p=document.getElementById('estPiano'); const e=PCOnline.piano(); if(p) p.textContent=e==='listo'?'♪ Piano listo':(e==='error'?'♪ Sin piano de muestras (suena uno sencillo)':(e==='cargando'?'♪ Cargando el piano…':'')); }
@@ -45,7 +47,7 @@ function cuando(iso){
 }
 function grupoTxt(g){ return g?String(g).replace(/ge$/i,'').toUpperCase().replace(/^(\d)([A-Z])/,'$1.º $2'):''; }
 const ESPIRAL=c=>'<svg viewBox="0 0 44 44"><g fill="none" stroke="'+c+'" stroke-linecap="round"><path d="M22 4 a18 18 0 1 0 18 18" stroke-width="3"/><path d="M22 10 a12 12 0 1 1 -12 12" stroke-width="2.4" opacity=".7"/></g><circle cx="40" cy="22" r="3" fill="'+c+'"/></svg>';
-const CABECERA='<div class="top"><div class="logo"><div class="lg" id="coLogo"></div><div class="nm"><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div></div><div class="sp"></div><span class="tag" id="estPiano"></span><button class="btn peq" id="bSonido" title="Comprobar el sonido">🔊 Probar sonido</button></div>';
+const CABECERA='<div class="top"><div class="logo"><div class="lg" id="coLogo"></div><div class="nm"><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div></div><div class="sp"></div><span class="tag" id="estPiano"></span><button class="btn" id="bSonido" title="Comprobar el sonido">'+I.spk+'Probar sonido</button></div>';
 
 /* ---------- ventana de confirmación (estética PreDict) ---------- */
 function confirma(titulo,texto,okTxt,noTxt){
@@ -106,8 +108,8 @@ function pintaLobby(){
     const resp=p.yo;
     const botones=abierta
       ? '<button class="btn pri" data-a="entrar" data-id="'+p.id+'">Entrar</button>'
-      : '<button class="btn pri'+(resp==='si'?' sel':'')+'" data-a="si" data-id="'+p.id+'">'+(resp==='si'?'✓ Me apunto':'Me apunto')+'</button>'+
-        (resp==='quiza'?'':'<button class="btn peq" data-a="'+(resp==='si'?'no':'quiza')+'" data-id="'+p.id+'" title="'+(resp==='si'?'Quitarme de la partida':'Marcar como visto')+'">✕</button>');
+      : '<button class="btn pri'+(resp==='si'?' sel':'')+'" data-a="si" data-id="'+p.id+'">'+(resp==='si'?I.ok+'Me apunto':'Me apunto')+'</button>'+
+        (resp==='quiza'?'':'<button class="btn peq" data-a="'+(resp==='si'?'no':'quiza')+'" data-id="'+p.id+'" title="'+(resp==='si'?'Quitarme de la partida':'Marcar como visto')+'">'+I.x+'</button>');
     return '<div class="partida"><div class="info"><div class="quien">'+quien+cancel+'</div>'+
       '<div class="cuando">'+cabecera+' · <span data-t="'+p.programada+'">'+cuando(p.programada)+'</span></div>'+
       '<div class="cuando">'+p.apuntados+' apuntado'+(p.apuntados==1?'':'s')+(p.dentro>0?' · '+p.dentro+' en el lobby':'')+'</div></div>'+
@@ -116,8 +118,8 @@ function pintaLobby(){
   app.innerHTML=
     (ST.aviso?'<div class="banner">'+esc(ST.aviso)+'</div>':'')+
     (ST.errNo?'<div class="banner ko">No consigo conectar con el servidor. Reintento solo.</div>':'')+
-    '<div class="cols"><div class="card"><h2>Jugar ahora</h2><p class="muted" style="margin-top:0">Abre un lobby y empieza con quien entre en los próximos 5 minutos.</p><button class="btn pri gr" id="bAhora">▶ Jugar ahora</button></div>'+
-    '<div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora; todo el curso lo verá en el botón de PreDict 15 minutos antes.</p><div class="row"><input type="datetime-local" id="hora" value="'+def+'"><button class="btn" id="bAnunciar">📣 Anunciar</button></div></div></div>'+
+    '<div class="cols"><div class="card"><h2>Jugar ahora</h2><p class="muted" style="margin-top:0">Abre un lobby y empieza con quien entre en los próximos 5 minutos.</p><button class="btn pri gr" id="bAhora">'+I.play+'Jugar ahora</button></div>'+
+    '<div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora; todo el curso lo verá en el botón de PreDict 15 minutos antes.</p><div class="row"><input type="datetime-local" id="hora" value="'+def+'"><button class="btn" id="bAnunciar">'+I.cal+'Anunciar</button></div></div></div>'+
     '<div class="card"><h2>Partidas del curso</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. Abre una con «Jugar ahora» o anuncia una para más tarde.</p>')+'</div>'+
     '<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 11 minutos y tiene cinco partes; la última son las cadencias.</p>';
   if(enInput){ const h=document.getElementById('hora'); if(h&&valorHora) h.value=valorHora; }
@@ -184,7 +186,7 @@ function pintaSala(){
     '<div class="card"><h2>Partida de '+esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span> · código '+esc(p.codigo)+'</h2>'+
     '<div class="row" style="justify-content:space-between"><div><div class="muted">Empieza '+esc(cuando(p.programada))+' · anfitrión: <b>'+anfNombre+'</b></div>'+
     '<div style="margin-top:6px">Empieza sola en <span id="cuentaAuto2" class="grande" style="font-size:30px"></span></div></div>'+
-    '<div class="row">'+(p.soy_anfitrion?'<button class="btn pri" id="bEmpezar">▶ Empezar ya</button><button class="btn ko" id="bCancelar">Cancelar partida</button>':'')+
+    '<div class="row">'+(p.soy_anfitrion?'<button class="btn pri" id="bEmpezar">'+I.play+'Empezar ya</button><button class="btn ko" id="bCancelar">Cancelar partida</button>':'')+
     '<button class="btn" id="bSalir">← Salir</button></div></div></div>'+
     '<div class="card"><h2>En el lobby ('+dentro.length+')</h2><div>'+(chips||'<span class="muted">Nadie todavía.</span>')+'</div>'+
     (chipsP?'<h2 style="margin-top:12px">Apuntados que aún no han entrado</h2><div>'+chipsP+'</div>':'')+'</div>'+
@@ -220,6 +222,12 @@ function empiezaJuego(est){
 window.LobbyOnline={ arranca:async function(){
   document.documentElement.classList.add('co-on');
   if(!CUENTA){ sinCuenta(); return; }
+  const QP=QS.get('p');
+  if(QP&&/^[0-9a-f-]{36}$/i.test(QP)){
+    try{ history.replaceState(null,'',location.pathname); }catch(e){}
+    if(QS.get('e')==='1'){ const r0=await cr('entrar',{p_partida:QP}); if(r0&&r0.ok){ try{ localStorage.setItem('co_partida',QP); }catch(e){} } }
+    else { try{ localStorage.setItem('co_partida',QP); }catch(e){} }
+  }
   let id=null; try{ id=localStorage.getItem('co_partida'); }catch(e){}
   if(id){
     const r=await cr('estado',{p_partida:id});
