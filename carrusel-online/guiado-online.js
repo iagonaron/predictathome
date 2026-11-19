@@ -2109,6 +2109,7 @@ window.PCOnline={ jugar:coJugar, parar:coParar, piano:()=>PIANO_EST,
     if(on){ if(!ROOT) montar(); ROOT.classList.add('online','en-portada','lobby'); ROOT.classList.remove('quieto'); MODO='lobby'; ESC=null; fondo('multi'); STAGE.innerHTML=''; }
     else if(ROOT){ ROOT.classList.remove('lobby'); } },
   audioListo(){ try{ const c=ac(); if(c.state==='suspended') c.resume(); }catch(e){} cargarPiano(); },
+  audioBloqueado(){ try{ return ac().state!=='running'; }catch(e){ return true; } },
   probar(){ this.audioListo(); try{ const t=ac().currentTime+0.1; arpegio(t,[60,64,67,72],0.28,1.0,0.8); }catch(e){} } };
 
 window.PCGuiado={abrir, duracion:s=>duracionCarrusel(s), estado:()=>({modo:MODO,ejercicio:EJ_ACT,piano:PIANO_EST,semilla:SEMILLA,pausa:PAUSA,vel:VEL,t:AC?AC.currentTime:0,ligero:LIGERO})};

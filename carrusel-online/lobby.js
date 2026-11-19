@@ -22,6 +22,15 @@ function cuentaId(){
   return null;
 }
 const CUENTA=cuentaId();
+/* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00; el servidor también lo impide. Tester/Protester siempre. */
+const ABRE=Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT='el viernes 20 de noviembre a las 19:00', VIDEO_URL='';
+function esTester(){ try{ const s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return !!(s&&/tester/i.test(String(s.nombre||'')+' '+String(s.apellidos||''))); }catch(e){ return false; } }
+const cerrado=()=>Date.now()<ABRE&&!esTester();
+function videoHTML(u){
+  if(!u) return '<p class="muted" style="margin:6px 0 0">El vídeo de presentación estará aquí muy pronto.</p>';
+  const y=u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+  return '<div class="vid">'+(y?'<iframe src="https://www.youtube-nocookie.com/embed/'+y[1]+'?rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>':'<video src="'+esc(u)+'" controls playsinline preload="metadata"></video>')+'</div>';
+}
 
 /* ---------- red + reloj del servidor ---------- */
 let OFF=0, BEST=1e9;
@@ -118,11 +127,12 @@ function pintaLobby(){
   app.innerHTML=
     (ST.aviso?'<div class="banner">'+esc(ST.aviso)+'</div>':'')+
     (ST.errNo?'<div class="banner ko">No consigo conectar con el servidor. Reintento solo.</div>':'')+
-    (ST.solo?'<div class="card solo"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Pon el volumen y pulsa «Empezar»: juegas tú solo, ahora mismo. Son unos 10 minutos y cinco partes.</p><div class="row"><button class="btn pri gr" id="bSolo">'+I.play+'Empezar</button><button class="btn" id="bNoSolo">Ver partidas anunciadas</button></div></div>':
+    (cerrado()?'<div class="card solo"><h2>Muy pronto</h2><p class="muted" style="margin-top:0">El carrusel online estará disponible <b style="color:#fff">'+ABRE_TXT+'</b>. Te lo explico en clase; mientras, puedes ver el vídeo.</p>'+videoHTML(VIDEO_URL)+'</div>':
+    ST.solo?'<div class="card solo"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Pon el volumen y pulsa «Empezar»: juegas tú solo, ahora mismo. Son unos 10 minutos y cinco partes.</p><div class="row"><button class="btn pri gr" id="bSolo">'+I.play+'Empezar</button><button class="btn" id="bNoSolo">Ver partidas anunciadas</button></div></div>':
     '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora. <b style="color:#fff">Serás el anfitrión.</b></p><div class="row"><input type="datetime-local" id="hora" min="'+minHora()+'" value="'+esc(ST.hora||'')+'"><button class="btn pri" id="bAnunciar"'+(ST.hora?'':' disabled')+'>'+I.cal+'Anunciar</button></div></div>'+
     '<div class="card"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Empieza una partida tú solo, ahora mismo.</p><button class="btn" id="bAhora">'+I.play+'Jugar ahora</button></div></div>'+
     '<div class="card"><h2>Partidas anunciadas</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</p>')+'</div>')+
-    (ST.solo?'':'<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias.</p>');
+    (ST.solo||cerrado()?'':'<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias.</p>');
   if(enInput){ const h=document.getElementById('hora'); if(h&&valorHora) h.value=valorHora; }
   enlaza();
 }
@@ -133,7 +143,7 @@ function enlaza(){
   pintaPiano();
   const solo=async(bt)=>{ audioListo(); bt.disabled=true; const r=await cr('crear');
     if(r&&r.ok){ await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
-    else { ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
+    else { ST.aviso=r&&r.error==='aun_no'?'El carrusel online se abre '+ABRE_TXT+'.':r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
   const ah=document.getElementById('bAhora'); if(ah) ah.onclick=()=>solo(ah);
   const bso=document.getElementById('bSolo'); if(bso) bso.onclick=()=>solo(bso);
   const bns=document.getElementById('bNoSolo'); if(bns) bns.onclick=()=>{ ST.solo=false; pintaLobby(); };
@@ -146,7 +156,7 @@ function enlaza(){
     an.disabled=true;
     const r=await cr('crear',{p_programada:d.toISOString()});
     if(r&&r.ok){ ST.aviso='Partida anunciada para '+cuando(d.toISOString())+'.'; ST.hora=''; await refrescaLista(); }
-    else ST.aviso=r&&r.error==='hora'?'La hora debe estar entre 10 minutos y 14 días desde ahora.':'No he podido anunciar la partida.';
+    else ST.aviso=r&&r.error==='aun_no'?'El carrusel online se abre '+ABRE_TXT+'.':r&&r.error==='hora'?'La hora debe estar entre 10 minutos y 14 días desde ahora.':'No he podido anunciar la partida.';
     pintaLobby();
   };
   app.querySelectorAll('button[data-a]').forEach(bt=>bt.onclick=async()=>{
@@ -226,6 +236,16 @@ function pintaSalaTiempos(){
 
 
 /* ---------- la partida: la lleva el motor del carrusel (guiado-online.js) ---------- */
+function avisoSonido(){
+  setTimeout(()=>{ try{ if(!PCOnline.audioBloqueado()) return; }catch(e){ return; }
+    if(document.getElementById('coSonido')) return;
+    const d=document.createElement('div'); d.id='coSonido';
+    d.innerHTML=I.spk+'Pulsa en cualquier sitio para activar el sonido';
+    d.style.cssText='position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:2147483646;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:#fff;color:#1a1238;font:800 15px/1 "Helvetica Neue",Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.45);pointer-events:none';
+    document.body.appendChild(d);
+  },400);
+}
+['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{ try{ audioListo(); }catch(e){} const d=document.getElementById('coSonido'); if(d) d.remove(); },true));
 function empiezaJuego(est){
   const p=est.p; clearInterval(POLL); clearInterval(TIC); ST.vista='juego';
   raiz.style.display='none';
@@ -233,11 +253,17 @@ function empiezaJuego(est){
   PCOnline.jugar({id:p.id,inicio:new Date(p.inicio).getTime(),semilla:p.semilla,now:sNow,cr:cr,est:est,
     ping:s=>rpc('suite_actividad_ping',{p_cuenta_id:CUENTA,p_app:'predict-ge',p_origen:'carrusel-online',p_segundos:s}),
     onFin:()=>{ try{ localStorage.removeItem('co_partida'); }catch(e){} raiz.style.display=''; arrancaLobby(); }});
+  avisoSonido();
 }
 window.LobbyOnline={ arranca:async function(){
   document.documentElement.classList.add('co-on');
   if(!CUENTA){ sinCuenta(); return; }
-  if(QS.get('solo')==='1'){ ST.solo=true; try{ history.replaceState(null,'',location.pathname); }catch(e){} }
+  if(QS.get('solo')==='1'&&!cerrado()){
+    try{ history.replaceState(null,'',location.pathname); }catch(e){}
+    audioListo(); const r=await cr('crear');
+    if(r&&r.ok){ await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
+    ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida individual.';
+  }
   const QP=QS.get('p');
   if(QP&&/^[0-9a-f-]{36}$/i.test(QP)){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}
