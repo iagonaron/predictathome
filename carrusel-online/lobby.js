@@ -10,7 +10,7 @@ const QS=new URLSearchParams(location.search);
 let SALTO=Number(QS.get('salto'))||0;              // solo para probar deprisa (desplaza el reloj de ESTA pantalla)
 window.__coSalto=v=>{ SALTO=v; };
 const SV=(d,x)=>'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>';
-const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>'),cor:SV('<path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/>'),per:SV('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>')};
+const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>'),cor:SV('<path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'),per:SV('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>')};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function pintaPiano(){ const p=document.getElementById('estPiano'); const e=PCOnline.piano(); if(p) p.textContent=e==='listo'?'♪ Piano listo':(e==='error'?'♪ Sin piano de muestras (suena uno sencillo)':(e==='cargando'?'♪ Cargando el piano…':'')); }
@@ -62,7 +62,7 @@ const CABECERA='<div class="top"><div class="logo"><div class="lg" id="coLogo"><
 function confirma(titulo,texto,okTxt,noTxt){
   return new Promise(res=>{
     const m=document.createElement('div'); m.className='comodal';
-    m.innerHTML='<div class="cm-caja" role="dialog" aria-modal="true"><h3>'+titulo+'</h3><p>'+texto+'</p><div class="row"><button class="btn" data-r="0">'+(noTxt||'Mejor no')+'</button><button class="btn pri" data-r="1">'+okTxt+'</button></div></div>';
+    m.innerHTML='<div class="cm-caja" role="dialog" aria-modal="true"><h3>'+titulo+'</h3><p>'+String(texto).replace(/(perder[áa]s (?:un )?0,\d+ de actitud)/g,'<b class="rojo">$1</b>')+'</p><div class="row"><button class="btn" data-r="0">'+(noTxt||'Mejor no')+'</button><button class="btn pri" data-r="1">'+okTxt+'</button></div></div>';
     raiz.appendChild(m);
     const fin=v=>{ m.remove(); res(v); };
     m.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) fin(b.dataset.r==='1'); else if(e.target===m) fin(false); });
@@ -107,8 +107,10 @@ function pintaLobby(){
   const act=document.activeElement, enInput=act&&act.id==='hora', valorHora=enInput?act.value:null;
   const lista=ST.lista.map(p=>{
     const abierta=p.lobby_abierto, mia=p.soy_creador;
-    const quien=mia?I.cor+'Tu partida':esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span>';
-    const conf=Math.max(0,(p.apuntados||0)-1), confTxt=conf===0?'sin confirmados todavía':'<span class="mon">'+I.per.repeat(Math.min(conf,5))+(conf>5?'+'+(conf-5):'')+'</span> '+conf+(conf===1?' confirmado':' confirmados');
+    const quien=mia?I.cor+'Tu partida · la has anunciado tú':esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span>';
+    /* (19-nov, Iago) cada monigote con el nombre e inicial del primer apellido, siempre a la vista */
+    const nom=p.confirmados||[], mons=n=>'<span class="mon">'+Array.from({length:Math.min(n,8)},(_,i)=>'<span class="m">'+I.per+(nom[i]?'<b>'+esc(nom[i])+'</b>':'')+'</span>').join('')+(n>8?'<i>+'+(n-8)+'</i>':'')+'</span>';
+    const conf=Math.max(0,(p.apuntados||0)-1), confTxt=conf===0?'sin confirmados todavía':mons(conf);
     const cabecera=abierta
       ? '<span class="dot live"></span>Abierta ahora'
       : '<span class="dot nar"></span>Anunciada';
@@ -121,7 +123,7 @@ function pintaLobby(){
         (resp==='quiza'?'':'<button class="btn peq" data-a="'+(resp==='si'?'no':'quiza')+'" data-id="'+p.id+'" title="'+(resp==='si'?'Quitarme de la partida':'Marcar como visto')+'">'+I.x+'</button>');
     return '<div class="partida'+(mia?' mia':'')+'"><div class="info"><div class="quien">'+quien+cancel+'</div>'+
       '<div class="cuando">'+cabecera+' · <span data-t="'+p.programada+'">'+cuando(p.programada)+'</span></div>'+
-      '<div class="cuando">'+(mia?confTxt:p.apuntados+' apuntado'+(p.apuntados==1?'':'s'))+(p.dentro>0?' · '+p.dentro+' en el lobby':'')+'</div></div>'+
+      '<div class="cuando">'+(mia?confTxt:(conf?mons(conf):'nadie apuntado todavía'))+(p.dentro>0?' · '+p.dentro+' en el lobby':'')+'</div></div>'+
       '<div class="row">'+botones+'</div></div>';
   }).join('');
   app.innerHTML=
@@ -197,7 +199,7 @@ function pintaSala(){
   const e=ST.est, p=e.p, js=e.jugadores||[];
   const dentro=js.filter(j=>j.dentro), pend=js.filter(j=>!j.dentro&&j.resp==='si');
   const hostDentro=p.anfitrion_id && dentro.some(j=>j.id===p.anfitrion_id);
-  const chips=dentro.map(j=>'<span class="chip'+(j.yo?' yo':'')+(j.id===p.anfitrion_id?' host':'')+'">'+esc(j.nombre)+' <span class="muted">'+esc(grupoTxt(j.grupo))+'</span>'+(j.id===p.anfitrion_id?' · anfitrión':'')+'</span>').join('');
+  const chips=dentro.map(j=>'<span class="chip'+(j.yo?' yo':'')+(j.id===p.anfitrion_id?' host':'')+'">'+(j.id===p.anfitrion_id?I.cor:'')+esc(j.nombre)+' <span class="muted">'+esc(grupoTxt(j.grupo))+'</span></span>').join('');
   const chipsP=pend.map(j=>'<span class="chip pend">'+esc(j.nombre)+' · '+'apuntado'+'</span>').join('');
   let banner='';
   if(p.anfitrion_cancelo && !p.anfitrion){
@@ -208,7 +210,7 @@ function pintaSala(){
   const anfNombre=p.anfitrion?esc(p.anfitrion):'sin anfitrión';
   app.innerHTML=banner+
     '<div class="card"><h2>Partida de '+esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span> · código '+esc(p.codigo)+'</h2>'+
-    '<div class="row" style="justify-content:space-between"><div><div class="muted">Empieza '+esc(cuando(p.programada))+' · anfitrión: <b>'+anfNombre+'</b></div>'+
+    '<div class="row" style="justify-content:space-between"><div><div class="muted">Empieza '+esc(cuando(p.programada))+' · '+(p.anfitrion?I.cor:'')+'<b>'+anfNombre+'</b></div>'+
     '<div style="margin-top:6px">Empieza sola en <span id="cuentaAuto2" class="grande" style="font-size:30px"></span></div></div>'+
     '<div class="row">'+(p.soy_anfitrion?'<button class="btn pri" id="bEmpezar">'+I.play+'Empezar ya</button><button class="btn ko" id="bCancelar">Cancelar partida</button>':'')+
     '<button class="btn" id="bSalir">← Salir</button></div></div></div>'+

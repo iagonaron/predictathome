@@ -4,7 +4,7 @@
    tarjetas de cristal oscuro y botones blancos). 19-nov-2026.
    ============================================================================ */
 #co{--text:#fff;--muted:#d9d3ff;--line:rgba(255,255,255,.24);--glass:rgba(14,10,42,.58);
-    --azul:#5bd0ff;--ama:#ffd23f;--nar:#ff9a3c;--vio:#bd92ff;--ver:#34d399;--ko:#ff7a8a;--or:#ff9a3c}
+    --azul:#5bd0ff;--ama:#ffd23f;--nar:#f97316;--vio:#bd92ff;--ver:#22c55e;--ko:#ff7a8a;--or:#ff9a3c}
 #co *{box-sizing:border-box}
 #co{position:fixed;inset:0;z-index:2147483000;overflow:auto;background:transparent;color:var(--text);
   font:16px/1.4 "Helvetica Neue",Arial,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -37,9 +37,10 @@ html.co-on,html.co-on body{overflow:hidden}
 #co .btn:disabled{opacity:.5;cursor:default}
 #co .btn.pri{background:#fff;border-color:#fff;color:#1a1238;font-weight:800;box-shadow:none}
 #co .btn.pri:hover{filter:brightness(.94);background:#fff}
-#co .btn.pri.sel{background:var(--ver);border-color:var(--ver);color:#06281c}
-#co .btn.sel{background:rgba(52,211,153,.22);border-color:var(--ver)}
-#co .btn.ko{border-color:rgba(255,122,138,.7);color:#ffc2c9}
+#co .btn.pri.sel{background:var(--ver);border-color:var(--ver);color:#fff}
+#co .btn.sel{background:rgba(34,197,94,.22);border-color:var(--ver)}
+#co .btn.ko{background:#ef4444;border-color:#ef4444;color:#fff;font-weight:800}
+#co .btn.ko:hover{filter:brightness(.92);background:#ef4444}
 #co .btn.peq{padding:0;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center}
 #co .btn.gr{font-size:17px;padding:13px 24px}
 
@@ -106,3 +107,14 @@ html.co-on,html.co-on body{overflow:hidden}
 #co .btn:disabled{opacity:.45}
 #coSonido svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #co .vid{position:relative;width:100%;max-width:760px;margin:6px auto 0;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:1.5px solid var(--line);margin-top:6px}#co .vid iframe,#co .vid video{position:absolute;inset:0;width:100%;height:100%;border:0}
+#co .rojo{color:#ef4444;font-weight:800}
+
+/* monigotes con nombre (19-nov) */
+#co .mon{display:inline-flex;flex-wrap:wrap;gap:4px 12px;align-items:center;vertical-align:middle}
+#co .mon .m{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+#co .mon b{font-weight:600;font-size:12px}
+#co .mon i{font-style:normal;font-size:12px}
+
+/* (19-nov, Iago) «Cancelar partida» ocupa exactamente lo mismo que «Me apunto» + ✕ */
+#co .partida > .row{width:250px;flex:none;flex-wrap:nowrap;justify-content:flex-end}
+#co .partida > .row .btn.pri,#co .partida > .row .btn.ko{flex:1;display:inline-flex;align-items:center;justify-content:center}

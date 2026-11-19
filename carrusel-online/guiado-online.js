@@ -506,7 +506,7 @@ function modeloRitmo(){
 function dibujaRitmo(host,M){
   const VF=Vex.Flow; host.innerHTML='';
   const box=el('div','pcg-nota'); host.appendChild(box);
-  const W=880,H=178, x0=12, y=46, totalW=W-24, firstExtra=70, barW=(totalW-firstExtra)/4, spec=M.spec;
+  const W=(M.anchoW||880),H=178, x0=12, y=46, totalW=W-24, firstExtra=70, barW=(totalW-firstExtra)/4, spec=M.spec;
   const ren=new VF.Renderer(box,VF.Renderer.Backends.SVG); ren.resize(W,H);
   const ctx=ren.getContext(); ctx.setFont('Arial',10);
   let x=x0, k=0; const notas=[], comp=[];
@@ -984,7 +984,7 @@ function dibujaArmonico(host,a,b){
     sv('path',{d:'M'+xF+' '+y1+' L'+xF+' '+y2+' M'+(xF-5.5)+' '+(y2-6.5*s)+' L'+xF+' '+y2+' L'+(xF+5.5)+' '+(y2-6.5*s)},g); return g; };
   const fAbajo=flechaV(yM+3,yM+GAP+RH-1), fArriba=flechaV(yM-3,yM-GAP-RH+1);
   return {
-    p1,p2, fila, ops1:$('.arm-ops',p1), ops2:$('.arm-ops',p2), acorde1:A1.g, acorde2:Afull.g, central:Asol.g, parentesis:par, ord,
+    p1,p2, fila, svg2, st2, cxM, yM, ops1:$('.arm-ops',p1), ops2:$('.arm-ops',p2), acorde1:A1.g, acorde2:Afull.g, central:Asol.g, parentesis:par, ord,
     // (30-sep-2026) ilumina en morado el acorde 1 entero ('todo'), una de sus notas (0 = la más grave) o ninguna (null)
     luz1(k){ const hs=[...A1.g.querySelectorAll('.vf-notehead')].sort((p,q)=>q.getBBox().y-p.getBBox().y);
       hs.forEach((h,i)=>h.classList.toggle('pcg-luz',k==='todo'||k===i)); },
@@ -1576,6 +1576,22 @@ const coEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;
 const coGrupo=g=>g?String(g).replace(/ge$/i,'').toUpperCase().replace(/^(\d)([A-Z])/,'$1.º $2'):'';
 const coNomNota={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
 const coAlt={'-2':'𝄫','-1':'♭','0':'','1':'♯','2':'𝄪'};
+
+/* (19-nov, Iago) notas y alteraciones escritas con los MISMOS glifos que VexFlow (Bravura), no con tipografía del sistema */
+const CO_GW={noteheadBlack:11.8,noteheadWhole:16.9,accidentalSharp:10,accidentalFlat:9,accidentalNatural:6.7};
+function coGlyph(g,code,x,y,col,al){
+  const p=sv('path',{fill:col},g); let d='';
+  const f=v=>(+v).toFixed(2);
+  const ctx={beginPath(){},moveTo(a,b){d+='M'+f(a)+' '+f(b);},lineTo(a,b){d+='L'+f(a)+' '+f(b);},
+    bezierCurveTo(a,b,c,e,h,k){d+='C'+[a,b,c,e,h,k].map(f).join(' ');},quadraticCurveTo(a,b,c,e){d+='Q'+[a,b,c,e].map(f).join(' ');},
+    closePath(){d+='Z';},fill(){},stroke(){},save(){},restore(){},setFillStyle(){},setStrokeStyle(){},openGroup(){},closeGroup(){},fillText(){},setFont(){},scale(){},translate(){},rect(){},fillRect(){}};
+  try{ Vex.Flow.Glyph.renderGlyph(ctx,0,0,39,code); }catch(e){ console.warn('glifo',code,e); }
+  p.setAttribute('d',d);
+  let x0=0,w=CO_GW[code]||10; try{ const bb=p.getBBox(); if(bb.width>0){ x0=bb.x; w=bb.width; } }catch(e){}
+  const dx=al==='r'?x-(x0+w):x-(x0+w/2);
+  p.setAttribute('transform','translate('+f(dx)+' '+f(y)+')');
+  return {x0:dx+x0,w};
+}
 /* instante del servidor (ms) → reloj de audio */
 function coAC(ms){ return ahora()+(ms-CO.now())/1000; }
 function coT(off){ return coAC(CO.inicio+off*1000); }
@@ -1613,20 +1629,22 @@ function coSchedCad(){ const gen=cadenciaDe(SEMILLA), spb=60/84, N=gen.ev.length
   return {gen,ops,fin,velo:fin+7,corr:fin+12,end:fin+12+13+Math.ceil(L2+0.8)}; }
 
 /* ---------- envío de la respuesta y clasificación ---------- */
+/* (19-nov, Iago) a igualdad de puntos gana quien contestó antes: el tiempo es el de tu último cambio */
+function coTic(){ CO.tUlt=CO.now(); sonidoUI('tic'); }
 async function coEnvia(i,res){
   CO.mias[i]=res.puntos;
-  const ms=Math.max(0,Math.round(CO.now()-(CO.inicio+CO.base[i]*1000)));
+  const t0=CO.inicio+CO.base[i]*1000, ms=Math.max(0,Math.round((CO.tUlt&&CO.tUlt>t0?CO.tUlt:CO.now())-t0)); CO.tUlt=null;
   try{ await CO.cr('responder',{p_partida:CO.id,p_fase:i,p_puntos:res.puntos,p_ms:ms,p_detalle:res.detalle}); }catch(e){}
   coRefrescaEstado();
 }
 async function coRefrescaEstado(){ try{ const r=await CO.cr('estado',{p_partida:CO.id}); if(r&&r.ok) CO.est=r; }catch(e){} }
 function coRankDatos(hasta){
-  const e=CO.est||{jugadores:[],resp:[]}, suma={}, delta={};
-  (e.resp||[]).forEach(r=>{ if(hasta==null||r.fase<=hasta) suma[r.id]=(suma[r.id]||0)+r.puntos; if(r.fase===hasta) delta[r.id]=(delta[r.id]||0)+r.puntos; });
+  const e=CO.est||{jugadores:[],resp:[]}, suma={}, delta={}, tms={};
+  (e.resp||[]).forEach(r=>{ if(hasta==null||r.fase<=hasta){ suma[r.id]=(suma[r.id]||0)+r.puntos; tms[r.id]=(tms[r.id]||0)+(r.ms==null?9e8:r.ms); } if(r.fase===hasta) delta[r.id]=(delta[r.id]||0)+r.puntos; });
   const js=(e.jugadores||[]).filter(j=>j.dentro||suma[j.id]!=null);
-  const filas=js.map(j=>({id:j.id,nombre:j.nombre,grupo:j.grupo,yo:j.yo,pts:Math.round((suma[j.id]||0)*(Number(j.mult)||1)),delta:Math.round((delta[j.id]||0)*(Number(j.mult)||1))}));
-  filas.sort((a,b)=>b.pts-a.pts||String(a.nombre).localeCompare(String(b.nombre)));
-  filas.forEach((f,i)=>{ f.pos=(i>0&&filas[i-1].pts===f.pts)?filas[i-1].pos:i+1; });
+  const filas=js.map(j=>({id:j.id,nombre:j.nombre,grupo:j.grupo,yo:j.yo,ms:tms[j.id]==null?9e9:tms[j.id],pts:Math.round((suma[j.id]||0)*(Number(j.mult)||1)),delta:Math.round((delta[j.id]||0)*(Number(j.mult)||1))}));
+  filas.sort((a,b)=>b.pts-a.pts||a.ms-b.ms||String(a.nombre).localeCompare(String(b.nombre)));
+  filas.forEach((f,i)=>{ f.pos=i+1; });
   return filas;
 }
 function coFilaHTML(f,conDelta){
@@ -1645,11 +1663,11 @@ async function coRanking(i,finOff){
   cartel('Clasificación','Tras el '+(i===0?'dictado rítmico':i===1?'dictado melódico':i===2?'ejercicio de TonCom':i===3?'ejercicio armónico':'bonus de cadencias'));
   const yo=()=>{ const q=coRankDatos(i).find(x=>x.yo); return q; };
   const pinta=()=>{ c.innerHTML=coRankHTML(i); };
-  pinta(); requestAnimationFrame(()=>c.classList.add('on'));
+  pinta(); requestAnimationFrame(()=>c.classList.add('on')); ESC.hoja.classList.add('co-rk');   /* la hoja vuelve a su tamaño normal (la de cadencias crece) */
   const sig=i<4?'Siguiente: '+CO_NOM[i+1].toUpperCase():'Resultado final';
   const iv=setInterval(()=>{ pinta(); const r=Math.max(0,Math.ceil((CO.inicio+finOff*1000-CO.now())/1000));
     ESC.pie.innerHTML='<div class="pcg-reloj-t" style="font-size:31px;font-weight:700">'+sig+' en '+r+' s</div>'; },500);
-  await coEn(finOff-0.4); clearInterval(iv); c.classList.remove('on');
+  await coEn(finOff-0.4); clearInterval(iv); c.classList.remove('on'); ESC.hoja.classList.remove('co-rk');
 }
 
 /* ============================================================================
@@ -1667,41 +1685,66 @@ function coPoolRitmo(spec){
   lista.forEach(c=>{ if(out.indexOf(c)<0) out.push(c); });
   return out;
 }
-function coMini(host,cell,compound,ancho){
+function coMini(host,cell,compound){
   host.innerHTML=''; const m=el('div','co-mini'); host.appendChild(m);
   try{ celdaVF(m,cell,compound); }catch(e){}
-  const W=Math.max(74,44+cell.notes.length*25); m.style.width=Math.round(Math.min(ancho,W*1.25))+'px'; return m;
+  const svg=m.querySelector('svg'); if(svg){ svg.style.width='auto'; svg.style.height='var(--fig-h)'; }   /* misma altura en todas las figuras (celdaVF deja viewBox W×90) */
+  if(host.isConnected) coRecorta(m);
+  return m;
 }
+/* (19-nov, Iago) «más grandes y más juntas»: el viewBox se ciñe al dibujo (sin el margen de VexFlow a los lados) */
+function coRecorta(m){ const svg=m.querySelector('svg'); if(!svg||svg.dataset.rec) return; try{ const bb=svg.getBBox(); if(bb.width>4){
+  svg.setAttribute('viewBox',(bb.x-5).toFixed(1)+' 2 '+(bb.width+10).toFixed(1)+' 90'); svg.dataset.rec=1; } }catch(e){} }
 function coRitmoUI(D,M){
+  /* (19-nov, Iago) como en el Carrusel Pro: pentagrama sin marcos, una flechita marca dónde va la siguiente figura;
+     pulsas una figura (va a la flechita) o la arrastras al pulso que quieras; las figuras miden lo mismo abajo y arriba */
   const R=datosRitmico[0], spec=R.spec, host=ESC.hoja;
   const slots=[]; R.compases.forEach((c,ci)=>c.forEach((cell,pi)=>slots.push({ci,pi,sol:cell,ans:null,el:null})));
   const pool=coPoolRitmo(spec);
   const nota=host.querySelector('.pcg-nota');
   const wrap=el('div','co-rit'); host.appendChild(wrap);
   const bd=el('div','co-board'); wrap.appendChild(bd); bd.appendChild(nota);
+  bd.style.width='1400px';   /* (19-nov, Iago) todo el ancho: figuras más grandes y más juntas */   /* compases más anchos en 3/4 y 6/8 (misma escala) */
   const cap=el('div','co-slots'); bd.appendChild(cap);
   const y0=16, hh=112, np=spec.pulsos;
   slots.forEach(s=>{
     const c=D.comp[s.ci], w=(c.b-c.a)/np, x=c.a+w*s.pi+3;
     const b=el('button','co-slot'); b.style.left=(x/D.W*100)+'%'; b.style.top=(y0/D.H*100)+'%'; b.style.width=((w-6)/D.W*100)+'%'; b.style.height=(hh/D.H*100)+'%';
-    s.el=b; cap.appendChild(b);
+    s.cx=(x+(w-6)/2)/D.W*100; s.el=b; cap.appendChild(b);
   });
+  const fl=el('div','co-flecha'); fl.style.top='calc('+((y0+hh/2)/D.H*100)+'% + var(--fig-dy,0px) - var(--fig-h)/2 - 26px)'; cap.appendChild(fl);
   const pal=el('div','co-pool'); wrap.appendChild(pal);
   let sel=0, bloq=false;
-  const pinta=s=>{
-    s.el.innerHTML=''; if(!s.ans) return;
-    coMini(s.el,s.ans,spec.compound,s.el.offsetWidth*0.94);
-  };
-  const marca=()=>slots.forEach((s,i)=>s.el.classList.toggle('sel',i===sel&&!bloq));
-  slots.forEach((s,i)=>{ s.el.onclick=()=>{ if(bloq) return; if(sel===i&&s.ans){ s.ans=null; pinta(s); sonidoUI('tic'); } sel=i; marca(); }; });
+  const pinta=s=>{ s.el.innerHTML=''; if(s.ans) coMini(s.el,s.ans,spec.compound); };
+  const marca=()=>{ slots.forEach((s,i)=>s.el.classList.toggle('sel',i===sel&&!bloq)); if(slots[sel]) fl.style.left=slots[sel].cx+'%'; };
+  const siguienteLibre=desde=>{ for(let k=1;k<=slots.length;k++){ const j=(desde+k)%slots.length; if(!slots[j].ans) return j; } return Math.min(slots.length-1,desde+1); };
+  const pon=(i,cell)=>{ if(bloq) return; const s=slots[i]; s.ans=cell; pinta(s); coTic(); sel=siguienteLibre(i); marca(); };
+  slots.forEach((s,i)=>{ s.el.onclick=()=>{ if(bloq) return; if(sel===i&&s.ans){ s.ans=null; pinta(s); coTic(); } sel=i; marca(); }; });
   pool.forEach(cell=>{
-    const b=el('button','co-card'); coMini(b,cell,spec.compound,92);
-    b.onclick=()=>{ if(bloq) return; const s=slots[sel]; s.ans=cell; pinta(s); sonidoUI('tic');
-      let n=-1; for(let k=1;k<=slots.length;k++){ const j=(sel+k)%slots.length; if(!slots[j].ans){ n=j; break; } }
-      sel=n>=0?n:Math.min(slots.length-1,sel+1); marca(); };
+    const b=el('button','co-card'); coMini(b,cell,spec.compound);
+    let ini=null, fan=null, sobre=-1;
+    const slotEn=(x,y)=>{ const n=document.elementFromPoint(x,y); const sl=n&&n.closest&&n.closest('.co-slot'); return sl?slots.findIndex(q=>q.el===sl):-1; };
+    b.addEventListener('pointerdown',e=>{ if(bloq) return; ini={x:e.clientX,y:e.clientY}; try{ b.setPointerCapture(e.pointerId); }catch(_){} });
+    b.addEventListener('pointermove',e=>{ if(!ini||bloq) return;
+      if(!fan&&Math.hypot(e.clientX-ini.x,e.clientY-ini.y)>8){ fan=el('div','co-arrastre'); coMini(fan,cell,spec.compound); document.body.appendChild(fan); }
+      if(fan){ fan.style.left=e.clientX+'px'; fan.style.top=e.clientY+'px'; fan.style.visibility='hidden'; const k=slotEn(e.clientX,e.clientY); fan.style.visibility='';
+        if(k!==sobre){ if(sobre>=0) slots[sobre].el.classList.remove('drop'); sobre=k; if(k>=0) slots[k].el.classList.add('drop'); } } });
+    const fin=e=>{ if(!ini) return; const arr=!!fan; if(fan){ fan.remove(); fan=null; } if(sobre>=0) slots[sobre].el.classList.remove('drop');
+      if(arr){ if(sobre>=0) pon(sobre,cell); } else pon(sel,cell); ini=null; sobre=-1; };
+    b.addEventListener('pointerup',fin);
+    b.addEventListener('click',e=>{ if(e.detail===0&&!bloq) pon(sel,cell); });   /* teclado (Intro/espacio) */ b.addEventListener('pointercancel',()=>{ if(fan){ fan.remove(); fan=null; } ini=null; });
     pal.appendChild(b);
   });
-  requestAnimationFrame(()=>{ slots.forEach(pinta); marca(); });
+  /* mismo tamaño arriba y abajo: el que permite que la figura más ancha quepa en un pulso */
+  const ajusta=()=>{ const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
+    pal.querySelectorAll('.co-mini').forEach(coRecorta);
+    const rmax=Math.max.apply(null,[...pal.querySelectorAll('.co-mini svg')].map(v=>{ const b=v.viewBox.baseVal; return b&&b.height?b.width/b.height:1; }));
+    const h=Math.max(54,Math.min(122,sw*1.0/rmax)); wrap.style.setProperty('--fig-h',h.toFixed(1)+'px');
+    /* las cabezas, sobre la línea: centro de las barras de compás frente al centro del hueco */
+    try{ const sr=slots[0].el.getBoundingClientRect(), esc=sr.height/slots[0].el.offsetHeight||1;
+      const bar=[...nota.querySelectorAll('svg line, svg rect, svg path')].map(e=>e.getBoundingClientRect()).find(r=>r.height>25*esc&&r.width<6*esc);
+      if(bar){ const dy=((bar.y+bar.height/2)-(sr.y+sr.height/2))/esc-(0.644-0.5)*h; wrap.style.setProperty('--fig-dy',dy.toFixed(1)+'px'); } }catch(e){} };
+  requestAnimationFrame(()=>{ ajusta(); slots.forEach(pinta); marca(); });
   return {
     bloquea(){ bloq=true; marca(); wrap.classList.add('bloq'); },
     cierra(){ const ok=slots.filter(s=>s.ans&&s.ans.id===s.sol.id).length; return {puntos:Math.round(1000*ok/slots.length),detalle:{ok,de:slots.length,resp:slots.map(s=>s.ans?s.ans.id:null)}}; },
@@ -1711,6 +1754,8 @@ function coRitmoUI(D,M){
 async function coRit(b){
   escena(EJS[0]);
   const sc=CO.sch[0], M=sc.M; ESC.pulso=sc.pr;
+  /* (19-nov, Iago) en 3/4 (y 6/8) los compases, más anchos, para que quepa todo */
+  M.anchoW=M.spec.pulsos>=3?1160:(M.spec.compound?1000:880);
   const D=dibujaRitmo(ESC.hoja,M), I=coRitmoUI(D,M);
   const R=sc.R, p1=sc.p1, p2=sc.p2, fin=sc.fin, velo=sc.velo, corr=sc.corr, total=sc.end-sc.corr;
   sonidoUI('inicio'); cartel('Dictado rítmico','Elige la figura que suena en cada pulso');
@@ -1747,14 +1792,14 @@ function coMelUI(D,key,mel){
     const top=yDn(topdn), bot=yDn(topdn-8);
     if(ledger){ for(let yy=top-10;yy>=y-1;yy-=10) sv('line',{x1:x-14,x2:x+14,y1:yy,y2:yy,stroke:col,'stroke-width':1.8},g);
                 for(let yy=bot+10;yy<=y+1;yy+=10) sv('line',{x1:x-14,x2:x+14,y1:yy,y2:yy,stroke:col,'stroke-width':1.8},g); }
-    sv('ellipse',{cx:x,cy:y,rx:7.6,ry:5.6,fill:hueco?'none':col,stroke:col,'stroke-width':hueco?2.3:1.2,transform:'rotate(-14 '+x+' '+y+')'},g);
-    if(sostenido){ const t=sv('text',{x:x-25,y:y+8,'font-size':25,'font-weight':700,fill:col},g); t.textContent='♯'; } };
+    const h=coGlyph(g,hueco?'noteheadWhole':'noteheadBlack',x,y,col);   /* colocada = redonda; fantasma = negra */
+    if(sostenido) coGlyph(g,'accidentalSharp',h.x0-3,y,col,'r'); };
   function dibuja(){
     gA.innerHTML=''; gS.innerHTML='';
     for(let i=1;i<=8;i++){ const a=ans[i]; if(!a) continue;
       let col='#16132b';
       if(rev){ const ok=midiDe(a)===mel.seq[i]; if(ok) continue; col='#dc2626'; }
-      cabeza(gA,P[i].cx,yDn(a.dn),col,false,a.sharp,true); }
+      cabeza(gA,P[i].cx,yDn(a.dn),col,true,a.sharp,true); }
     if(!bloq&&!rev&&ans[sel]){ const a=ans[sel], x=P[sel].cx, y=yDn(a.dn);
       const g=sv('g',{class:'co-x'},gS); const c=sv('circle',{cx:x+26,cy:y-20,r:11,fill:'#fff',stroke:'#c7c2e0','stroke-width':1.5},g);
       const t=sv('text',{x:x+26,y:y-15,'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#7a7399'},g); t.textContent='×'; g.style.cursor='pointer'; g.onpointerdown=e=>{ e.stopPropagation(); borra(sel); }; }
@@ -1774,7 +1819,7 @@ function coMelUI(D,key,mel){
     }
     return e;
   }
-  function pon(i,dn){ if(bloq||rev||i<1||i>8) return; dn=Math.max(topdn-13,Math.min(topdn+5,dn)); const a=ans[i]||{dn,sharp:false}; a.dn=dn; ans[i]=a; sel=i; dibuja(); sonidoUI('tic'); }
+  function pon(i,dn){ if(bloq||rev||i<1||i>8) return; dn=Math.max(topdn-13,Math.min(topdn+5,dn)); const a=ans[i]||{dn,sharp:false}; a.dn=dn; ans[i]=a; sel=i; dibuja(); coTic(); }
   function borra(i){ if(bloq||rev||i<1||i>8) return; ans[i]=null; dibuja(); }
   function punto(ev){ const p=svg.createSVGPoint(); p.x=ev.clientX; p.y=ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
   function col(x){ let k=-1,bd=1e9; for(let i=1;i<=8;i++){ const d=Math.abs(P[i].cx-x); if(d<bd){ bd=d; k=i; } } return bd<(P[2].cx-P[1].cx)*0.55?k:-1; }
@@ -1782,7 +1827,7 @@ function coMelUI(D,key,mel){
   svg.addEventListener('pointermove',ev=>{ if(bloq||rev){ gG.innerHTML=''; return; }
     const p=punto(ev), k=col(p.x), r=gG.parentNode; gG.innerHTML=''; if(k<0||p.y<P[0].cy-90||p.y>P[0].cy+110) return;
     const dn=Math.max(topdn-13,Math.min(topdn+5,dnY(p.y)));
-    const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,true,false,true); });
+    const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,false,false,true); });
   svg.addEventListener('pointerleave',()=>{ gG.innerHTML=''; });
   svg.addEventListener('pointerdown',ev=>{ if(bloq||rev) return; if(ev.target.closest&&ev.target.closest('.co-x')) return;
     const p=punto(ev), k=col(p.x); if(k<0||p.y<P[0].cy-90||p.y>P[0].cy+110) return;
@@ -1844,19 +1889,62 @@ async function coMel(b){
 /* ============================================================================
    3 · TONCOM — opciones dentro de las tres casillas
    ============================================================================ */
+/* rueda deslizable (como en el Carrusel Pro): tira de opciones que se arrastra en el carril y encaja al soltar;
+   también se puede pulsar la opción de arriba o de abajo */
+function coRueda(box,items,idx,onChange){
+  box.classList.add('co-rueda'); box.innerHTML='';
+  const H=Math.max(120,box.clientHeight||177), IH=Math.round(H/3), cy=Math.round(H/2-IH/2);   /* carril de 3 casillas, como en Teoría at home */
+  const band=el('div','co-rueda-c'); band.style.height=IH+'px'; band.style.top=cy+'px'; box.appendChild(band);
+  const strip=el('div','co-rueda-t'); box.appendChild(strip);
+  items.forEach((it,i)=>{ const d=el('div','co-rueda-i',coEsc(it)); d.style.height=IH+'px'; d.dataset.i=i; strip.appendChild(d); });
+  const N=items.length, cl=i=>Math.max(0,Math.min(N-1,i)); let cur=cl(idx), bloq=false;
+  const yFor=i=>cy-i*IH, mark=i=>[...strip.children].forEach((c,k)=>c.classList.toggle('on',k===i));
+  const place=(i,an)=>{ strip.style.transition=an?'transform .22s cubic-bezier(.2,.85,.3,1)':'none'; strip.style.transform='translateY('+yFor(i)+'px)'; mark(i); };
+  place(cur,false);
+  let drag=false,y0=0,base=0,moved=false,ly=0,lt=0,vel=0;
+  box.addEventListener('pointerdown',e=>{ if(bloq) return; e.preventDefault(); try{ box.setPointerCapture(e.pointerId); }catch(_){}
+    drag=true; moved=false; y0=ly=e.clientY; lt=performance.now(); vel=0; base=yFor(cur); strip.style.transition='none'; });
+  box.addEventListener('pointermove',e=>{ if(!drag) return; const sc=box.getBoundingClientRect().height/box.offsetHeight||1, y=e.clientY/sc;
+    const now=performance.now(); vel=(y-ly)/((now-lt)||16); ly=y; lt=now; if(Math.abs(e.clientY-y0)>4) moved=true;
+    let ny=base+(e.clientY-y0)/sc; ny=Math.max(yFor(N-1)-IH*.55,Math.min(yFor(0)+IH*.55,ny)); strip.style.transform='translateY('+ny+'px)'; mark(cl(Math.round((cy-ny)/IH))); });
+  const up=e=>{ if(!drag) return; drag=false; const sc=box.getBoundingClientRect().height/box.offsetHeight||1; let ni;
+    if(!moved){ const t=e.target&&e.target.closest&&e.target.closest('.co-rueda-i'); ni=t?cl(+t.dataset.i):cur; }
+    else { const ex=Math.max(-3,Math.min(3,vel*80/IH)); ni=cl(Math.round((cy-(base+(e.clientY-y0)/sc+ex*IH))/IH)); }
+    const ch=ni!==cur; cur=ni; place(cur,true); if(ch) onChange(cur); };
+  box.addEventListener('pointerup',up); box.addEventListener('pointercancel',()=>{ if(drag){ drag=false; place(cur,true); } });
+  return { get:()=>cur, set:i=>{ cur=cl(i); place(cur,false); }, bloquea(){ bloq=true; box.classList.add('fija'); },
+    etiqueta(i,t){ const c=strip.children[i]; if(c) c.textContent=t; } };
+}
 function coTonUI(B,T){
-  const armTxt=k=>k.sig===0?'—':(Math.abs(k.sig)+(k.sig>0?'♯':'♭'));
-  const sol={ton:T.key.name,arm:armTxt(T.key),com:T.compas}, resp={ton:null,arm:null,com:null};
-  const OPS={ton:KEYS.map(k=>k.name), arm:['—','1♯','2♯','1♭','2♭'], com:['2/4','3/4','6/8']};
-  const bs={}; let bloq=false;
-  ['ton','arm','com'].forEach(k=>{
-    const c=B[k], val=c.querySelector('.val'), g=el('div','co-opts co-'+k); val.appendChild(g); bs[k]=[];
-    OPS[k].forEach(o=>{ const bt=el('button','co-op',k==='com'?'<span class="cp"><span>'+o.split('/')[0]+'</span><span>'+o.split('/')[1]+'</span></span>':coEsc(o)); bt.dataset.v=o;
-      bt.onclick=()=>{ if(bloq) return; resp[k]=o; bs[k].forEach(x=>x.classList.toggle('sel',x===bt)); sonidoUI('tic'); };
-      g.appendChild(bt); bs[k].push(bt); });
-  });
+  /* (19-nov, Iago) TONALIDAD: rueda de notas (Do…Si), y en columnas ♯/♭ (opcionales) y M/m: se puede poner cualquier tonalidad.
+     ARMADURA: rueda con «—» (nada) en medio, sostenidos hacia arriba y bemoles hacia abajo, hasta 7. COMPÁS: tres botones */
+  const NOM={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'}, ACC={'#':'♯',b:'♭'};
+  const tk=T.key, sol={ton:NOM[tk.tonic[0]]+(ACC[tk.tonic.slice(1)]||'')+' '+(tk.mode==='minor'?'m':'M'),
+    arm:tk.sig===0?'—':(Math.abs(tk.sig)+(tk.sig>0?'♯':'♭')), com:T.compas};
+  const RN=['Si','La','Sol','Fa','Mi','Re','Do','—'];   /* '—' abajo (sin contestar); Do justo encima */
+  const RA=[]; for(let k=7;k>=1;k--) RA.push(k+'♯'); RA.push('—'); for(let k=1;k<=7;k++) RA.push(k+'♭');
+  const tn={n:'—',acc:'',mm:''}, resp={ton:null,arm:'—',com:null}; let bloq=false; const ru={};
+  const etq=()=>{ resp.ton=tn.n==='—'?null:(tn.n+tn.acc+' '+(tn.mm||'?'));
+    /* como en Teoría at home: la casilla elegida de la rueda dice la tonalidad entera (Sol♯ m) */
+    if(ru.ton) RN.forEach((n,i)=>ru.ton.etiqueta(i,(n===tn.n&&n!=='—')?(n+tn.acc+(tn.mm?' '+tn.mm:'')):n)); };
+  /* tonalidad */
+  { const val=B.ton.querySelector('.val'), g=el('div','co-opts co-ton'); val.appendChild(g);
+    const rw=el('div','rw'); g.appendChild(rw);
+    const cA=el('div','col'), cM=el('div','col'); g.appendChild(cA); g.appendChild(cM);
+    const bA=[['♯','♯'],['♭','♭']].map(([v,h])=>{ const bt=el('button','co-op alt',h); bt.onclick=()=>{ if(bloq) return; tn.acc=tn.acc===v?'':v;
+      bA.forEach(x=>x.classList.toggle('sel',x.textContent===tn.acc)); etq(); coTic(); }; cA.appendChild(bt); return bt; });
+    const bM=['M','m'].map(v=>{ const bt=el('button','co-op mm',v); bt.onclick=()=>{ if(bloq) return; tn.mm=v;
+      bM.forEach(x=>x.classList.toggle('sel',x===bt)); etq(); coTic(); }; cM.appendChild(bt); return bt; });
+    requestAnimationFrame(()=>{ ru.ton=coRueda(rw,RN,RN.length-1,i=>{ tn.n=RN[i]; etq(); coTic(); }); }); }
+  /* armadura */
+  { const val=B.arm.querySelector('.val'), g=el('div','co-opts co-arm'); val.appendChild(g);
+    requestAnimationFrame(()=>{ ru.arm=coRueda(g,RA,7,i=>{ resp.arm=RA[i]; coTic(); }); }); }
+  /* compás */
+  { const c=B.com, val=c.querySelector('.val'), g=el('div','co-opts co-com'); val.appendChild(g); const bs=[];
+    ['2/4','3/4','6/8'].forEach(o=>{ const bt=el('button','co-op','<span class="cp"><span>'+o.split('/')[0]+'</span><span>'+o.split('/')[1]+'</span></span>'); bt.dataset.v=o;
+      bt.onclick=()=>{ if(bloq) return; resp.com=o; bs.forEach(x=>x.classList.toggle('sel',x===bt)); coTic(); }; g.appendChild(bt); bs.push(bt); }); }
   return {
-    bloquea(){ bloq=true; document.querySelectorAll('.co-op').forEach(b=>b.disabled=true); },
+    bloquea(){ bloq=true; document.querySelectorAll('.co-op').forEach(b=>b.disabled=true); Object.values(ru).forEach(r=>r&&r.bloquea()); },
     cierra(){ let p=0; if(resp.ton===sol.ton) p+=400; if(resp.arm===sol.arm) p+=300; if(resp.com===sol.com) p+=300; return {puntos:p,detalle:{resp,sol}}; },
     marca(k){ const c=B[k], ok=resp[k]===sol[k]; c.classList.add(ok?'okc':'koc'); c.querySelector('.val').classList.add('revela');
       const t=el('div','co-tu',ok?'✓ ¡Bien!':'✗ Tu respuesta: <b>'+coEsc(resp[k]||'—')+'</b>'); c.appendChild(t); }
@@ -1904,27 +1992,42 @@ function coArmUI(A,a,bb){
   let b1=false, b2=false, selV='tiple';
   const nom=n=>n.l?coNomNota[n.l]+(coAlt[String(n.a)]||''):'—';
   // tipo e inversión: los botones del aula
-  A.ops1.querySelectorAll('span').forEach(s=>{ s.classList.add('co-clic'); s.onclick=()=>{ if(b1) return; resp.tipo=s.dataset.q; A.ops1.querySelectorAll('span').forEach(x=>x.classList.toggle('sel',x===s)); sonidoUI('tic'); }; });
-  A.ops2.querySelectorAll('span').forEach(s=>{ s.classList.add('co-clic'); s.onclick=()=>{ if(b2) return; resp.inv=Number(s.dataset.i); A.ops2.querySelectorAll('span').forEach(x=>x.classList.toggle('sel',x===s)); sonidoUI('tic'); }; });
-  // tiple y bajo: los rectángulos se eligen con un clic y se rellenan con las teclas de notas
-  const voz={tiple:A.fila[2],bajo:A.fila[0]};
-  const txt=k=>voz[k].querySelector('text');
-  const pintaVoz=()=>{ ['tiple','bajo'].forEach(k=>{ voz[k].classList.toggle('co-sel',k===selV&&!b2); const r=resp[k];
-    txt(k).textContent=r.l?nom(r):(k==='tiple'?'tiple':'bajo'); voz[k].classList.toggle('co-llena',!!r.l); });
-    keys.querySelectorAll('[data-l]').forEach(x=>x.classList.toggle('sel',x.dataset.l===resp[selV].l));
-    keys.querySelectorAll('[data-a]').forEach(x=>x.classList.toggle('sel',Number(x.dataset.a)===resp[selV].a));
-    keys.querySelector('.etq').textContent='Nota de '+(selV==='tiple'?'arriba (tiple)':'abajo (bajo)'); };
+  A.ops1.querySelectorAll('span').forEach(s=>{ s.classList.add('co-clic'); s.onclick=()=>{ if(b1) return; resp.tipo=s.dataset.q; A.ops1.querySelectorAll('span').forEach(x=>x.classList.toggle('sel',x===s)); coTic(); }; });
+  A.ops2.querySelectorAll('span').forEach(s=>{ s.classList.add('co-clic'); s.onclick=()=>{ if(b2) return; resp.inv=Number(s.dataset.i); A.ops2.querySelectorAll('span').forEach(x=>x.classList.toggle('sel',x===s)); coTic(); }; });
+  // (19-nov, Iago) tiple y bajo se ESCRIBEN con la nota fantasma, como en el melódico: encima de la nota central, el tiple;
+  // debajo, el bajo. Con ♭ ♮ ♯ se le pone la alteración a la nota elegida
+  const voz={tiple:A.fila[2],bajo:A.fila[0]}, svg=A.svg2, cx=A.cxM, yM=A.yM, mid=bb.notes[1], LET='CDEFGAB';
+  const VIO=(getComputedStyle(A.p2).getPropertyValue('--c2')||'').trim()||'#a26bff';   /* (19-nov, Iago) la nota fantasma, violeta como el armónico */
+  const dnM=LET.indexOf(mid.letter)+7*mid.octave, yDn=dn=>yM-(dn-dnM)*5, yL0=A.st2.getYForLine(0), yL4=A.st2.getYForLine(4);
+  const gA=sv('g',{class:'co-ans'},svg), gG=sv('g',{class:'co-ghost'},svg);
+  const ALT={'-1':'♭','0':'','1':'♯'};
+  const cabeza=(g,y,col,hueca,alt)=>{
+    for(let yy=yL0-10;yy>=y-1;yy-=10) sv('line',{x1:cx-13,x2:cx+13,y1:yy,y2:yy,stroke:col,'stroke-width':1.6},g);
+    for(let yy=yL4+10;yy<=y+1;yy+=10) sv('line',{x1:cx-13,x2:cx+13,y1:yy,y2:yy,stroke:col,'stroke-width':1.6},g);
+    const h=coGlyph(g,hueca?'noteheadWhole':'noteheadBlack',cx,y,col);
+    const AG={'♭':'accidentalFlat','♮':'accidentalNatural','♯':'accidentalSharp'}[alt]; if(AG) coGlyph(g,AG,h.x0-3,y,col,'r'); };
+  const pintaVoz=()=>{ gA.innerHTML='';
+    ['tiple','bajo'].forEach(k=>{ const r=resp[k]; voz[k].classList.toggle('co-sel',k===selV&&!b2); voz[k].classList.toggle('co-llena',!!r.l);
+      voz[k].querySelector('text').textContent=r.l?'':(k==='tiple'?'tiple':'bajo');
+      if(r.l) cabeza(gA,yDn(r.dn),'#16132b',true,ALT[String(r.a)]); });
+    keys.querySelectorAll('[data-a]').forEach(x=>x.classList.toggle('sel',!!resp[selV].l&&Number(x.dataset.a)===resp[selV].a));
+    keys.querySelector('.etq').textContent=resp[selV].l?('Alteración de la nota '+(selV==='tiple'?'de arriba':'de abajo')):'Escribe con la nota fantasma la de arriba y la de abajo'; };
   const keys=el('div','co-keys','<div class="etq"></div><div class="fl"></div>'); A.p2.insertBefore(keys,A.ops2);
   const fl=keys.querySelector('.fl');
-  ['C','D','E','F','G','A','B'].forEach(l=>{ const bt=el('button','co-k',coNomNota[l]); bt.dataset.l=l;
-    bt.onclick=()=>{ if(b2) return; resp[selV].l=l; if(selV==='tiple'&&!resp.bajo.l) selV='bajo'; pintaVoz(); sonidoUI('tic'); }; fl.appendChild(bt); });
   [['-1','♭'],['0','♮'],['1','♯']].forEach(([v,h])=>{ const bt=el('button','co-k acc',h); bt.dataset.a=v;
-    bt.onclick=()=>{ if(b2) return; resp[selV].a=Number(v); pintaVoz(); sonidoUI('tic'); }; fl.appendChild(bt); });
-  Object.keys(voz).forEach(k=>{ voz[k].style.cursor='pointer'; voz[k].addEventListener('pointerdown',()=>{ if(b2) return; selV=k; pintaVoz(); }); });
+    bt.onclick=()=>{ if(b2||!resp[selV].l) return; resp[selV].a=Number(v); pintaVoz(); coTic(); }; fl.appendChild(bt); });
+  const punto=ev=>{ const p=svg.createSVGPoint(); p.x=ev.clientX; p.y=ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+  const zona=ev=>{ const p=punto(ev); if(Math.abs(p.x-cx)>46) return null; const dn=dnM-Math.round((p.y-yM)/5);
+    if(dn>dnM&&dn<=dnM+7) return {k:'tiple',dn}; if(dn<dnM&&dn>=dnM-7) return {k:'bajo',dn}; return null; };
+  svg.style.touchAction='none';
+  svg.addEventListener('pointermove',ev=>{ gG.innerHTML=''; if(b2) return; const z=zona(ev); if(!z) return; cabeza(gG,yDn(z.dn),VIO,false,''); });
+  svg.addEventListener('pointerleave',()=>{ gG.innerHTML=''; });
+  svg.addEventListener('pointerdown',ev=>{ if(b2) return; const z=zona(ev); if(!z) return; const r=resp[z.k];
+    const nl=LET[((z.dn%7)+7)%7]; if(r.l!==nl) r.a=0; r.l=nl; r.dn=z.dn; selV=z.k; gG.innerHTML=''; pintaVoz(); coTic(); });
   pintaVoz();
   return {
     cierra1(){ b1=true; A.ops1.classList.add('bloq'); const s=A.ops1.querySelector('[data-q="'+resp.tipo+'"]'); if(s&&resp.tipo!==sol.tipo) s.classList.add('ko'); },
-    cierra2(){ b2=true; keys.classList.add('off'); pintaVoz(); },
+    cierra2(){ b2=true; keys.classList.add('off'); gG.innerHTML=''; pintaVoz(); },
     bloquea(){ b1=true; b2=true; keys.classList.add('off'); },
     cierra(){
       let p=0; if(resp.tipo===sol.tipo) p+=400;
@@ -1933,7 +2036,7 @@ function coArmUI(A,a,bb){
       if(resp.inv===sol.inv) p+=300;
       return {puntos:p,detalle:{resp,sol}}; },
     marcaInv(){ const s=A.ops2.querySelector('[data-i="'+resp.inv+'"]'); if(s&&resp.inv!==sol.inv) s.classList.add('ko'); },
-    revelaVoces(){ keys.classList.remove('off'); keys.innerHTML=['tiple','bajo'].map(k=>{ const ok=resp[k].l===sol[k].l&&resp[k].a===sol[k].a;
+    revelaVoces(){ gA.innerHTML=''; keys.classList.remove('off'); keys.innerHTML=['tiple','bajo'].map(k=>{ const ok=resp[k].l===sol[k].l&&resp[k].a===sol[k].a;
       return '<div class="co-res '+(ok?'ok':'ko')+'">'+(k==='tiple'?'Tiple':'Bajo')+': '+(ok?'✓ '+nom(sol[k]):'✗ tú '+nom(resp[k])+' → '+nom(sol[k]))+'</div>'; }).join(''); }
   };
 }
@@ -2011,11 +2114,14 @@ function coCadOpciones(B){
     o.innerHTML='<b>'+t[0]+'</b><i>'+t[1]+'</i><span>'+c.rn+'</span>'; });
 }
 function coCadUI(B,gen){
-  let resp=null, bloq=false; const ops=[...B.ops.querySelectorAll('.op')];
-  ops.forEach(o=>{ o.onclick=()=>{ if(bloq) return; resp=o.dataset.id; ops.forEach(x=>x.classList.toggle('sel',x===o)); sonidoUI('tic'); }; });
+  /* (19-nov, Iago) se puede contestar y cambiar en todo momento; si aciertas ya en la 1.ª escucha (sin ver la partitura)
+     y no cambias, puntúas más (1000); si aciertas después, 700. A igualdad, gana quien contestó antes */
+  let resp=null, pri=null, bloq=false; const ops=[...B.ops.querySelectorAll('.op')];
+  ops.forEach(o=>{ o.onclick=()=>{ if(bloq) return; resp=o.dataset.id; ops.forEach(x=>x.classList.toggle('sel',x===o)); coTic(); }; });
   return {
+    finPrimera(){ pri=resp; },
     bloquea(){ bloq=true; ops.forEach(o=>o.classList.add('fija')); },
-    cierra(){ return {puntos:resp===gen.id?1000:0,detalle:{resp,sol:gen.id}}; },
+    cierra(){ const ok=resp===gen.id; return {puntos:ok?(pri===resp?1000:700):0,detalle:{resp,sol:gen.id,primera:pri}}; },
     marca(){ const o=resp&&ops.find(x=>x.dataset.id===resp); if(o&&resp!==gen.id) o.classList.add('mio'); }
   };
 }
@@ -2024,11 +2130,19 @@ async function coCad(b){
   const sc=CO.sch[4], gen=sc.gen, N=gen.ev.length, B=dibujaBonus(ESC.hoja,gen); B.ops=$('.bon-ops',ESC.hoja); const I=coCadUI(B,gen);
   const L2=(gen.ev[N-2].q+gen.ev[N-1].q)*60/84;
   coCadOpciones(B);
-  B.verTonalidad(true);
-  sonidoUI('inicio'); cartel('¿Qué cadencia es?','Bonus: escucha y elige'); await espera(1.4);
-  cartel('Escucha la cadencia',''); B.marco(); await espera(0.6);
-  await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.5));
-  B.bajos(true); B.verOpciones(); sonidoUI('escribe'); cartel('¿Qué cadencia es?','Fíjate en el bajo y elige'); coAvisaTarde('cad ops',b+sc.ops);
+  B.verTonalidad(true); B.verOpciones();
+  /* 1.ª escucha sin partitura: solo la línea amarilla del reproductor */
+  const part=$('.bon-part',ESC.hoja); part.classList.add('co-oculta');
+  const pl=el('div','co-player','<div class="pista"><i></i></div>'); part.appendChild(pl);
+  sonidoUI('inicio'); cartel('¿Qué cadencia es?','Escucha y elige: si aciertas ya ahora, puntúas más'); await espera(1.4);
+  await espera(0.6);
+  const t1=ahora()+0.1, tf1=tocaCadencia(t1,gen,B), lin=$('i',pl);
+  const w0=performance.now()+(t1-ahora())*1000, dur=Math.max(0.5,tf1-t1)*1000;
+  (function mueve(){ if(!pl.isConnected) return; const f=Math.max(0,Math.min(1,(performance.now()-w0)/dur));
+    lin.style.left=(f*100).toFixed(2)+'%'; requestAnimationFrame(mueve); })();
+  await hasta(tf1+S(0.5));
+  I.finPrimera(); pl.remove(); part.classList.remove('co-oculta');
+  B.marco(); B.bajos(true); sonidoUI('escribe'); cartel('¿Qué cadencia es?','Ahora con la partitura: fíjate en el bajo'); coAvisaTarde('cad ops',b+sc.ops);
   await espera(0.8); await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.4));
   await coEn(b+sc.fin); coAvisaTarde('cad fin',b+sc.fin);
   enTiempo(coT(b+sc.velo),()=>I.bloquea());
@@ -2097,7 +2211,7 @@ async function coJugar(cfg){
     for(let i=i0;i<5&&run===RUN;i++){
       await coEn(CO.base[i]-0.05);
       await transicion(i);
-      await FL[i](CO.base[i]);
+      CO.tUlt=null; await FL[i](CO.base[i]);
     }
     if(run===RUN){ await coEn(CO.fin); coFinal(); }
   }catch(e){ if(run===RUN) console.error('[online]',e); }
