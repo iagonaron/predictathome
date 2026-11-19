@@ -1987,9 +1987,10 @@ function coMelUI(D,key,mel){
      arrastrar solo elige esa nota. */
   const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
   const numY=(()=>{ const t=svg.querySelector('.pcg-num'); return t?+t.getAttribute('y'):yDn(topdn-8)+60; })(), yTop=yDn(topdn+5)-10;
+  const yNum=(yDn(topdn-13)+numY-30)/2;   /* toda la franja entre la nota más grave posible y los números cuenta como «número» */
   const pintaF=(k,dn)=>{ gG.innerHTML=''; const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,false,false,true); };
   const fantasma=ev=>{ gG.innerHTML=''; if(bloq||rev) return null;
-    const p=punto(ev), k=col(p.x); if(k<0||p.y<yTop-14||p.y>numY-26) return null;
+    const p=punto(ev), k=col(p.x); if(k<0||p.y<yTop-14||p.y>yNum) return null;
     const dn=dnDe(p.y); pintaF(k,dn); return {k,dn}; };
   svg.addEventListener('pointermove',ev=>{ if(bloq||rev) return;
     if(dedo){ if(ev.pointerId!==dedo.id) return; const p=punto(ev);
@@ -2001,13 +2002,14 @@ function coMelUI(D,key,mel){
     const p=punto(ev), k=col(p.x); if(k<0||p.y<yTop-14) return;
     if(ev.button===2){ borra(k); return; }
     try{ svg.setPointerCapture(ev.pointerId); }catch(_){}
-    const num=p.y>numY-26;   /* (19-nov 22:04, Iago) la franja de los números, medida de verdad (antes dependía de la 1.ª nota) */
+    const num=p.y>yNum;   /* (19-nov 22:04, Iago) la franja de los números, medida de verdad (antes dependía de la 1.ª nota) */
     /* (19-nov 21:50, Iago, iPad) con el dedo se cambia SIEMPRE la nota azul (la elegida); para ir a otra, tocas su número o la
        propia nota si ya estaba puesta. Con el ratón, como antes: la fantasma sigue al puntero y el clic escribe ahí. */
     if(ev.pointerType!=='mouse'&&!num){
-      const sobreNota=k!==sel&&ans[k]&&Math.abs(p.y-yDn(ans[k].dn))<26;
-      if(sobreNota){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,y0:p.y,f:null}; ev.preventDefault(); return; }
-      dedo={id:ev.pointerId,k:sel,num:false,y0:p.y,f:{k:sel,dn:dnDe(p.y)},tactil:true}; pintaF(sel,dedo.f.dn); ev.preventDefault(); return; }
+      /* (19-nov 22:19, Iago: «se me queda en la nota 2») tocas en OTRA columna: si ya tiene nota, solo pasa a ser la elegida
+         (no se mueve nada); si está vacía, la nota se escribe ahí. En la columna elegida, la mueves a donde toques/arrastres. */
+      if(k!==sel&&ans[k]){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,y0:p.y,f:null}; ev.preventDefault(); return; }
+      dedo={id:ev.pointerId,k,num:false,y0:p.y,f:{k,dn:dnDe(p.y)},tactil:true}; pintaF(k,dedo.f.dn); ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
     ev.preventDefault(); });
   const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;
