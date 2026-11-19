@@ -1,0 +1,87 @@
+/* ============================================================================
+   C1 · Carrusel online — lobby, reserva y sala con la estética de la portada de PreDict Carrusel
+   (remolino multicolor por detrás —lo pone guiado-online.js en #pcg—, espiral multicolor que gira, título «PreDict Carrusel»,
+   tarjetas de cristal oscuro y botones blancos). 19-nov-2026.
+   ============================================================================ */
+#co{--text:#fff;--muted:#d9d3ff;--line:rgba(255,255,255,.24);--glass:rgba(14,10,42,.58);
+    --azul:#5bd0ff;--ama:#ffd23f;--nar:#ff9a3c;--vio:#bd92ff;--ver:#34d399;--ko:#ff7a8a;--or:#ff9a3c}
+#co *{box-sizing:border-box}
+#co{position:fixed;inset:0;z-index:2147483000;overflow:auto;background:transparent;color:var(--text);
+  font:16px/1.4 "Helvetica Neue",Arial,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#co button{font:inherit;color:inherit;cursor:pointer}
+html.co-on,html.co-on body{overflow:hidden}
+
+/* cabecera: la espiral gira sin parar (no se vuelve a pintar con cada refresco) */
+#co #cab{max-width:1060px;margin:0 auto;padding:18px 18px 0}
+#co .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:6px}
+#co .logo{display:flex;align-items:center;gap:16px}
+#co .logo .lg{position:relative;width:92px;height:92px;flex:none}
+#co .logo .lg::before{content:"";position:absolute;left:6%;top:12%;width:88%;height:88%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.40),rgba(0,0,0,0))}
+#co .logo .lg svg{position:relative;width:100%;height:100%;display:block;animation:coGiro 26s linear infinite;will-change:transform}
+@keyframes coGiro{to{transform:rotate(360deg)}}
+#co .logo .tt{display:flex;align-items:baseline;gap:14px;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.5)}
+#co .logo .pre{font-size:56px;font-weight:800;color:#fff;letter-spacing:-.03em}
+#co .logo .dict{font-size:56px;font-weight:300;color:#e2ddff;letter-spacing:-.03em;margin-left:-10px}
+#co .logo .car{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:700;font-size:38px;display:inline-block;transform:rotate(-8deg) translateY(-6px);padding:0 .1em;
+  background:linear-gradient(100deg,#5bd0ff 8%,#ffd23f 40%,#ff9a3c 60%,#bd92ff 92%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}
+#co .logo .kick{margin-top:7px;font-size:17px;font-weight:700;letter-spacing:.06em;color:#f1eeff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+#co .top .sp{flex:1}
+#co .tag{color:var(--muted);font-size:13px}
+#co #cab.sin-sonido #bSonido{display:none}
+
+#co .cowrap{max-width:1060px;margin:0 auto;padding:14px 18px 44px}
+
+/* botones: blancos y redondeados, como «Empezar carrusel» */
+#co .btn{background:rgba(10,8,30,.45);border:1.5px solid rgba(255,255,255,.42);border-radius:999px;padding:11px 22px;font-weight:800;color:#fff;transition:transform .12s,background .12s,filter .12s}
+#co .btn:hover{background:rgba(255,255,255,.16)}
+#co .btn:disabled{opacity:.5;cursor:default}
+#co .btn.pri{background:#fff;border-color:#fff;color:#1a1238;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.38),0 0 0 4px rgba(255,255,255,.18)}
+#co .btn.pri:hover{transform:scale(1.03);background:#fff}
+#co .btn.pri.sel{background:var(--ver);border-color:var(--ver);color:#06281c}
+#co .btn.sel{background:rgba(52,211,153,.22);border-color:var(--ver)}
+#co .btn.ko{border-color:rgba(255,122,138,.7);color:#ffc2c9}
+#co .btn.peq{padding:7px 14px;font-size:13px}
+#co .btn.gr{font-size:22px;padding:16px 38px}
+
+/* tarjetas de cristal */
+#co .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#co .card{background:var(--glass);border:1.5px solid var(--line);border-radius:20px;padding:18px 20px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 14px 40px rgba(0,0,0,.28)}
+#co .card + .card,#co .cols + .card{margin-top:14px}
+#co h2{margin:0 0 8px;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:#fff;font-weight:900}
+#co h2::after{content:"";display:block;width:44px;height:4px;border-radius:4px;margin-top:7px;background:linear-gradient(90deg,#5bd0ff,#ffd23f,#ff9a3c,#bd92ff)}
+#co .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#co .muted{color:var(--muted)}
+#co p{margin:8px 0}
+#co input[type=datetime-local]{background:rgba(10,8,30,.5);border:1.5px solid rgba(255,255,255,.42);border-radius:14px;color:#fff;padding:10px 12px;font:inherit;color-scheme:dark}
+
+#co .dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--ver);margin-right:7px;vertical-align:middle}
+#co .dot.live{animation:coPulso 1.1s infinite}
+#co .dot.nar{background:var(--nar)}
+@keyframes coPulso{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(52,211,153,.7)}50%{opacity:.55;box-shadow:0 0 0 8px rgba(52,211,153,0)}}
+
+#co .partida{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--line)}
+#co .partida:first-of-type{border-top:0}
+#co .partida .info{flex:1;min-width:240px}
+#co .partida .quien{font-weight:900;font-size:19px}
+#co .partida .cuando{color:var(--muted);font-size:14px}
+
+#co .chip{display:inline-block;border:1.5px solid var(--line);border-radius:12px;padding:5px 12px;margin:3px 6px 3px 0;font-size:14px;background:rgba(255,255,255,.08);animation:coPop .45s ease both}
+@keyframes coPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+#co .chip.yo{border-color:var(--azul);background:rgba(91,208,255,.18)}
+#co .chip.host{border-color:var(--ama);background:rgba(255,210,63,.2)}
+#co .chip.pend{opacity:.6;border-style:dashed;animation:none}
+
+#co .banner{border-radius:16px;padding:14px 16px;border:1.5px solid var(--ama);background:rgba(255,210,63,.16);margin-bottom:14px;backdrop-filter:blur(6px)}
+#co .banner.ko{border-color:var(--ko);background:rgba(255,122,138,.18)}
+#co .banner b{font-size:17px}
+#co .grande{font-size:44px;font-weight:900;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+#co .msg{margin:10px 0;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.1);font-size:14px}
+
+@media (max-width:760px){
+  #co .cols{grid-template-columns:1fr}
+  #co .logo .lg{width:64px;height:64px}
+  #co .logo .pre,#co .logo .dict{font-size:36px}
+  #co .logo .car{font-size:26px}
+  #co .grande{font-size:34px}
+}
+#co .cols .card{margin-top:0}
