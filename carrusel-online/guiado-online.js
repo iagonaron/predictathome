@@ -379,7 +379,7 @@ function logoSVG(id){
     '<path d="'+d+'" fill="none" stroke="url(#'+id+')" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>'+
     '<circle cx="100" cy="158" r="7.5" fill="#fff"/></svg>';
 }
-const MARCA='<span class="pre">Pre</span><span class="dict">Dict</span><span class="carr">Carrusel</span>';
+const MARCA='<span class="carr">Carrusel</span><span class="dict"> Online</span>';
 
 /* ---------- escena de un ejercicio ---------- */
 function escena(E){
@@ -1357,7 +1357,7 @@ function portada(){
   fondo('multi'); STAGE.innerHTML='';
   const p=el('div','pcg-portada');
   p.innerHTML='<div class="pcg-logo">'+logoSVG('pcgLg1')+'</div>'+
-    '<h1 class="pcg-titulo"><span class="pd"><span class="pre">Pre</span><span class="dict">Dict</span></span><span class="carr">Carrusel</span></h1>'+
+    '<h1 class="pcg-titulo"><span class="carr">Carrusel</span><span class="pd"><span class="dict"> Online</span></span></h1>'+
     '<div class="pcg-kick">Grado Elemental · trabajo auditivo de clase</div>'+
     '<button class="pcg-empezar" id="pcgEmpezar"><span class="dot"></span>Empezar carrusel</button>'+
     '<div class="pcg-ultimo" id="pcgUltimo">Buscando el último carrusel del iPad…<small id="pcgPiano"></small></div>';
@@ -1524,7 +1524,7 @@ function creditos(){
   MODO='fin'; ESC=null; fondo('multi'); STAGE.innerHTML=''; ROOT.classList.remove('quieto'); ROOT.classList.add('en-portada');
   const c=el('div','pcg-portada pcg-fin');
   c.innerHTML='<div class="pcg-logo">'+logoSVG('pcgLg2')+'</div>'+
-    '<h1 class="pcg-titulo"><span class="pd"><span class="pre">Pre</span><span class="dict">Dict</span></span><span class="carr">Carrusel</span></h1>'+
+    '<h1 class="pcg-titulo"><span class="carr">Carrusel</span><span class="pd"><span class="dict"> Online</span></span></h1>'+
     '<div class="pcg-kick">¡Carrusel completado!</div>'+
     '<div class="pasos4">'+EJS.map(e=>'<i style="--c:'+e.c+'"></i>').join('')+
       '<i class="estrella" title="Bonus extra"><svg viewBox="0 0 24 24"><path d="M12 1.8l3 6.5 7.1.8-5.3 4.8 1.5 7L12 17.3l-6.3 3.6 1.5-7L1.9 9.1 9 8.3z"/></svg></i></div>'+   // (30-sep-2026) el bonus, en estrella

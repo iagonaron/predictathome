@@ -132,3 +132,8 @@ html.co-on,html.co-on body{overflow:hidden}
 #co #coAct .tx b{font-size:19px}
 #co #coAct .tx span{font-size:14px;color:var(--muted)}
 #co #coAct button{background:none;border:0;color:var(--muted);font-size:16px;padding:6px;margin-left:6px}
+
+/* (19-nov 21:26, Iago) «Carrusel» y a la derecha «Online» (ya no PreDict) */
+#co .logo .tt .car{font-size:60px;transform:rotate(-6deg) translateY(-2px);padding:0 .12em 0 .02em}
+#co .logo .tt .onl{font-size:54px;font-weight:300;color:#e2ddff;letter-spacing:-.02em}
+#co .logo .kick{margin-top:12px}
