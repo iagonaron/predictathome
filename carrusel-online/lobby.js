@@ -248,7 +248,7 @@ function avisoSonido(){
     document.body.appendChild(d);
   },400);
 }
-['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{ try{ audioListo(); }catch(e){} const d=document.getElementById('coSonido'); if(d) d.remove(); },true));
+['pointerdown','keydown','touchstart','touchend','click','pointerup'].forEach(ev=>document.addEventListener(ev,()=>{ try{ audioListo(); }catch(e){} const d=document.getElementById('coSonido'); if(d) d.remove(); },true));
 function empiezaJuego(est){
   const p=est.p; clearInterval(POLL); clearInterval(TIC); ST.vista='juego';
   raiz.style.display='none';
