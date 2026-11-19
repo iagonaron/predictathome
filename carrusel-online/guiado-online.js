@@ -1824,10 +1824,50 @@ function coRitmoUI(D,M){
     const b=el('button','co-slot'); b.style.left=(x/D.W*100)+'%'; b.style.top=(y0/D.H*100)+'%'; b.style.width=((w-6)/D.W*100)+'%'; b.style.height=(hh/D.H*100)+'%';
     s.cx=(x+(w-6)/2)/D.W*100; s.el=b; cap.appendChild(b);
   });
-  const fl=el('div','co-flecha'); fl.style.top='calc('+((y0+hh/2)/D.H*100)+'% + var(--fig-dy,0px) - var(--fig-h)/2 - 26px)'; cap.appendChild(fl);
+  const fl=el('div','co-flecha'); fl.style.top='calc('+(y0/D.H*100)+'% - 4px)'; cap.appendChild(fl);
   const pal=el('div','co-pool'); wrap.appendChild(pal);
   let sel=0, bloq=false;
-  const pinta=s=>{ s.el.innerHTML=''; if(s.ans) coMini(s.el,s.ans,spec.compound); };
+  /* (19-nov 22:03, Iago) lo que vas poniendo se escribe ya como en la solución: el compás entero con VexFlow (mismas
+     distancias y tamaños); los pulsos vacíos ocupan su sitio sin verse. Las casillas para pulsar se recolocan sobre cada pulso. */
+  const respBox=el('div','co-resp'); bd.insertBefore(respBox,cap);
+  const dibResp=()=>{ try{
+    const VF=Vex.Flow; respBox.innerHTML='';
+    const W=D.W, H=D.H, y=46, x0=12, totalW=W-24, firstExtra=70, barW=(totalW-firstExtra)/4, rev=wrap.classList.contains('rev');
+    const ren=new VF.Renderer(respBox,VF.Renderer.Backends.SVG); ren.resize(W,H); const ctx=ren.getContext(); ctx.setFont('Arial',10);
+    let x=x0; const HID={fillStyle:'rgba(0,0,0,0)',strokeStyle:'rgba(0,0,0,0)'}, RED={fillStyle:'#dc2626',strokeStyle:'#dc2626'};
+    R.compases.forEach((compas,ci)=>{
+      const isFirst=ci===0, w=isFirst?barW+firstExtra:barW, st=new VF.Stave(x,y,w);
+      for(let ln=0;ln<5;ln++) st.setConfigForLine(ln,{visible:false});
+      if(isFirst) st.addClef('treble').addTimeSignature(spec.ts);
+      st.setContext(ctx);
+      if(isFirst){ try{ st.setNoteStartX(st.getNoteStartX()+12); }catch(e){} }
+      const nts=[], tups=[], beams=[], porPulso=[];
+      compas.forEach((celdaSol,pi)=>{
+        const sl=slots.find(q=>q.ci===ci&&q.pi===pi), cell=sl&&sl.ans, grupo=[];
+        const estilo=!cell?null:(rev?((cell.id===sl.sol.id)?HID:RED):null);
+        if(!cell){ const g=new VF.GhostNote({duration:spec.compound?'qd':'q'}); nts.push(g); grupo.push(g); }
+        else cell.notes.forEach(n=>{ const isRest=n.rest||/r$/.test(n.dur);
+          const sn=new VF.StaveNote({keys:['b/4'],duration:isRest&&!/r$/.test(n.dur)?n.dur+'r':n.dur,stem_direction:1});
+          if(n.dots){ for(let d=0;d<n.dots;d++) VF.Dot.buildAndAttach([sn],{all:true}); }
+          if(estilo) sn.setStyle(estilo); nts.push(sn); grupo.push(sn); });
+        porPulso.push({sl,grupo});
+        if(cell&&cell.tuplet){ const t=new VF.Tuplet(grupo,{num_notes:cell.tuplet,notes_occupied:cell.tuplet===3?2:(cell.tuplet===2?3:2)}); tups.push({t,estilo}); }
+        if(cell&&cell.beam){ const bm=sn=>{ try{ if(sn.isRest&&sn.isRest()) return false; const d=sn.getDuration?sn.getDuration():''; return d==='8'||d==='16'||d==='32'; }catch(e){ return false; } };
+          let run=[]; const fl=()=>{ if(run.length>1){ const b=new VF.Beam(run.slice()); if(estilo) b.setStyle(estilo); beams.push(b); } run=[]; }; grupo.forEach(sn=>{ if(bm(sn)) run.push(sn); else fl(); }); fl(); }
+      });
+      const voice=new VF.Voice({num_beats:spec.compound?6:spec.pulsos,beat_value:spec.compound?8:4}); voice.setStrict(false); voice.addTickables(nts);
+      new VF.Formatter().joinVoices([voice]).format([voice],w-(isFirst?firstExtra+22:14));
+      voice.draw(ctx,st); beams.forEach(b=>b.setContext(ctx).draw()); tups.forEach(o=>{ if(o.estilo===HID) return; o.t.setContext(ctx).draw(); });
+      /* casillas: de la mitad entre un pulso y el anterior a la mitad con el siguiente */
+      const xs=porPulso.map(p=>{ const a=p.grupo.map(n=>n.getAbsoluteX()); return {a:Math.min.apply(null,a),b:Math.max.apply(null,a)+14}; });
+      const ini=isFirst?st.getNoteStartX()-6:x+4, fin=x+w-4;
+      porPulso.forEach((p,i)=>{ if(!p.sl) return; const l=i===0?ini:(xs[i-1].b+xs[i].a)/2, r=i===porPulso.length-1?fin:(xs[i].b+xs[i+1].a)/2;
+        const e=p.sl.el; e.style.left=(l/W*100)+'%'; e.style.width=(Math.max(20,r-l-4)/W*100)+'%'; p.sl.cx=((l+r)/2)/W*100; });
+      x+=w;
+    });
+    const sv2=respBox.querySelector('svg'); ajustaSVG(sv2,W,H); if(slots[sel]) fl.style.left=slots[sel].cx+'%';
+  }catch(e){ console.error('[online] dibResp',e); } };
+  const pinta=()=>dibResp();
   /* (19-nov, Iago) para cambiar algo: tocas la figura puesta → sale una ✕ encima; la ✕ la borra y ese pulso queda listo para otra */
   const marca=()=>{ slots.forEach((s,i)=>{ const on=i===sel&&!bloq; s.el.classList.toggle('sel',on);
       let x=s.el.querySelector('.co-x'); if(on&&s.ans){ if(!x){ x=el('span','co-x',CO_KO); x.onclick=e=>{ e.stopPropagation(); if(bloq) return; s.ans=null; pinta(s); coTic(); marca(); }; s.el.appendChild(x); } } else if(x) x.remove(); });
@@ -1851,7 +1891,8 @@ function coRitmoUI(D,M){
     pal.appendChild(b);
   });
   /* mismo tamaño arriba y abajo: el que permite que la figura más ancha quepa en un pulso */
-  const ajusta=()=>{ const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
+  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h','92px'); return;
+    const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
     pal.querySelectorAll('.co-mini').forEach(coRecorta);
     const rmax=Math.max.apply(null,[...pal.querySelectorAll('.co-mini svg')].map(v=>{ const b=v.viewBox.baseVal; return b&&b.height?b.width/b.height:1; }));
     const h=Math.max(28,Math.min(122,sw*0.95/rmax));   /* (19-nov) ninguna figura pisa la barra de compás */ wrap.style.setProperty('--fig-h',h.toFixed(1)+'px');
@@ -1859,11 +1900,11 @@ function coRitmoUI(D,M){
     try{ const sr=slots[0].el.getBoundingClientRect(), esc=sr.height/slots[0].el.offsetHeight||1;
       const bar=[...nota.querySelectorAll('svg line, svg rect, svg path')].map(e=>e.getBoundingClientRect()).find(r=>r.height>25*esc&&r.width<6*esc);
       if(bar){ const dy=((bar.y+bar.height/2)-(sr.y+sr.height/2))/esc-(0.644-0.5)*h; wrap.style.setProperty('--fig-dy',dy.toFixed(1)+'px'); } }catch(e){} };
-  requestAnimationFrame(()=>{ ajusta(); slots.forEach(pinta); marca(); });
+  requestAnimationFrame(()=>{ ajusta(); dibResp(); marca(); });
   return {
     bloquea(){ bloq=true; marca(); wrap.classList.add('bloq'); },
     cierra(){ const ok=slots.filter(s=>s.ans&&s.ans.id===s.sol.id).length; return {puntos:Math.round(1000*ok/slots.length),detalle:{ok,de:slots.length,resp:slots.map(s=>s.ans?s.ans.id:null)}}; },
-    revela(){ wrap.classList.add('rev'); slots.forEach(s=>{ const ok=!!(s.ans&&s.ans.id===s.sol.id); s.el.classList.remove('sel'); s.el.classList.add(ok?'ok':'ko'); }); }
+    revela(){ wrap.classList.add('rev'); respBox.style.display='none'; slots.forEach(s=>{   /* en la solución, solo la buena (las ✕ dicen dónde fallaste) */ const ok=!!(s.ans&&s.ans.id===s.sol.id); s.el.classList.remove('sel'); s.el.classList.add(ok?'ok':'ko'); }); }
   };
 }
 async function coRit(b){
@@ -1945,9 +1986,10 @@ function coMelUI(D,key,mel){
      sube y baja; al soltar, se escribe. Con el ratón, la fantasma sigue al puntero y el clic escribe. Tocar el número sin
      arrastrar solo elige esa nota. */
   const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
+  const numY=(()=>{ const t=svg.querySelector('.pcg-num'); return t?+t.getAttribute('y'):yDn(topdn-8)+60; })(), yTop=yDn(topdn+5)-10;
   const pintaF=(k,dn)=>{ gG.innerHTML=''; const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,false,false,true); };
   const fantasma=ev=>{ gG.innerHTML=''; if(bloq||rev) return null;
-    const p=punto(ev), k=col(p.x); if(k<0||p.y<P[0].cy-90||p.y>P[0].cy+110) return null;
+    const p=punto(ev), k=col(p.x); if(k<0||p.y<yTop-14||p.y>numY-26) return null;
     const dn=dnDe(p.y); pintaF(k,dn); return {k,dn}; };
   svg.addEventListener('pointermove',ev=>{ if(bloq||rev) return;
     if(dedo){ if(ev.pointerId!==dedo.id) return; const p=punto(ev);
@@ -1956,14 +1998,14 @@ function coMelUI(D,key,mel){
     fantasma(ev); });
   svg.addEventListener('pointerleave',()=>{ if(!dedo) gG.innerHTML=''; });
   svg.addEventListener('pointerdown',ev=>{ if(bloq||rev) return; if(ev.target.closest&&ev.target.closest('.co-x')) return;
-    const p=punto(ev), k=col(p.x); if(k<0||p.y<P[0].cy-90) return;
+    const p=punto(ev), k=col(p.x); if(k<0||p.y<yTop-14) return;
     if(ev.button===2){ borra(k); return; }
     try{ svg.setPointerCapture(ev.pointerId); }catch(_){}
-    const num=p.y>P[0].cy+110;
+    const num=p.y>numY-26;   /* (19-nov 22:04, Iago) la franja de los números, medida de verdad (antes dependía de la 1.ª nota) */
     /* (19-nov 21:50, Iago, iPad) con el dedo se cambia SIEMPRE la nota azul (la elegida); para ir a otra, tocas su número o la
        propia nota si ya estaba puesta. Con el ratón, como antes: la fantasma sigue al puntero y el clic escribe ahí. */
     if(ev.pointerType!=='mouse'&&!num){
-      const sobreNota=k!==sel&&ans[k]&&Math.abs(p.y-yDn(ans[k].dn))<16;
+      const sobreNota=k!==sel&&ans[k]&&Math.abs(p.y-yDn(ans[k].dn))<26;
       if(sobreNota){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,y0:p.y,f:null}; ev.preventDefault(); return; }
       dedo={id:ev.pointerId,k:sel,num:false,y0:p.y,f:{k:sel,dn:dnDe(p.y)},tactil:true}; pintaF(sel,dedo.f.dn); ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }

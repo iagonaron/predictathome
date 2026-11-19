@@ -696,3 +696,10 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 
 html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente en…» sube */
 .arm-ops.resuelto>span.ko{opacity:.8}   /* tu respuesta equivocada se sigue viendo, en rojo */
+
+/* (19-nov 22:03, Iago) lo que escribes, dibujado como la solución; tarjetas con más aire */
+.co-resp{position:absolute;inset:0;pointer-events:none;z-index:1}
+.co-resp svg{display:block}
+.co-slots{z-index:2}
+.co-pool{gap:12px 14px!important;width:1300px}
+.co-card{padding:6px 14px!important}
