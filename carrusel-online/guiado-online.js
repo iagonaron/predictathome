@@ -721,7 +721,7 @@ function dibujaMelodia(host,key,mel){
 }
 async function paseMel(D,seq,dur,sil,et,sub){
   sonidoUI('atencion'); cartel(et,sub); await espera(2.0);
-  const t0=cuentaAtras(ahora()+0.3,1,5,ESCRIBE)+S(0.15);   // (30-sep-2026, Iago) 5·4·3·2·1 para estar prevenidos, y «✎ Escribe»
+  const t0=cuentaAtras(ahora()+0.3,1,5,MODO==='online'?null:ESCRIBE)+S(0.15);   // (30-sep-2026, Iago) 5·4·3·2·1 para estar prevenidos, y «✎ Escribe»
   seq.forEach((m,i)=>{ const t=t0+S(i*(dur+sil)); nota(t,m,0.95,S(dur)); enTiempo(t,()=>D.marca(i)); });
   await hasta(t0+S(seq.length*(dur+sil)-sil+0.4)); D.marca(-1);
 }
@@ -1812,10 +1812,10 @@ async function coRit(b){
   sonidoUI('inicio'); cartel('Dictado rítmico','Elige la figura que suena en cada pulso');
   await espera(1.6); D.verCompas(); brillo();
   await coEn(b+p1); coAvisaTarde('rít 1ª',b+p1);
-  await pase('1ª escucha','',t=>tocaRitmo(t,M,D,false),2.0,ESCRIBE);
+  await pase('1ª escucha','',t=>tocaRitmo(t,M,D,false),2.0);   /* (19-nov, Iago) sin «Escribe» */
   await escribir(10,'','','Próxima repetición');
   await coEn(b+p2); coAvisaTarde('rít 2ª',b+p2);
-  await pase('2ª escucha','',t=>tocaRitmo(t,M,D,false),2.0,ESCRIBE);
+  await pase('2ª escucha','',t=>tocaRitmo(t,M,D,false),2.0);   /* (19-nov, Iago) sin «Escribe» */
   await coEn(b+fin);
   enTiempo(coT(b+velo),()=>I.bloquea());
   await finEjercicio();
