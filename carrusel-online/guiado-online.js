@@ -1579,7 +1579,7 @@ function abrir(){ if(abierto) return; abierto=true; montar(); portada(); }
    armónico: opciones) y, entre ejercicio y ejercicio, la clasificación de la partida.
    Todo va anclado al reloj del servidor: cada ejercicio empieza en un instante fijo desde «inicio».
    ============================================================================ */
-const CO_PREP=15, CO_RANK=17, CO_FINAL=25;   /* (19-nov 20:41, Iago) la clasificación, más larga: que se vea moverse */   // preparación · clasificación tras cada ejercicio · pantalla final
+const CO_PREP=15, CO_RANK=13, CO_FINAL=25;   /* (19-nov 20:41, Iago) la clasificación, más larga: que se vea moverse */   // preparación · clasificación tras cada ejercicio · pantalla final
 const CO_NOM=['Rítmico','Melódico','TonCom','Armónico','Cadencias'];
 let CO=null;      // la partida en curso: {id,inicio,now(),cr(fn,args),onFin(),est,mias:{},...}
 const coEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1625,19 +1625,19 @@ function coMidiDn(m,key){
 }
 
 /* ---------- el horario de la partida (sale de los propios ejercicios: todos los clientes calculan lo mismo) ---------- */
-function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=2.3+5*pr+R+0.5, p1=6, p2=p1+P+10, fin=p2+P, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
-  return {M,R,pr,P,p1,p2,fin,velo:fin+7,corr:fin+12,end:fin+12+tot}; }
+function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=2.3+5*pr+R+0.5, p1=6, p2=p1+P+6, fin=p2+P, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
+  return {M,R,pr,P,p1,p2,fin,velo:fin+4,corr:fin+9,end:fin+9+tot}; }
 function coSchedMel(){ const P1=2.0+0.3+5+0.15+(10*4-2+0.4), P2=2.0+0.3+5+0.15+(10*3-1.5+0.4), p1=11, p2=p1+P1+10, fin=p2+P2;
-  return {p1,p2,fin,velo:fin+7,corr:fin+12,end:fin+12+22}; }
+  return {p1,p2,fin,velo:fin+4,corr:fin+9,end:fin+9+22}; }
 function coSchedTon(){ const T=datosToncom, key={tpc:TONIC_PC[T.key.tonic],mode:T.key.mode,sig:T.key.sig}, compas=TON_COMPAS_G[T.compas]||TON_COMPAS_G['2/4'];
   const dict=genTonDictadoG(key,compas,mulberry32(((Number(SEMILLA)||0)*31+7)>>>0)), pt=(compas.comp?1.5:1)*(60/compas.bpm);
   const Dt=dict.events.reduce((a,e)=>a+e.durSec,0), PT=3.5+0.3+5*pt+Dt+0.5, pc=42, fin=pc+PT;
-  return {key,dict,pt,pc,fin,velo:fin+7,corr:fin+12,end:fin+12+9}; }
-function coSchedArm(){ const fin=66; return {fin,velo:fin+7,corr:fin+12,end:fin+12+18}; }
+  return {key,dict,pt,pc,fin,velo:fin+4,corr:fin+9,end:fin+9+9}; }
+function coSchedArm(){ const fin=66; return {fin,velo:fin+4,corr:fin+9,end:fin+9+18}; }
 /* bonus · cadencias: el guion es el del aula (3 escuchas, letrero «¿A qué te suena?», bajo en amarillo, 4 opciones); aquí, además, se elige */
 function coSchedCad(){ const gen=cadenciaDe(SEMILLA), spb=60/84, N=gen.ev.length, Dq=gen.ev.reduce((a,e)=>a+e.q,0)*spb, L2=(gen.ev[N-2].q+gen.ev[N-1].q)*spb;
   let t=2.7+1.4+0.6; t+=0.1+Dq+0.5; const ops=t; t+=0.8+0.1+Dq+0.4; const fin=t+4;
-  return {gen,ops,fin,velo:fin+7,corr:fin+12,end:fin+12+Math.ceil(L2+2.5)}; }
+  return {gen,ops,fin,velo:fin+4,corr:fin+9,end:fin+9+Math.ceil(L2+2.5)}; }
 
 /* ---------- envío de la respuesta y clasificación ---------- */
 /* (19-nov, Iago) a igualdad de puntos gana quien contestó antes: el tiempo es el de tu último cambio */
@@ -1683,6 +1683,16 @@ function coSwoosh(t){ try{ const c=ac(), n=Math.floor(c.sampleRate*0.5), bf=c.cr
   fl.frequency.setValueAtTime(500,t); fl.frequency.exponentialRampToValueAtTime(3200,t+0.45); g.gain.value=0.16;
   s.connect(fl); fl.connect(g); g.connect(FX||c.destination); s.start(t); }catch(e){} }
 /* (19-nov, Iago) online: la solución se muestra, suena y se pasa enseguida a la clasificación (en clase hay tiempo de libreta; aquí no) */
+/* (19-nov 20:57, Iago) online: 4 s para terminar (se puede cambiar) + 5 s de velo (bloqueado): 9 s en vez de 12+5 */
+async function coFinEjercicio(sub,pieTexto){
+  sonidoUI('escribe'); await escribir(9,'Termina de completar el ejercicio',sub||'',pieTexto,null,5);
+  cartel('','');
+  const V=ESC.velo, n=$('.n',V); n.textContent='5'; V.classList.add('on');
+  const t0=ahora();
+  for(let k=0;k<5;k++) sonidoUI(k%2?'tac':'tic',t0+S(k)+0.01);
+  for(let k=1;k<5;k++){ await hasta(t0+S(k)); n.textContent=String(5-k); }
+  await hasta(t0+S(5)); V.classList.remove('on');
+}
 async function coCorreccion(mostrar){
   cartel('Solución',''); ding();
   let dur=0; try{ dur=mostrar()||0; }catch(e){ console.error('[online]',e); }
@@ -1825,12 +1835,12 @@ async function coRit(b){
   await espera(1.6); D.verCompas(); brillo();
   await coEn(b+p1); coAvisaTarde('rít 1ª',b+p1);
   await pase('1ª escucha','',t=>tocaRitmo(t,M,D,false),2.0);   /* (19-nov, Iago) sin «Escribe» */
-  await escribir(10,'','','Próxima repetición');
+  await escribir(6,'','','Próxima repetición');   /* (19-nov 20:57, Iago) menos hueco entre escuchas */
   await coEn(b+p2); coAvisaTarde('rít 2ª',b+p2);
   await pase('2ª escucha','',t=>tocaRitmo(t,M,D,false),2.0);   /* (19-nov, Iago) sin «Escribe» */
   await coEn(b+fin);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await finEjercicio();
+  await coFinEjercicio();
   const res=I.cierra(); coEnvia(0,res);
   await coEn(b+corr);
   I.revela();
@@ -1962,7 +1972,7 @@ async function coMel(b){
   await paseMel(D,mel.seq,1.5,1.5,'2ª escucha','');
   await coEn(b+fin);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await finEjercicio('Si te equivocas en una nota, pero mantienes los intervalos siguientes, solo cuenta un error');
+  await coFinEjercicio('Si te equivocas en una nota, pero mantienes los intervalos siguientes, solo cuenta un error');
   const res=I.cierra(); coEnvia(1,res);
   await coEn(b+corr);
   I.empiezaRev();
@@ -2064,7 +2074,7 @@ async function coTon(b){
   B.foco(null);
   await coEn(b+fin);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await finEjercicio('Tonalidad, armadura y compás');
+  await coFinEjercicio('Tonalidad, armadura y compás');
   const res=I.cierra(); coEnvia(2,res);
   await coEn(b+corr);
   await coCorreccion(()=>{ cartel('Solución',res.puntos+' puntos'); const t=ahora(); B.ver('ton'); I.marca('ton'); sonidoUI('revela0',t+0.02);
@@ -2191,7 +2201,7 @@ async function coArm(b){
   await coEn(b+fin); coAvisaTarde('arm fin',b+fin);
   A.parpadea(2,false);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await finEjercicio('Tiple, bajo e inversión');
+  await coFinEjercicio('Tiple, bajo e inversión');
   const res=I.cierra(); coEnvia(3,res);
   await coEn(b+corr);
   const INV=['Estado fundamental','1ª inversión','2ª inversión'], ROLN=['la fundamental','la tercera','la quinta'];
@@ -2253,7 +2263,7 @@ async function coCad(b){
   await espera(0.8); await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.4));
   await coEn(b+sc.fin); coAvisaTarde('cad fin',b+sc.fin);
   enTiempo(coT(b+sc.velo),()=>I.bloquea());
-  await finEjercicio('Elige la cadencia');
+  await coFinEjercicio('Elige la cadencia');
   const res=I.cierra(); coEnvia(4,res);
   await coEn(b+sc.corr);
   B.bajos(false); B.solucion(); I.marca();
