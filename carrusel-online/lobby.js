@@ -118,7 +118,7 @@ function pintaLobby(){
     const cancel=p.anfitrion_cancelo?' <span class="chip">sin anfitrión</span>':'';
     const resp=p.yo;
     const botones=abierta
-      ? '<button class="btn pri" data-a="entrar" data-id="'+p.id+'">Entrar</button>'
+      ? '<button class="btn pri" data-a="entrar" data-id="'+p.id+'">Unirme</button>'
       : mia ? (p.anfitrion_cancelo?'<span class="muted">La cancelaste</span>':'<button class="btn ko" data-a="cancelar" data-id="'+p.id+'">'+I.x+'Cancelar partida</button>')
       : '<button class="btn pri'+(resp==='si'?' sel':'')+'" data-a="si" data-id="'+p.id+'">'+(resp==='si'?I.ok+'Me apunto':'Me apunto')+'</button>'+
         (resp==='quiza'?'':'<button class="btn peq" data-a="'+(resp==='si'?'no':'quiza')+'" data-id="'+p.id+'" title="'+(resp==='si'?'Quitarme de la partida':'Marcar como visto')+'">'+I.x+'</button>');
@@ -211,7 +211,7 @@ function pintaSala(){
   }
   const anfNombre=p.anfitrion?esc(p.anfitrion):'sin anfitrión';
   app.innerHTML=banner+
-    '<div class="card"><h2>Partida de '+esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span> · código '+esc(p.codigo)+'</h2>'+
+    '<div class="card"><h2>Partida de '+esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span></h2>'+
     '<div class="row" style="justify-content:space-between"><div><div class="muted">Empieza '+esc(cuando(p.programada))+' · '+(p.anfitrion?I.cor:'')+'<b>'+anfNombre+'</b></div>'+
     '<div style="margin-top:6px">Empieza sola en <span id="cuentaAuto2" class="grande" style="font-size:30px"></span></div></div>'+
     '<div class="row">'+(p.soy_anfitrion?'<button class="btn pri" id="bEmpezar">'+I.play+'Empezar ya</button><button class="btn ko" id="bCancelar">Cancelar partida</button>':'')+
