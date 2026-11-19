@@ -2275,6 +2275,8 @@ async function coPrep(finOff){
   (async()=>{ try{
     const quedan=Math.max(1,(CO.inicio+finOff*1000-CO.now())/1000), s0=Math.max(0,Math.ceil(PREP_S-quedan));
     const t0=ahora()+0.15-S(PREP_S-quedan);
+    /* (19-nov 20:56, Iago) la música del principio, más baja (estaba por encima del resto de la app) */
+    musBuses(); if(!MUS_OUT.__co){ const gm=ac().createGain(); gm.gain.value=0.45; MUS_OUT.disconnect(); MUS_OUT.connect(gm); gm.connect(ac().destination); MUS_OUT.__co=gm; }
     musInicio(ahora()+0.15); for(let k=s0;k<=s0+1;k++) musPrep(t0,k);
     for(let k=s0+1;k<=PREP_S&&mus;k++){ await hasta(t0+S(k)); if(!mus) break; musPrep(t0,k+1); }
   }catch(e){} })();
