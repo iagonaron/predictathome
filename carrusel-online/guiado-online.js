@@ -2333,6 +2333,8 @@ function coVigilaAudio(){
 async function coJugar(cfg){
   if(CO) return;
   CO={id:cfg.id,inicio:cfg.inicio,now:cfg.now,cr:cfg.cr,onFin:cfg.onFin,est:cfg.est||null,mias:{}};
+  /* (19-nov 20:55, Iago) en la partida individual, cuenta atrás de 10 s en total (6 del servidor + 4); con más gente, 15 */
+  CO.prep=cfg.solo?4:CO_PREP;
   CO.vigila=coVigilaAudio();
   CO.bots=cfg.bots?coBots(cfg.bots,Number(cfg.semilla)||1,cfg.est):[];
   const run=++RUN; MODO='online';
@@ -2343,7 +2345,7 @@ async function coJugar(cfg){
   IV_LECCION=Math.floor(sem/1e6)||null; SEMILLA=sem%1e6;
   try{ renderConSemilla(SEMILLA); }catch(e){ console.error('[online] renderConSemilla',e); }
   CO.sch=[coSchedRit(),coSchedMel(),coSchedTon(),coSchedArm(),coSchedCad()];
-  CO.slot=CO.sch.map(s=>Math.ceil(s.end+CO_RANK)); CO.base=[]; { let acc=CO_PREP; CO.slot.forEach(s=>{ CO.base.push(acc); acc+=s; }); CO.fin=acc; CO.tot=acc+CO_FINAL; }
+  CO.slot=CO.sch.map(s=>Math.ceil(s.end+CO_RANK)); CO.base=[]; { let acc=CO.prep; CO.slot.forEach(s=>{ CO.base.push(acc); acc+=s; }); CO.fin=acc; CO.tot=acc+CO_FINAL; }
   console.log('[online] horario',JSON.stringify({base:CO.base,slot:CO.slot,total:CO.tot,sch:CO.sch.map(x=>({p1:x.p1,p2:x.p2,pc:x.pc,fin:x.fin,velo:x.velo,corr:x.corr,end:x.end}))}));
   CO.pollE=setInterval(coRefrescaEstado,2500);
   /* (19-nov, Iago) la actitud solo cuenta si se juega la partida ENTERA: ya no hay pings; al final, suite_cr_actividad (ver coFinal) */
@@ -2352,8 +2354,8 @@ async function coJugar(cfg){
   try{
     // si se entra tarde, se salta a lo que viene (nunca a mitad de un ejercicio)
     const t=(CO.now()-CO.inicio)/1000; let i0=0;
-    if(t>CO_PREP+1){ i0=5; for(let i=0;i<5;i++) if(CO.base[i]>=t-0.5){ i0=i; break; } }
-    if(i0===0 && t<=CO_PREP+1) await coPrep(CO_PREP);
+    if(t>CO.prep+1){ i0=5; for(let i=0;i<5;i++) if(CO.base[i]>=t-0.5){ i0=i; break; } }
+    if(i0===0 && t<=CO.prep+1) await coPrep(CO.prep);
     else if(i0<5){ await coPrep(CO.base[i0]-2.7); }
     for(let i=i0;i<5&&run===RUN;i++){
       await coEn(CO.base[i]-0.05);

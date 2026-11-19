@@ -145,7 +145,7 @@ function pintaTiempos(){ /* los textos de «cuándo» no cambian cada segundo; r
 function enlaza(){
   pintaPiano();
   const solo=async(bt)=>{ audioListo(); bt.disabled=true; const r=await cr('crear');
-    if(r&&r.ok){ if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
+    if(r&&r.ok){ ST.soloId=r.id; if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
     else { ST.aviso=r&&r.error==='aun_no'?'El carrusel online se abre '+ABRE_TXT+'.':r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
   const ah=document.getElementById('bAhora'); if(ah) ah.onclick=()=>solo(ah);
   const bso=document.getElementById('bSolo'); if(bso) bso.onclick=()=>solo(bso);
@@ -254,7 +254,7 @@ function empiezaJuego(est){
   raiz.style.display='none';
   try{ localStorage.setItem('co_partida',p.id); }catch(e){}
   PCOnline.jugar({id:p.id,inicio:new Date(p.inicio).getTime(),semilla:p.semilla,now:sNow,cr:cr,est:est,
-    bots:(ST.tester&&ST.bots===p.id)?8:0,   /* (19-nov, Iago) el Tester juega su partida individual con 8 compañeros inventados */
+    bots:(ST.tester&&ST.bots===p.id)?8:0, solo:ST.soloId===p.id,   /* (19-nov, Iago) el Tester juega su partida individual con 8 compañeros inventados */
     /* (19-nov) sin pings: la actitud se apunta al terminar la partida (suite_cr_actividad) */
     onFin:()=>{ try{ localStorage.removeItem('co_partida'); }catch(e){} raiz.style.display=''; arrancaLobby(); }});
   avisoSonido();
@@ -266,7 +266,7 @@ window.LobbyOnline={ arranca:async function(){
   if(QS.get('solo')==='1'&&!cerrado()){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}
     audioListo(); const r=await cr('crear');
-    if(r&&r.ok){ if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
+    if(r&&r.ok){ ST.soloId=r.id; if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
     ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida individual.';
   }
   const QP=QS.get('p');
