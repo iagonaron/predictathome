@@ -1984,9 +1984,9 @@ function coMelUI(D,key,mel){
      sube y baja; al soltar, se escribe. Con el ratón, la fantasma sigue al puntero y el clic escribe. Tocar el número sin
      arrastrar solo elige esa nota. */
   const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
+  const PASO=16;   /* px de dedo por escalón */
   let tipoPtr='touch';
   svg.addEventListener('pointerdown',ev=>{ tipoPtr=ev.pointerType||'touch'; },true);
-  { const m0=D.marca; D.marca=i=>{ m0(i); if(tipoPtr!=='mouse'&&!bloq&&!rev&&!dedo&&i>=1&&i<=8&&sel!==i){ sel=i; dibuja(); } }; }
   const hov=sv('rect',{class:'co-col-hov',x:0,y:0,width:0,height:0,rx:10},svg); svg.insertBefore(hov,svg.firstChild);
   const pintaHov=k=>{ if(k<1||k>8||bloq||rev){ hov.setAttribute('width',0); return; } const w=(P[2].cx-P[1].cx);
     hov.setAttribute('x',P[k].cx-w/2+3); hov.setAttribute('y',P[0].cy-58); hov.setAttribute('width',w-6); hov.setAttribute('height',150); };
@@ -1999,6 +1999,12 @@ function coMelUI(D,key,mel){
     const p=punto(ev), k=col(p.x); if(k<0||p.y<yTop-14||p.y>yNum) return null;
     const dn=dnDe(p.y); pintaF(k,dn); return {k,dn}; };
   svg.addEventListener('pointermove',ev=>{ if(bloq||rev) return;
+    if(dedo&&dedo.dedo){ if(ev.pointerId!==dedo.id) return;
+      /* arrastre relativo: un escalón cada PASO px de dedo, empiece donde empiece; no salta a donde está el dedo */
+      const a=ans[dedo.k]; if(!a||dedo.dn0==null) return; const dy=ev.clientY-dedo.cy0;
+      if(!dedo.mov&&Math.abs(dy)<9) return; dedo.mov=true;
+      const nd=Math.max(topdn-13,Math.min(topdn+5,dedo.dn0+Math.round(-dy/PASO)));
+      if(nd!==a.dn){ a.dn=nd; dibuja(); coTic(); } return; }
     if(dedo){ if(ev.pointerId!==dedo.id) return; const p=punto(ev);
       if(dedo.soloSel) return;   /* el primer toque en otra franja solo la elige */
       if(dedo.num&&Math.abs(p.y-dedo.y0)<6) return;   /* en el número, sin moverse todavía */
@@ -2012,17 +2018,19 @@ function coMelUI(D,key,mel){
     const num=p.y>yNum;   /* (19-nov 22:04, Iago) la franja de los números, medida de verdad (antes dependía de la 1.ª nota) */
     /* (19-nov 21:50, Iago, iPad) con el dedo se cambia SIEMPRE la nota azul (la elegida); para ir a otra, tocas su número o la
        propia nota si ya estaba puesta. Con el ratón, como antes: la fantasma sigue al puntero y el clic escribe ahí. */
-    if(ev.pointerType!=='mouse'&&!num){
-      /* (19-nov 22:19, Iago: «se me queda en la nota 2») tocas en OTRA columna: si ya tiene nota, solo pasa a ser la elegida
-         (no se mueve nada); si está vacía, la nota se escribe ahí. En la columna elegida, la mueves a donde toques/arrastres. */
-      /* (19-nov 22:22, Iago) cada nota tiene su franja vertical: el primer toque en otra franja SOLO la elige (azul claro);
-         en la franja elegida, tocar o arrastrar escribe. Mientras suena, la elegida es la que está sonando. */
-      if(k!==sel){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,soloSel:true,y0:p.y,f:null}; ev.preventDefault(); return; }
-      dedo={id:ev.pointerId,k,num:false,y0:p.y,f:{k,dn:dnDe(p.y)},tactil:true}; pintaF(k,dedo.f.dn); ev.preventDefault(); return; }
-    if(ev.pointerType!=='mouse'&&num){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,soloSel:k!==sel,y0:p.y,f:null}; ev.preventDefault(); return; }
+    /* (19-nov 22:27, Iago: «no me hace caso, me selecciona una que no quiero y encima me la cambia de sitio») CON EL DEDO:
+       · tocar una columna o su número la ELIGE (azul); un toque nunca mueve una nota que ya estaba puesta;
+       · si la columna está vacía (y tocas en el pentagrama), pone la nota ahí, a ojo;
+       · para afinar, ARRASTRA arriba/abajo (cuenta lo que mueves el dedo, despacio: no salta a donde está) o usa ▲ ▼.
+       Nada cambia de nota solo (ni la que suena ni la siguiente). Con el ratón, como siempre. */
+    if(ev.pointerType!=='mouse'){
+      sel=k; let dn0=null;
+      if(ans[k]) dn0=ans[k].dn;
+      else if(!num){ ans[k]={dn:dnDe(p.y),sharp:false}; dn0=ans[k].dn; coTic(); }
+      dedo={id:ev.pointerId,k,dedo:true,cy0:ev.clientY,dn0,mov:false}; gG.innerHTML=''; dibuja(); ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
     ev.preventDefault(); });
-  const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;
+  const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; if(dedo.dedo){ dedo=null; return; } const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;
     if(ev.pointerType!=='mouse') gG.innerHTML='';
     if(bloq||rev) return;
     if(!f){ sel=k; dibuja(); return; }
@@ -2037,12 +2045,15 @@ function coMelUI(D,key,mel){
   const tools=el('div','co-tools'); ESC.hoja.appendChild(tools);
   /* (19-nov 20:59, Iago) sostenido y también bemol */
   const bS=el('button','co-btn','<b>♯</b><span>Sostenido</span>'), bF=el('button','co-btn','<b>♭</b><span>Bemol</span>'), bB=el('button','co-btn','<b>⌫</b><span>Borrar</span>');
-  tools.appendChild(bS); tools.appendChild(bF); tools.appendChild(bB);
+  const bU=el('button','co-btn co-ud','<b>▲</b>'), bD=el('button','co-btn co-ud','<b>▼</b>'); bU.title='Subir la nota elegida'; bD.title='Bajar la nota elegida';
+  tools.appendChild(bU); tools.appendChild(bD); tools.appendChild(bS); tools.appendChild(bF); tools.appendChild(bB);
+  const mueve=d=>{ if(bloq||rev) return; const a=ans[sel]; if(!a||a.fijo) return; const nd=Math.max(topdn-13,Math.min(topdn+5,a.dn+d)); if(nd!==a.dn){ a.dn=nd; dibuja(); coTic(); } };
+  bU.onclick=()=>mueve(1); bD.onclick=()=>mueve(-1);
   const sube=a=>a.sharp===true||a.sharp===1;
   bS.onclick=()=>{ if(bloq||rev) return; const a=ans[sel]; if(a&&!a.fijo){ a.sharp=sube(a)?0:1; dibuja(); coTic(); } };
   bF.onclick=()=>{ if(bloq||rev) return; const a=ans[sel]; if(a&&!a.fijo){ a.sharp=a.sharp===-1?0:-1; dibuja(); coTic(); } };
   bB.onclick=()=>borra(sel);
-  function pintaBtn(){ const a=ans[sel]; bS.classList.toggle('on',!!(a&&sube(a))); bF.classList.toggle('on',!!(a&&a.sharp===-1)); bS.disabled=bF.disabled=!a||bloq; bB.disabled=!a||bloq; }
+  function pintaBtn(){ const a=ans[sel]; bS.classList.toggle('on',!!(a&&sube(a))); bF.classList.toggle('on',!!(a&&a.sharp===-1)); bS.disabled=bF.disabled=!a||bloq; bB.disabled=!a||bloq; bU.disabled=bD.disabled=!a||bloq; }
   function onKey(e){ if(bloq||rev) return;
     if(e.key==='ArrowLeft'){ sel=Math.max(1,sel-1); dibuja(); e.preventDefault(); }
     else if(e.key==='ArrowRight'){ sel=Math.min(8,sel+1); dibuja(); e.preventDefault(); }
