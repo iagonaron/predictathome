@@ -23,13 +23,13 @@ function cuentaId(){
 }
 const CUENTA=cuentaId();
 /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00; el servidor también lo impide. Tester/Protester siempre. */
-const ABRE=Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT='el viernes 20 de noviembre a las 19:00', VIDEO_URL='';
+const ABRE=Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT='el viernes 20 de noviembre a las 19:00', VIDEO_URL='https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4';
 function esTester(){ try{ const s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return !!(s&&/tester/i.test(String(s.nombre||'')+' '+String(s.apellidos||''))); }catch(e){ return false; } }
 const cerrado=()=>Date.now()<ABRE&&!esTester();
 function videoHTML(u){
   if(!u) return '<p class="muted" style="margin:6px 0 0">El vídeo de presentación estará aquí muy pronto.</p>';
   const y=u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
-  return '<div class="vid">'+(y?'<iframe src="https://www.youtube-nocookie.com/embed/'+y[1]+'?rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>':'<video src="'+esc(u)+'" controls playsinline preload="metadata"></video>')+'</div>';
+  return '<div class="vid">'+(y?'<iframe src="https://www.youtube-nocookie.com/embed/'+y[1]+'?rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>':'<video src="'+esc(u)+'" controls playsinline preload="metadata" poster="'+esc(u.replace(/\.mp4$/,'.jpg'))+'"></video>')+'</div>';
 }
 
 /* ---------- red + reloj del servidor ---------- */
