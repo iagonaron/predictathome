@@ -25,7 +25,8 @@ const CUENTA=cuentaId();
 /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 19:00; el servidor también lo impide. Tester/Protester siempre. */
 const ABRE=Date.parse('2026-11-20T19:00:00+01:00'), ABRE_TXT='el viernes 20 de noviembre a las 19:00', VIDEO_URL='';
 function esTester(){ try{ const s=JSON.parse(localStorage.getItem('lmeav_session')||'null'); return !!(s&&/tester/i.test(String(s.nombre||'')+' '+String(s.apellidos||''))); }catch(e){ return false; } }
-const cerrado=()=>Date.now()<ABRE&&!esTester();
+/* (19-nov) la apertura la decide el servidor (lista → abierto): así el Tester pasa aunque su nombre de sesión no diga «tester» */
+const cerrado=()=>ST.abierto===true?false:(Date.now()<ABRE&&!esTester());
 function videoHTML(u){
   if(!u) return '<p class="muted" style="margin:6px 0 0">El vídeo de presentación estará aquí muy pronto.</p>';
   const y=u.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
@@ -98,7 +99,7 @@ async function arrancaLobby(){
 }
 async function refrescaLista(){
   const r=await cr('lista');
-  if(r&&r.ok){ ST.lista=r.partidas||[]; ST.errNo=false; } else ST.errNo=true;
+  if(r&&r.ok){ ST.lista=r.partidas||[]; ST.errNo=false; ST.abierto=r.abierto; ST.tester=r.tester; } else ST.errNo=true;
 }
 
 function pintaLobby(){
@@ -144,7 +145,7 @@ function pintaTiempos(){ /* los textos de «cuándo» no cambian cada segundo; r
 function enlaza(){
   pintaPiano();
   const solo=async(bt)=>{ audioListo(); bt.disabled=true; const r=await cr('crear');
-    if(r&&r.ok){ await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
+    if(r&&r.ok){ if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
     else { ST.aviso=r&&r.error==='aun_no'?'El carrusel online se abre '+ABRE_TXT+'.':r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
   const ah=document.getElementById('bAhora'); if(ah) ah.onclick=()=>solo(ah);
   const bso=document.getElementById('bSolo'); if(bso) bso.onclick=()=>solo(bso);
@@ -253,17 +254,19 @@ function empiezaJuego(est){
   raiz.style.display='none';
   try{ localStorage.setItem('co_partida',p.id); }catch(e){}
   PCOnline.jugar({id:p.id,inicio:new Date(p.inicio).getTime(),semilla:p.semilla,now:sNow,cr:cr,est:est,
-    ping:s=>rpc('suite_actividad_ping',{p_cuenta_id:CUENTA,p_app:'predict-ge',p_origen:'carrusel-online',p_segundos:s}),
+    bots:(ST.tester&&ST.bots===p.id)?8:0,   /* (19-nov, Iago) el Tester juega su partida individual con 8 compañeros inventados */
+    /* (19-nov) sin pings: la actitud se apunta al terminar la partida (suite_cr_actividad) */
     onFin:()=>{ try{ localStorage.removeItem('co_partida'); }catch(e){} raiz.style.display=''; arrancaLobby(); }});
   avisoSonido();
 }
 window.LobbyOnline={ arranca:async function(){
   document.documentElement.classList.add('co-on');
   if(!CUENTA){ sinCuenta(); return; }
+  { const r0=await cr('lista'); if(r0&&r0.ok){ ST.abierto=r0.abierto; ST.tester=r0.tester; } }
   if(QS.get('solo')==='1'&&!cerrado()){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}
     audioListo(); const r=await cr('crear');
-    if(r&&r.ok){ await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
+    if(r&&r.ok){ if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
     ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida individual.';
   }
   const QP=QS.get('p');

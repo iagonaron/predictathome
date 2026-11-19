@@ -830,7 +830,8 @@ function armaduraHTML(sig){ if(!sig) return '0';
 function dibujaToncom(host,T){
   const cp=T.compas.split('/');
   const celda=(k,lab,sol)=>'<div class="tc" data-k="'+k+'"><div class="lab">'+lab+'</div><div class="val"><span class="q">?</span><span class="sol pcg-oc">'+sol+'</span></div></div>';
-  host.innerHTML='<div class="pcg-ton">'+celda('ton','Tonalidad',T.tonalidad)+celda('arm','Armadura',armaduraHTML(T.key.sig))+
+  // (19-nov-2026, Iago) letrerito: puede haber tonalidades de hasta 5 alteraciones
+  host.innerHTML='<div class="pcg-ton-aviso">Puede haber tonalidades de hasta 5 alteraciones</div><div class="pcg-ton">'+celda('ton','Tonalidad',T.tonalidad)+celda('arm','Armadura',armaduraHTML(T.key.sig))+
     celda('com','Compás','<span class="cp"><span>'+cp[0]+'</span><span>'+cp[1]+'</span></span>')+'</div>';
   const c=k=>host.querySelector('.tc[data-k="'+k+'"]');
   return { ton:c('ton'), arm:c('arm'), com:c('com'),
@@ -1643,6 +1644,9 @@ function coRankDatos(hasta){
   (e.resp||[]).forEach(r=>{ if(hasta==null||r.fase<=hasta){ suma[r.id]=(suma[r.id]||0)+r.puntos; tms[r.id]=(tms[r.id]||0)+(r.ms==null?9e8:r.ms); } if(r.fase===hasta) delta[r.id]=(delta[r.id]||0)+r.puntos; });
   const js=(e.jugadores||[]).filter(j=>j.dentro||suma[j.id]!=null);
   const filas=js.map(j=>({id:j.id,nombre:j.nombre,grupo:j.grupo,yo:j.yo,ms:tms[j.id]==null?9e9:tms[j.id],pts:Math.round((suma[j.id]||0)*(Number(j.mult)||1)),delta:Math.round((delta[j.id]||0)*(Number(j.mult)||1))}));
+  /* compañeros inventados (solo en la partida individual del Tester, para ver rankings y podio llenos) */
+  (CO.bots||[]).forEach(b=>{ let p=0,m=0; b.p.forEach((x,f)=>{ if(hasta==null||f<=hasta){ p+=x; m+=b.ms[f]; } });
+    filas.push({id:b.id,nombre:b.nombre,grupo:b.grupo,yo:false,ms:m,pts:p,delta:hasta==null?0:(b.p[hasta]||0)}); });
   filas.sort((a,b)=>b.pts-a.pts||a.ms-b.ms||String(a.nombre).localeCompare(String(b.nombre)));
   filas.forEach((f,i)=>{ f.pos=i+1; });
   return filas;
@@ -1922,7 +1926,7 @@ function coTonUI(B,T){
   const tk=T.key, sol={ton:NOM[tk.tonic[0]]+(ACC[tk.tonic.slice(1)]||'')+' '+(tk.mode==='minor'?'m':'M'),
     arm:tk.sig===0?'—':(Math.abs(tk.sig)+(tk.sig>0?'♯':'♭')), com:T.compas};
   const RN=['Si','La','Sol','Fa','Mi','Re','Do','—'];   /* '—' abajo (sin contestar); Do justo encima */
-  const RA=[]; for(let k=7;k>=1;k--) RA.push(k+'♯'); RA.push('—'); for(let k=1;k<=7;k++) RA.push(k+'♭');
+  const RA=[]; for(let k=5;k>=1;k--) RA.push(k+'♯'); RA.push('—'); for(let k=1;k<=5;k++) RA.push(k+'♭');   /* (19-nov) hasta 5 */
   const tn={n:'—',acc:'',mm:''}, resp={ton:null,arm:'—',com:null}; let bloq=false; const ru={};
   const etq=()=>{ resp.ton=tn.n==='—'?null:(tn.n+tn.acc+' '+(tn.mm||'?'));
     /* como en Teoría at home: la casilla elegida de la rueda dice la tonalidad entera (Sol♯ m) */
@@ -1938,7 +1942,7 @@ function coTonUI(B,T){
     requestAnimationFrame(()=>{ ru.ton=coRueda(rw,RN,RN.length-1,i=>{ tn.n=RN[i]; etq(); coTic(); }); }); }
   /* armadura */
   { const val=B.arm.querySelector('.val'), g=el('div','co-opts co-arm'); val.appendChild(g);
-    requestAnimationFrame(()=>{ ru.arm=coRueda(g,RA,7,i=>{ resp.arm=RA[i]; coTic(); }); }); }
+    requestAnimationFrame(()=>{ ru.arm=coRueda(g,RA,5,i=>{ resp.arm=RA[i]; coTic(); }); }); }
   /* compás */
   { const c=B.com, val=c.querySelector('.val'), g=el('div','co-opts co-com'); val.appendChild(g); const bs=[];
     ['2/4','3/4','6/8'].forEach(o=>{ const bt=el('button','co-op','<span class="cp"><span>'+o.split('/')[0]+'</span><span>'+o.split('/')[1]+'</span></span>'); bt.dataset.v=o;
@@ -2166,6 +2170,8 @@ async function coPrep(finOff){
   try{ await coEn(finOff); } finally{ clearInterval(iv); }
 }
 function coFinal(){
+  /* (19-nov, Iago) minutos de actitud: solo ahora, con la partida terminada (el servidor comprueba que marcaste la cadencia) */
+  try{ if(CO&&!CO.actOk){ CO.actOk=true; CO.cr('actividad',{p_partida:CO.id}).then(r=>console.log('[online] actividad',JSON.stringify(r))).catch(()=>{}); } }catch(e){}
   MODO='fin'; ESC=null; fondo('multi'); STAGE.innerHTML=''; ROOT.classList.add('en-portada'); ROOT.classList.remove('quieto');
   const f=coRankDatos(null), yo=f.find(x=>x.yo), top=f.slice(0,3);
   const orden=top.length===3?[top[1],top[0],top[2]]:top;
@@ -2184,9 +2190,20 @@ function coParar(vuelve){
   document.documentElement.classList.remove('co-jugando'); if(ROOT){ ROOT.classList.remove('online'); }
   MODO='portada'; if(vuelve&&c.onFin) c.onFin();
 }
+/* (19-nov, Iago) 8 compañeros inventados para probar: cada uno con su nivel; puntos por fase con la misma escala (0–1000) */
+function coBots(n,sem,est){
+  let a=(sem*2654435761)>>>0; const rnd=()=>{ a=(a+0x6D2B79F5)>>>0; let t=a; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; };
+  const NOM=['Lúa R.','Xián P.','Antía M.','Breogán S.','Sabela F.','Uxío L.','Noa C.','Martiño V.','Iria D.','Brais O.'];
+  const yo=((est&&est.jugadores)||[]).find(j=>j.yo), gr=yo?yo.grupo:'';
+  const q=(x,paso)=>Math.round(Math.max(0,Math.min(1000,x))/paso)*paso;
+  return NOM.slice(0,n).map((nombre,i)=>{ const s=0.35+0.6*rnd(), r=()=>s+(rnd()-0.5)*0.35;
+    const ton=[400,300,300].reduce((t,v)=>t+(rnd()<s?v:0),0), cad=rnd()<s?(rnd()<0.6?1000:700):0;
+    return {id:'bot'+i,nombre,grupo:gr,p:[q(1000*r(),1000/12),q(1000*r(),125),ton,q(1000*r(),100),cad].map(Math.round),ms:[0,0,0,0,0].map(()=>Math.round(3000+22000*rnd()))}; });
+}
 async function coJugar(cfg){
   if(CO) return;
   CO={id:cfg.id,inicio:cfg.inicio,now:cfg.now,cr:cfg.cr,onFin:cfg.onFin,est:cfg.est||null,mias:{}};
+  CO.bots=cfg.bots?coBots(cfg.bots,Number(cfg.semilla)||1,cfg.est):[];
   const run=++RUN; MODO='online';
   document.documentElement.classList.add('co-jugando');
   if(!ROOT) montar(); ROOT.classList.add('online'); ROOT.classList.remove('lobby'); ROOT.classList.remove('en-portada'); ROOT.classList.remove('quieto');
@@ -2198,8 +2215,7 @@ async function coJugar(cfg){
   CO.slot=CO.sch.map(s=>Math.ceil(s.end+CO_RANK)); CO.base=[]; { let acc=CO_PREP; CO.slot.forEach(s=>{ CO.base.push(acc); acc+=s; }); CO.fin=acc; CO.tot=acc+CO_FINAL; }
   console.log('[online] horario',JSON.stringify({base:CO.base,slot:CO.slot,total:CO.tot,sch:CO.sch.map(x=>({p1:x.p1,p2:x.p2,pc:x.pc,fin:x.fin,velo:x.velo,corr:x.corr,end:x.end}))}));
   CO.pollE=setInterval(coRefrescaEstado,2500);
-  CO.pollP=setInterval(()=>{ if(!CO) return; const t=(CO.now()-CO.inicio)/1000; if(t<0||t>CO.tot+5||document.hidden) return; if(cfg.ping) cfg.ping(30); },30000);
-  setTimeout(()=>{ if(CO&&(CO.now()-CO.inicio)/1000>=-2&&cfg.ping) cfg.ping(5); },2500);
+  /* (19-nov, Iago) la actitud solo cuenta si se juega la partida ENTERA: ya no hay pings; al final, suite_cr_actividad (ver coFinal) */
   coRefrescaEstado();
   const FL=[coRit,coMel,coTon,coArm,coCad];
   try{

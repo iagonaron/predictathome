@@ -416,6 +416,9 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 #pcg .vf-notehead path{transition:fill .5s ease,stroke .5s ease}
 #pcg .pcg-rol{transition:fill .4s ease}
 
+/* (19-nov-2026, Iago) TonCom: letrerito de «hasta 5 alteraciones» */
+.pcg-ton-aviso{position:absolute;top:14px;left:50%;transform:translateX(-50%);white-space:nowrap;font:700 18px/1.2 "Helvetica Neue",Arial,sans-serif;color:#9a3412;background:#fff7ed;border:1.5px solid #fdba74;border-radius:10px;padding:6px 16px;z-index:2;pointer-events:none}
+
 
 /* ============================================================================
    ★ MODO ONLINE · capa interactiva sobre el diseño del aula (C1 · Carrusel online, 19-nov-2026)
@@ -615,3 +618,10 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 .co-ton .col .co-op.alt:hover:not(:disabled){border-color:#d6d0ea;color:#8f88ad}
 .co-ton .col .co-op.alt.sel{background:rgba(var(--rgb),.14);border-color:var(--c2);color:#16132b}
 .pcg-hoja.co-rk:has(.pcg-bon){top:258px;height:470px}
+/* (19-nov) con muchos jugadores (6 o más filas), la clasificación se compacta para caber en la tarjeta */
+.co-rank:has(.fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .fila{padding:4px 22px;margin-top:4px;font-size:25px;border-radius:12px}
+.co-rank:has(.fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .fila .pos{font-size:28px}
+.co-rank:has(.fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .fila .nom i{font-size:17px}
+.co-rank:has(.fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .fila .del{font-size:22px}
+.co-rank:has(.fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .cab{padding-bottom:2px;font-size:15px}
+.co-rank:has(.fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .puntos-susp{line-height:1;margin:2px 0}
