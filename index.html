@@ -232,6 +232,19 @@ if(window.Sentry && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){
   .check-link:disabled{color:var(--muted2);cursor:default}
   .btn-sol{background:transparent;border:1px solid var(--line);border-radius:10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
   .btn-sol:disabled{opacity:.45;cursor:not-allowed}
+  /* (19-nov-2026, Iago) botón único: «Corregir» → (si hay fallos) «Ver solución · mantén pulsado» */
+  .btn-corr{margin-left:auto;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;min-width:132px;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+  .btn-corr small{font-size:10px;font-weight:600;letter-spacing:.02em;opacity:.6;text-transform:none}
+  #ritmicaView .btn-corr.peek{background:var(--rit);border-color:var(--rit);color:#fff}
+  #melodicaView .btn-corr.peek{background:var(--mel);border-color:var(--mel);color:#fff}
+  #toncomView .btn-corr.peek{background:var(--ton);border-color:var(--ton);color:#fff}
+  /* TonCom: la solución solo se ve mientras se mantiene «Ver solución» (en azul) */
+  #toncomView .ton-sol{display:none;color:#2563eb!important;font-weight:700}
+  #toncomView .exo.peek .ton-sol{display:block}
+  #toncomView .exo.peek .ton-correct .ton-sol{display:inline}
+  #toncomView .exo.peek .ton-nosol{display:none}
+  #toncomView .exo.peek .compas-opt.ton-sol-ok{border-color:#2563eb;background:rgba(37,99,235,.12);color:#2563eb}
   /* parpadeo al pulso mientras suena; duración la fija el JS con --pulse-ms */
   .play-btn.playing{animation:playPulse var(--pulse-ms,1000ms) ease-in-out infinite}
   @keyframes playPulse{
@@ -3060,10 +3073,14 @@ function drawBoard(idx){
   renderer.resize(W,rowH);
   const ctx=renderer.getContext();ctx.setFont('Arial',10);
   // fuente de datos por slot: solución (si revelado) o las casillas del alumno
-  const source = ex.revealed ? ex.flatSolution.slice() : ex.slots;
+  const peek=!!ex._peek && !ex.revealed;   /* (19-nov-2026) «Ver solución» pulsado: lo bien en verde, lo mal sustituido por lo correcto en azul */
+  const okAt=i=>{ const c=ex.slots[i]; return !!(c && ex.flatSolution[i] && ex.flatSolution[i].id===c.id); };
+  const source = ex.revealed ? ex.flatSolution.slice() : (peek ? ex.slots.map((c,i)=> okAt(i)?c:ex.flatSolution[i]) : ex.slots);
   const COL_OK='#15a06a', COL_BAD='#d23145', COL_SOL='#2563eb';
   let colorMap=null;
-  if(ex.revealed){
+  if(peek){
+    colorMap=ex.slots.map((c,i)=> okAt(i)?COL_OK:COL_SOL);
+  } else if(ex.revealed){
     // SOLUCIÓN: la respuesta correcta se dibuja en AZUL; los pulsos que el
     // alumno falló (o dejó vacíos) se señalan además con marca roja encima.
     colorMap=ex.flatSolution.map(()=>COL_SOL);
@@ -3117,7 +3134,7 @@ function drawBoard(idx){
         cont.appendChild(mark);
       }
     });
-  } else {
+  } else if(!peek){
     // corregido: marcar con × roja los pulsos sin rellenar (cuentan como fallo)
     slotBoxes.forEach(b=>{
       if(!b.hasCell){
@@ -3158,10 +3175,11 @@ function drawRitErrBoard(idx){
   renderer.resize(W,rowH);
   const ctx=renderer.getContext();ctx.setFont('Arial',10);
   // al revelar: mostrar el ritmo CORRECTO; si no, la versión con el error
-  const source = ex.revealed ? ex.flatSolution.slice() : ex.shownFlat;
+  const verSol = ex.revealed || !!ex._peek;   /* (19-nov-2026) también mientras se mantiene «Ver solución» */
+  const source = verSol ? ex.flatSolution.slice() : ex.shownFlat;
   // coloreado de las figuras
   let colorMap=null;
-  if(ex.revealed){
+  if(verSol){
     colorMap=source.map((c,i)=>{
       const picked=ex.picks[i], isErr=(i===ex.errIndex);
       if(isErr && picked) return '#15a06a';     // acertaste el pulso erróneo -> verde
@@ -3197,7 +3215,7 @@ function drawRitErrBoard(idx){
     // flecha indicadora bajo el pulso
     const picked=ex.picks[b.slot], isErr=(b.slot===ex.errIndex);
     let cls=null;
-    if(ex.revealed){
+    if(verSol){
       if(isErr && picked) cls='ok';
       else if(isErr && !picked) cls='blue';
       else if(!isErr && picked) cls='bad';
@@ -3370,10 +3388,10 @@ function renderExos(){
     block.className='exo';block.id='exo-'+idx;
     const tituloApartado = isErr ? 'Detección de errores' : 'Dictado rítmico';
     const paletteSection = isErr ? '' :
-      ('<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Pulsa para añadir por orden · mantén y arrastra para soltar en un pulso concreto · cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir</span></div>'+
+      ('<div class="palette-head"><h3>Células disponibles</h3><span class="hint">Pulsa para añadir por orden · mantén y arrastra para soltar en un pulso concreto · cuando termines, pulsa <b>Corregir</b></span></div>'+
       '<div class="palette" id="palette-'+idx+'"></div>');
     const errHint = isErr ?
-      ('<div class="palette-head"><h3>Cómo responder</h3><span class="hint"><b>Escucha</b> el ritmo: suena correcto. Pero en la partitura <b>un pulso no coincide</b> con lo que oyes (nunca el primero ni el último). Haz <b>clic</b> sobre el pulso que creas equivocado para señalarlo; vuelve a pulsar para cambiarlo. Cuando lo tengas, pulsa <b>¿Qué tal fue?</b> para corregir.</span></div>') : '';
+      ('<div class="palette-head"><h3>Cómo responder</h3><span class="hint"><b>Escucha</b> el ritmo: suena correcto. Pero en la partitura <b>un pulso no coincide</b> con lo que oyes (nunca el primero ni el último). Haz <b>clic</b> sobre el pulso que creas equivocado para señalarlo; vuelve a pulsar para cambiarlo. Cuando lo tengas, pulsa <b>Corregir</b>.</span></div>') : '';
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
         '<span class="exo-num">'+tituloApartado+'</span>'+
@@ -3400,8 +3418,7 @@ function renderExos(){
             '<div class="score-line" id="score-'+idx+'"></div>'+
           '</div>'+
           '<div class="check-bar">'+
-            '<button class="check-link" id="check-'+idx+'">¿Qué tal fue?</button>'+
-            '<button class="btn-sol" id="sol-'+idx+'">Solución</button>'+
+            '<button class="btn-sol btn-corr" id="check-'+idx+'">Corregir</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -3421,8 +3438,9 @@ function renderExos(){
       });
     }
     block.querySelector('#play-'+idx).addEventListener('click',()=>playExo(idx));
-    block.querySelector('#check-'+idx).addEventListener('click',()=>onCheck(idx));
-    block.querySelector('#sol-'+idx).addEventListener('click',()=>onReveal(idx));
+    montaCorregir(block.querySelector('#check-'+idx), {
+      checked:()=>ex.checked, errores:()=> (ritMode==='errores' ? scoreOf(ex)<1 : scoreOf(ex)<ex.nslots),
+      corregir:()=>onCheck(idx), peek:on=>{ ex._peek=on; drawBoard(idx); } });
     const td=block.querySelector('#tempo-down-'+idx), tu=block.querySelector('#tempo-up-'+idx);
     if(td) td.addEventListener('click',()=>{ ex.tempoOffset=Math.max(-10,(ex.tempoOffset||0)-5); updateTempo(idx); });
     if(tu) tu.addEventListener('click',()=>{ ex.tempoOffset=Math.min(10,(ex.tempoOffset||0)+5); updateTempo(idx); });
@@ -3451,14 +3469,7 @@ function refreshControls(idx){
   const solBtn=document.getElementById('sol-'+idx);
   const pal=document.getElementById('palette-'+idx);
   if(pal) pal.classList.toggle('locked',ex.checked);
-  if(checkBtn){
-    checkBtn.disabled=ex.checked;
-    checkBtn.textContent=ex.checked?'Corregido':'¿Qué tal fue?';
-  }
-  if(solBtn){
-    solBtn.disabled=ex.revealed;
-    solBtn.textContent=ex.revealed?'Solución mostrada':'Solución';
-  }
+  pintaCorregir(checkBtn, ex.checked, ritMode==='errores' ? scoreOf(ex)<1 : scoreOf(ex)<ex.nslots);
 }
 function addCell(idx,cell){
   const ex=exos[idx];if(ex.checked)return;
@@ -3470,6 +3481,29 @@ function placeCell(idx,slot,cell){
   const ex=exos[idx];if(ex.checked)return;
   if(slot<0||slot>=ex.nslots)return;
   ex.slots[slot]=cell;drawBoard(idx);refreshControls(idx);
+}
+/* (19-nov-2026, Iago: «que el botón "¿Qué tal fue?" y "Solución" se llame directamente Corregir: que ya te diga lo verde y lo
+   rojo. Y después, si había algo mal, que se llame Ver solución: mientras lo tengas pulsado se ve en azul lo que tenías en rojo,
+   con lo correcto. Mantén pulsado, sutilmente») Un solo botón para rítmico y melódico. */
+function montaCorregir(btn, o){
+  if(!btn) return;
+  let on=false;
+  const fin=()=>{ if(!on) return; on=false; btn.classList.remove('peek'); o.peek(false); };
+  btn.addEventListener('click',()=>{ if(!o.checked()) o.corregir(); });
+  btn.addEventListener('pointerdown',e=>{
+    if(!o.checked() || !o.errores()) return;
+    e.preventDefault(); on=true; btn.classList.add('peek');
+    try{ btn.setPointerCapture(e.pointerId); }catch(_){}
+    o.peek(true);
+  });
+  ['pointerup','pointercancel','lostpointercapture','blur'].forEach(t=>btn.addEventListener(t,fin));
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+}
+function pintaCorregir(btn, checked, errores){
+  if(!btn) return;
+  if(!checked){ btn.innerHTML='Corregir'; btn.disabled=false; }
+  else if(errores){ btn.innerHTML='<span>Ver solución</span><small>mantén pulsado</small>'; btn.disabled=false; }
+  else { btn.innerHTML='Todo correcto ✓'; btn.disabled=true; }
 }
 function onCheck(idx){
   const ex=exos[idx];
@@ -4010,9 +4044,11 @@ function drawMelBoard(idx){
   stave.addClef(ex.clef||'treble');
   if(ex.key.vfsig!=='C') stave.addKeySignature(ex.key.vfsig);
   stave.setContext(ctx).draw();
-  const source = ex.revealed ? ex.midis : ex.slots;
+  const peek=!!ex._peek && !ex.revealed;   /* (19-nov-2026) «Ver solución» pulsado */
+  const okM=i=> ex.slots[i]!==null && ex.slots[i]===ex.midis[i];
+  const source = ex.revealed ? ex.midis : (peek ? ex.midis.map((m,i)=> okM(i)?ex.slots[i]:m) : ex.slots);
   // construir 10 StaveNotes (o invisibles si hueco)
-  const notes=[]; const colorMap = (ex.scored&&!ex.revealed) ? ex.slots.map((m,i)=> (m!==null&&m===ex.midis[i])?'#15a06a':'#d23145') : null;
+  const notes=[]; const colorMap = peek ? ex.midis.map((m,i)=> okM(i)?'#15a06a':'#2563eb') : (ex.scored&&!ex.revealed) ? ex.slots.map((m,i)=> (m!==null&&m===ex.midis[i])?'#15a06a':'#d23145') : null;
   for(let i=0;i<10;i++){
     const m=source[i];
     if(m!==null && m!==undefined){
@@ -4061,7 +4097,7 @@ function drawMelBoard(idx){
   ex._noteX=notes.map(n=>{try{ const b=n.getNoteHeadBeginX(), e=n.getNoteHeadEndX(); return (isFinite(b)&&isFinite(e)&&e>b)?(b+e)/2:n.getAbsoluteX(); }catch(e){return null;}});   /* (18-nov-2026) el CENTRO de la cabeza: ahí van la fantasma, los círculos y las × */
   drawMelNumbers(idx);
   // al puntuar: marcar con × roja los pulsos que quedaron sin rellenar (cuentan como fallo)
-  if(ex.scored && !ex.revealed){
+  if(ex.scored && !ex.revealed && !peek){
     const off=svgOffsetMel(idx);
     for(let i=0;i<10;i++){
       if(ex.slots[i]===null){
@@ -4131,7 +4167,8 @@ function drawErroresBoard(idx){
   if(ex.key.vfsig!=='C') stave.addKeySignature(ex.key.vfsig);
   stave.setContext(ctx).draw();
   // fuente: al revelar mostramos la melodía correcta; si no, lo que ve el alumno (con errores)
-  const source = ex.revealed ? ex.midis : ex.shown;
+  const verSol = ex.revealed || !!ex._peek;   /* (19-nov-2026) también mientras se mantiene «Ver solución» */
+  const source = verSol ? ex.midis : ex.shown;
   const notes=[];
   for(let i=0;i<10;i++){
     const m=source[i];
@@ -4140,7 +4177,7 @@ function drawErroresBoard(idx){
     if(vf.accidental) sn.addModifier(new VF.Accidental(vf.accidental),0);
     // coloreado:
     let col=null;
-    if(ex.revealed){
+    if(verSol){
       const isErr=ex.errPos.includes(i), picked=ex.picks[i];
       if(isErr && picked) col='#15a06a';           // acertaste este error -> verde
       else if(isErr && !picked) col='#2563eb';     // error que NO señalaste -> azul (la correcta)
@@ -4176,7 +4213,7 @@ function drawErroresBoard(idx){
   for(let i=0;i<10;i++){
     const isErr=ex.errPos.includes(i), picked=ex.picks[i];
     let cls=null;
-    if(ex.revealed){
+    if(verSol){
       if(isErr && picked) cls='ok';              // verde: acertaste
       else if(isErr && !picked) cls='blue';      // azul: la correcta que no señalaste
       else if(!isErr && picked) cls='bad';       // rojo: falso positivo
@@ -4221,7 +4258,9 @@ function drawMelNumbers(idx){
   /* R3 10-jul-2026 */ // TABLET + modo dictado editable: los numeritos pasan a CÍRCULOS SELECCIONABLES de paso.
   // Cada círculo fija ex._activeSlot al tocarlo y re-renderiza (recolocando la ghost en ese slot si la hay).
   // El slot 0 (tónica dada) no es seleccionable. En ratón / errores / revelado se dibujan los numeritos de siempre.
-  const modoCirculos = ES_TACTIL && !!ex.slots && !ex.revealed;
+  /* (19-nov-2026, Iago: «en melódico quiero los números 1…10 abajo, como en Intervalia o en el carrusel de elemental») los círculos
+     de paso salen también con ratón y van ABAJO del todo de la tarjeta (con ratón solo indican; con el dedo, además, se eligen) */
+  const modoCirculos = !!ex.slots && !ex.revealed;
   if(modoCirculos){
     const wrap=document.createElement('div'); wrap.className='mel-nums taps';
     /* R6 10-jul-2026 · posición vertical de la banda de círculos calculada dinámicamente
@@ -4240,7 +4279,7 @@ function drawMelNumbers(idx){
       // no dejar que se salga del board (deja hueco para el círculo de 34px de alto)
       const cont2=document.getElementById('melboard-'+idx);
       const maxTop=(cont2? cont2.clientHeight : 294) - 36;
-      if(topPx>maxTop) topPx=maxTop;
+      topPx=Math.max(topPx, maxTop-4);   /* (19-nov-2026) abajo del todo de la tarjeta */
       wrap.style.top=topPx+'px'; wrap.style.bottom='auto';
     })();
     for(let i=0;i<10;i++){
@@ -4249,10 +4288,11 @@ function drawMelNumbers(idx){
       btn.style.left=(x+off.dx)+'px';
       const hecho=(i>=1 && ex.slots[i]!==null && ex.slots[i]!==undefined);
       if(i===0) btn.classList.add('tonic');                       // tónica: solo indicativa, no seleccionable
-      else if(i===ex._activeSlot) btn.classList.add('active');    // paso activo: resaltado en azul
+      else if(ES_TACTIL && i===ex._activeSlot) btn.classList.add('active');    // paso activo: resaltado en azul
       else if(hecho) btn.classList.add('done');                   // ya colocado: relleno "hecho"
       btn.innerHTML='<span class="dot">'+(i+1)+'</span>';
-      if(i>=1){
+      if(!ES_TACTIL){ btn.tabIndex=-1; btn.style.pointerEvents='none'; }   /* con ratón: solo indican (la nota va donde haces clic) */
+      if(i>=1 && ES_TACTIL){
         const setActive=e=>{
           e.preventDefault(); e.stopPropagation();
           if(ex.revealed) return;
@@ -4273,6 +4313,7 @@ function drawMelNumbers(idx){
     return;
   }
   const wrap=document.createElement('div'); wrap.className='mel-nums';
+  wrap.style.top=Math.max(174, (cont.clientHeight||200)-30)+'px';   /* (19-nov-2026) abajo del todo */
   for(let i=0;i<10;i++){
     const x=ex._noteX[i]; if(x==null) continue;
     const s=document.createElement('span'); s.textContent=(i+1); s.style.left=(x+off.dx)+'px';
@@ -4578,11 +4619,11 @@ function renderMelExos(){
         '<div class="score-line" id="melscore-'+idx+'"></div>'+
       '</div>';
     const hintTxt = isErr
-      ? '<b>Escucha</b> la melodía: suena correcta. Pero en la partitura <b>dos notas no coinciden</b> con lo que oyes (nunca la primera ni la última, y nunca seguidas). Haz <b>clic</b> sobre esas dos notas para señalarlas; vuelve a pulsar para desmarcar. Cuando tengas las dos, pulsa <b>¿Qué tal fue?</b> para corregir.'
+      ? '<b>Escucha</b> la melodía: suena correcta. Pero en la partitura <b>dos notas no coinciden</b> con lo que oyes (nunca la primera ni la última, y nunca seguidas). Haz <b>clic</b> sobre esas dos notas para señalarlas; vuelve a pulsar para desmarcar. Cuando tengas las dos, pulsa <b>Corregir</b>.'
       : (ES_TACTIL
         /* R3 10-jul-2026 */ // hint didáctico para TABLET: explica los círculos de paso
-        ? 'Bajo el pentagrama tienes los <b>círculos de paso</b> (1, 2, 3…): el que está <b>en azul</b> es el paso en el que vas a escribir. <b>Arrastra el dedo arriba y abajo</b> sobre el pentagrama —la redonda sube y baja de nota— y <b>suelta</b> para colocarla en ese paso. Al soltar, el círculo se marca como <b>hecho</b> y el activo avanza <b>solo al siguiente</b> (nunca salta). Para <b>corregir</b> una nota anterior, <b>toca su círculo</b> para volver a ese paso y vuelve a arrastrar: la reescribes. La nota escrita queda <b>seleccionada</b> (en azul, con una <b>×</b> para borrarla); solo se ve <b>una ×</b> a la vez. Al borrar con la ×, el paso activo vuelve a ese hueco. El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.'
-        : 'Mueve el cursor sobre el pentagrama y la redonda salta de nota en nota: haz clic para colocarla donde corresponda. La nota que acabas de colocar queda <b>seleccionada</b> (en azul y con una <b>×</b> a su derecha para borrarla). Solo se ve <b>una ×</b> a la vez: para borrar otra nota, <b>haz clic sobre ella primero</b> para seleccionarla y aparecerá su ×. Si apuntas a otra altura sobre una nota ya puesta, la reescribes. También puedes borrar con clic derecho. El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>¿Qué tal fue?</b> para corregir; después puedes escuchar de nuevo y corregir las falladas.'); /* GN-UNIF 8-jul-2026 */ /* SEL-UNICA 10-jul-2026 */ /* R3 10-jul-2026 */
+        ? 'Bajo el pentagrama tienes los <b>círculos de paso</b> (1, 2, 3…): el que está <b>en azul</b> es el paso en el que vas a escribir. <b>Arrastra el dedo arriba y abajo</b> sobre el pentagrama —la redonda sube y baja de nota— y <b>suelta</b> para colocarla en ese paso. Al soltar, el círculo se marca como <b>hecho</b> y el activo avanza <b>solo al siguiente</b> (nunca salta). Para <b>corregir</b> una nota anterior, <b>toca su círculo</b> para volver a ese paso y vuelve a arrastrar: la reescribes. La nota escrita queda <b>seleccionada</b> (en azul, con una <b>×</b> para borrarla); solo se ve <b>una ×</b> a la vez. Al borrar con la ×, el paso activo vuelve a ese hueco. El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>Corregir</b>; si algo sale en rojo, mantén pulsado <b>Ver solución</b> para ver cómo era.'
+        : 'Mueve el cursor sobre el pentagrama y la redonda salta de nota en nota: haz clic para colocarla donde corresponda. La nota que acabas de colocar queda <b>seleccionada</b> (en azul y con una <b>×</b> a su derecha para borrarla). Solo se ve <b>una ×</b> a la vez: para borrar otra nota, <b>haz clic sobre ella primero</b> para seleccionarla y aparecerá su ×. Si apuntas a otra altura sobre una nota ya puesta, la reescribes. También puedes borrar con clic derecho. El botón <b>↶ Deshacer</b> recupera el último cambio. Cuando termines, pulsa <b>Corregir</b>; si algo sale en rojo, mantén pulsado <b>Ver solución</b> para ver cómo era.'); /* GN-UNIF 8-jul-2026 */ /* SEL-UNICA 10-jul-2026 */ /* R3 10-jul-2026 */
     block.innerHTML=
       '<div class="exo-head"><div class="exo-title">'+
         '<span class="exo-num">'+tituloApartado+'</span>'+
@@ -4596,8 +4637,7 @@ function renderMelExos(){
           listenBlock +
           '<div class="check-bar">'+
             (isErr?'':'<button class="gn-undo" id="melundo-'+idx+'">↶ Deshacer</button>')+ /* GN-UNIF 8-jul-2026 */
-            '<button class="check-link" id="melcheck-'+idx+'">¿Qué tal fue?</button>'+
-            '<button class="btn-sol" id="melsol-'+idx+'">Solución</button>'+
+            '<button class="btn-sol btn-corr" id="melcheck-'+idx+'">Corregir</button>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -4605,8 +4645,9 @@ function renderMelExos(){
     cont.appendChild(block);
     const playBtn=block.querySelector('#melplay-'+idx);
     if(playBtn) playBtn.addEventListener('click',()=>playMel(idx));
-    block.querySelector('#melcheck-'+idx).addEventListener('click',()=>onMelCheck(idx));
-    block.querySelector('#melsol-'+idx).addEventListener('click',()=>onMelReveal(idx));
+    montaCorregir(block.querySelector('#melcheck-'+idx), {
+      checked:()=>!!ex.scored, errores:()=> melScoreOf(ex)<10,
+      corregir:()=>onMelCheck(idx), peek:on=>{ ex._peek=on; clearGhost(idx); drawMelBoard(idx); } });
     const undoBtn=block.querySelector('#melundo-'+idx); if(undoBtn) undoBtn.addEventListener('click',()=>gnMelUndo(idx)); /* GN-UNIF 8-jul-2026 */
     block.querySelectorAll('.melspeed-btn').forEach(b=>{
       b.addEventListener('click',()=>{
@@ -4631,8 +4672,7 @@ function refreshMelControls(idx){
   const ex=melExos[idx];
   const checkBtn=document.getElementById('melcheck-'+idx);
   const solBtn=document.getElementById('melsol-'+idx);
-  if(checkBtn){ checkBtn.textContent=ex.scored?'Corregido':'¿Qué tal fue?'; checkBtn.disabled=false; }
-  if(solBtn){ solBtn.disabled=ex.revealed; solBtn.textContent=ex.revealed?'Solución mostrada':'Solución'; }
+  pintaCorregir(checkBtn, !!ex.scored, melScoreOf(ex)<10);
   const undoBtn=document.getElementById('melundo-'+idx); /* GN-UNIF 8-jul-2026 */
   if(undoBtn) undoBtn.disabled = ex.revealed || !ex._gnUndo || !ex._gnUndo.length;
 }
@@ -5607,7 +5647,7 @@ function renderTonExos(){
             '</div>'+
           '</div>'+
           '<div class="tonkey-preview" id="tonkeyprev-'+idx+'">'+(tonComposeKey(ex)||'—')+'</div>'+
-          (ex.checked&&!keyOk&&ex.showSol?'<div class="ton-correct" style="color:var(--red)">Correcta: '+ex.key.name+'</div>':'')+
+          (ex.checked&&!keyOk?'<div class="ton-correct ton-sol">Correcta: '+ex.key.name+'</div>':'')+
         '</div>'+
         // 2) ARMADURA (selector)
         '<div class="ton-pick">'+
@@ -5620,7 +5660,7 @@ function renderTonExos(){
             '</div>'+
             '<div class="arm-wheel-center"></div>'+
           '</div>'+
-          (ex.checked?'<div class="ton-correct" style="text-align:center;margin-top:8px">'+(ex.chosenArm===ex.key.sig?'<span style="color:var(--green)">Correcta</span>':(ex.showSol?'<span style="color:var(--red)">Correcta: '+armLabel(ex.key.sig)+'</span>':'<span style="color:var(--red)">Incorrecta</span>'))+'</div>':'')+
+          (ex.checked?'<div class="ton-correct" style="text-align:center;margin-top:8px">'+(ex.chosenArm===ex.key.sig?'<span style="color:var(--green)">Correcta</span>':('<span class="ton-nosol" style="color:var(--red)">Incorrecta</span><span class="ton-sol">Correcta: '+armLabel(ex.key.sig)+'</span>'))+'</div>':'')+
         '</div>'+
         // 3) tarjeta LA + TÓNICA + ACORDES
         '<button class="ton-playcard" id="ton-acordes-'+idx+'">'+
@@ -5637,13 +5677,13 @@ function renderTonExos(){
               let cls='compas-opt';
               if(ex.checked){
                 if(c===ex.chosenCompas){ cls += (c===ex.compas.ts)?' ok':' bad'; }
-                else if(ex.showSol && c===ex.compas.ts){ cls+=' ok'; }
+                else if(c===ex.compas.ts){ cls+=' ton-sol-ok'; }   /* (19-nov-2026) solo se ve mientras se mantiene «Ver solución» */
               }
               else if(ex.chosenCompas===c) cls+=' sel';
               return '<div class="'+cls+'" data-c="'+c+'">'+c+'</div>';
             }).join('')+
           '</div>'+
-          (ex.checked&&!ex.chosenCompas&&ex.showSol?'<div class="ton-correct">Correcto: '+ex.compas.ts+'</div>':'')+
+          (ex.checked&&ex.chosenCompas!==ex.compas.ts?'<div class="ton-correct ton-sol">Correcto: '+ex.compas.ts+'</div>':'')+
         '</div>'+
         // 5) tarjeta DICTADO COMPLETO
         '<button class="ton-playcard" id="ton-completo-'+idx+'">'+
@@ -5654,10 +5694,8 @@ function renderTonExos(){
         '</button>'+
         // barra ¿qué tal fue? + corrección, debajo de "Dictado completo" (última columna)
         '<div class="check-bar ton-check-bar">'+
-          '<button class="check-link" id="toncheck-'+idx+'" '+(ex.checked?'disabled':'')+'>¿Qué tal fue?</button>'+
-          (ex.checked
-            ? '<span class="ton-pts" id="tonscore-'+idx+'"></span>'
-            : '<button class="btn-sol" id="tonsol-'+idx+'">Solución</button>')+
+          (ex.checked ? '<span class="ton-pts" id="tonscore-'+idx+'"></span>' : '')+
+          '<button class="btn-sol btn-corr" id="toncheck-'+idx+'">Corregir</button>'+
         '</div>'+
       '</div>';
     cont.appendChild(block);
@@ -5681,8 +5719,11 @@ function renderTonExos(){
       o.addEventListener('click',()=>{ if(ex.checked)return; ex.chosenCompas=o.dataset.c; renderTonExos(); });
     });
     initArmWheel(idx);
-    const cb=block.querySelector('#toncheck-'+idx); if(cb) cb.addEventListener('click',()=>onTonCheck(idx));
-    const sb=block.querySelector('#tonsol-'+idx); if(sb) sb.addEventListener('click',()=>onTonSolution(idx));
+    const cb=block.querySelector('#toncheck-'+idx);
+    const tonMal=()=> !(tonKeyMatches(ex.chosenKey,ex.key.name) && ex.chosenArm===ex.key.sig && ex.chosenCompas===ex.compas.ts);
+    montaCorregir(cb, { checked:()=>!!ex.checked, errores:tonMal, corregir:()=>onTonCheck(idx),
+      peek:on=>{ const b=document.getElementById('tonexo-'+idx); if(b) b.classList.toggle('peek',on); } });
+    pintaCorregir(cb, !!ex.checked, ex.checked && tonMal());
     if(ex.checked){ const sc=block.querySelector('#tonscore-'+idx); if(sc){ const pts=(keyOk?1:0)+(armOk?1:0)+(compOk?1:0); sc.innerHTML='<b>'+pts+'</b> / 3'; } }
     renderTonAudioButtons(idx);
   });
