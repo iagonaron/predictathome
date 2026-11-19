@@ -1608,6 +1608,15 @@ function coGlyph(g,code,x,y,col,al){
 function coAC(ms){ return ahora()+(ms-CO.now())/1000; }
 function coT(off){ return coAC(CO.inicio+off*1000); }
 function coEn(off){ return hasta(coT(off)); }
+/* segundos enteros que quedan hasta ese momento de la partida (para que la cuenta de abajo acabe justo ahí) */
+function coHasta(off){ return Math.max(2,Math.round((CO.inicio+off*1000-CO.now())/1000)); }
+/* 2.ª escucha del melódico: el 5·4·3·2·1 enseguida, sin los 2 s de cartel */
+async function coPaseMel(D,seq,dur,sil,et,sub){
+  sonidoUI('atencion'); cartel(et,sub);
+  const t0=cuentaAtras(ahora()+0.3,1,5,null)+S(0.15);
+  seq.forEach((m,i)=>{ const t=t0+S(i*(dur+sil)); nota(t,m,0.95,S(dur)); enTiempo(t,()=>D.marca(i)); });
+  await hasta(t0+S(seq.length*(dur+sil)-sil+0.4)); D.marca(-1);
+}
 function coAvisaTarde(nom,off){ const d=(CO.now()-(CO.inicio+off*1000))/1000; if(d>0.5) console.warn('[online] '+nom+' llega '+d.toFixed(1)+' s tarde'); }
 
 /* ---------- diatónico ↔ midi (la altura se elige en el pentagrama; la armadura se aplica sola) ---------- */
@@ -1630,19 +1639,19 @@ function coMidiDn(m,key){
 }
 
 /* ---------- el horario de la partida (sale de los propios ejercicios: todos los clientes calculan lo mismo) ---------- */
-function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=2.3+5*pr+R+0.5, p1=6, p2=p1+P+6, fin=p2+P, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
-  return {M,R,pr,P,p1,p2,fin,velo:fin+4,corr:fin+9,end:fin+9+tot}; }
-function coSchedMel(){ const P1=2.0+0.3+5+0.15+(10*4-2+0.4), P2=2.0+0.3+5+0.15+(10*3-1.5+0.4), p1=11, p2=p1+P1+6, fin=p2+P2;
-  return {p1,p2,fin,velo:fin+4,corr:fin+9,end:fin+9+22}; }
+function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=2.3+5*pr+R+0.5, p1=6, p2=p1+P+6, fin=p2+P-2, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
+  return {M,R,pr,P,p1,p2,fin,velo:fin,corr:fin+5,end:fin+5+tot}; }   /* (19-nov 21:21, Iago) sin pausa antes del 5·4·3·2·1 de la 2.ª escucha y solo los 5 s de «Solución en» */
+function coSchedMel(){ const P1=2.0+0.3+5+0.15+(10*4-2+0.4), P2=2.0+0.3+5+0.15+(10*3-1.5+0.4), p1=11, p2=p1+P1+6, fin=p2+P2-2;
+  return {p1,p2,fin,velo:fin,corr:fin+5,end:fin+5+22}; }
 function coSchedTon(){ const T=datosToncom, key={tpc:TONIC_PC[T.key.tonic],mode:T.key.mode,sig:T.key.sig}, compas=TON_COMPAS_G[T.compas]||TON_COMPAS_G['2/4'];
   const dict=genTonDictadoG(key,compas,mulberry32(((Number(SEMILLA)||0)*31+7)>>>0)), pt=(compas.comp?1.5:1)*(60/compas.bpm);
   const Dt=dict.events.reduce((a,e)=>a+e.durSec,0), PT=3.5+0.3+5*pt+Dt+0.5, pc=36, fin=pc+PT;
   return {key,dict,pt,pc,fin,velo:fin,corr:fin+5,end:fin+5+9}; }   /* (19-nov 21:01, Iago) TonCom: al final solo los 5 s de «Solución en» */
-function coSchedArm(){ const fin=63; return {fin,velo:fin+4,corr:fin+9,end:fin+9+18}; }
+function coSchedArm(){ const fin=63; return {fin,velo:fin,corr:fin+5,end:fin+5+18}; }
 /* bonus · cadencias: el guion es el del aula (3 escuchas, letrero «¿A qué te suena?», bajo en amarillo, 4 opciones); aquí, además, se elige */
 function coSchedCad(){ const gen=cadenciaDe(SEMILLA), spb=60/84, N=gen.ev.length, Dq=gen.ev.reduce((a,e)=>a+e.q,0)*spb, L2=(gen.ev[N-2].q+gen.ev[N-1].q)*spb;
-  let t=2.7+1.4+0.6; t+=0.1+Dq+0.5; const ops=t; t+=0.8+0.1+Dq+0.4; const fin=t+4;
-  return {gen,ops,fin,velo:fin+4,corr:fin+9,end:fin+9+Math.ceil(L2+2.5)}; }
+  let t=2.7+1.4+0.6; t+=0.1+Dq+0.5; const ops=t; t+=0.8+0.1+Dq+0.4; const fin=t+1;
+  return {gen,ops,fin,velo:fin,corr:fin+5,end:fin+9+Math.ceil(L2+2.5)}; }
 
 /* ---------- envío de la respuesta y clasificación ---------- */
 /* (19-nov, Iago) a igualdad de puntos gana quien contestó antes: el tiempo es el de tu último cambio */
@@ -1840,12 +1849,12 @@ async function coRit(b){
   await espera(1.6); D.verCompas(); brillo();
   await coEn(b+p1); coAvisaTarde('rít 1ª',b+p1);
   await pase('1ª escucha','',t=>tocaRitmo(t,M,D,false),2.0);   /* (19-nov, Iago) sin «Escribe» */
-  await escribir(6,'','','Próxima repetición');   /* (19-nov 20:57, Iago) menos hueco entre escuchas */
+  await escribir(coHasta(b+p2),'','','Próxima repetición');   /* (19-nov 21:21, Iago) la cuenta de abajo enlaza sin pausa con el 5·4·3·2·1 */
   await coEn(b+p2); coAvisaTarde('rít 2ª',b+p2);
-  await pase('2ª escucha','',t=>tocaRitmo(t,M,D,false),2.0);   /* (19-nov, Iago) sin «Escribe» */
+  await pase('2ª escucha','',t=>tocaRitmo(t,M,D,false),0.01);   /* (19-nov, Iago) sin «Escribe» */
   await coEn(b+fin);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await coFinEjercicio();
+  await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(0,res);
   await coEn(b+corr);
   I.revela();
@@ -1975,12 +1984,12 @@ async function coMel(b){
   await espera(1.8); D.flecha(0,false); D.flecha(9,false); D.marca(-1);
   await coEn(b+p1); coAvisaTarde('mel 1ª',b+p1);
   await paseMel(D,mel.seq,2,2,'1ª escucha','');
-  await escribir(6,'','','Próxima repetición');   /* (19-nov 20:59, Iago) menos esperas */
+  await escribir(coHasta(b+p2),'','','Próxima repetición');   /* (19-nov 21:21, Iago) sin pausa antes del 5·4·3·2·1 */
   await coEn(b+p2); coAvisaTarde('mel 2ª',b+p2);
-  await paseMel(D,mel.seq,1.5,1.5,'2ª escucha','');
+  await coPaseMel(D,mel.seq,1.5,1.5,'2ª escucha','');
   await coEn(b+fin);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await coFinEjercicio('Si te equivocas en una nota, pero mantienes los intervalos siguientes, solo cuenta un error');
+  await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(1,res);
   await coEn(b+corr);
   I.empiezaRev();
@@ -2213,7 +2222,7 @@ async function coArm(b){
   await coEn(b+fin); coAvisaTarde('arm fin',b+fin);
   A.parpadea(2,false);
   enTiempo(coT(b+velo),()=>I.bloquea());
-  await coFinEjercicio('Tiple, bajo e inversión');
+  await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(3,res);
   await coEn(b+corr);
   const INV=['Estado fundamental','1ª inversión','2ª inversión'], ROLN=['la fundamental','la tercera','la quinta'];
@@ -2285,7 +2294,7 @@ async function coCad(b){
   await espera(0.8); await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.4));
   await coEn(b+sc.fin); coAvisaTarde('cad fin',b+sc.fin);
   enTiempo(coT(b+sc.velo),()=>I.bloquea());
-  await coFinEjercicio('Elige la cadencia');
+  await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(4,res);
   await coEn(b+sc.corr);
   B.bajos(false); B.solucion(); I.marca();
