@@ -147,3 +147,12 @@ html.co-on,html.co-on body{overflow:hidden}
 #co .fh.vacio input::-webkit-calendar-picker-indicator{opacity:0}
 #co .fh.vacio:hover input{background:rgba(255,210,63,.1)}
 #co .fh .ph svg{width:19px;height:19px;flex:none}
+
+/* (19-nov 22:01, Iago) «Carrusel» recto, con la letra de la marca de la partida y los colores; hueco de fecha más ancho; megáfono */
+#co .logo .tt .car{font-style:normal;transform:none;font-size:58px;padding:0 .02em;letter-spacing:-.01em}
+#co .card .row:has(.fh){flex-wrap:nowrap}
+#co .fh{flex:1;min-width:0}
+#co .fh input{width:100%;min-width:0;box-sizing:border-box}
+#co .card .row:has(.fh) .btn{flex:none}
+#co .meg{display:inline-flex;vertical-align:-3px;margin-left:7px;color:#fff}
+#co .meg svg{width:19px;height:19px}
