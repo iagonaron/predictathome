@@ -1986,6 +1986,14 @@ function coMelUI(D,key,mel){
      sube y baja; al soltar, se escribe. Con el ratón, la fantasma sigue al puntero y el clic escribe. Tocar el número sin
      arrastrar solo elige esa nota. */
   const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
+  let tipoPtr='touch';
+  svg.addEventListener('pointerdown',ev=>{ tipoPtr=ev.pointerType||'touch'; },true);
+  { const m0=D.marca; D.marca=i=>{ m0(i); if(tipoPtr!=='mouse'&&!bloq&&!rev&&!dedo&&i>=1&&i<=8&&sel!==i){ sel=i; dibuja(); } }; }
+  const hov=sv('rect',{class:'co-col-hov',x:0,y:0,width:0,height:0,rx:10},svg); svg.insertBefore(hov,svg.firstChild);
+  const pintaHov=k=>{ if(k<1||k>8||bloq||rev){ hov.setAttribute('width',0); return; } const w=(P[2].cx-P[1].cx);
+    hov.setAttribute('x',P[k].cx-w/2+3); hov.setAttribute('y',P[0].cy-58); hov.setAttribute('width',w-6); hov.setAttribute('height',150); };
+  svg.addEventListener('pointermove',ev=>{ if(ev.pointerType==='mouse'&&!dedo){ const p=punto(ev); pintaHov(p.y>yTop-14&&p.y<numY+10?col(p.x):-1); } });
+  svg.addEventListener('pointerleave',()=>pintaHov(-1));
   const numY=(()=>{ const t=svg.querySelector('.pcg-num'); return t?+t.getAttribute('y'):yDn(topdn-8)+60; })(), yTop=yDn(topdn+5)-10;
   const yNum=(yDn(topdn-13)+numY-30)/2;   /* toda la franja entre la nota más grave posible y los números cuenta como «número» */
   const pintaF=(k,dn)=>{ gG.innerHTML=''; const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,false,false,true); };
@@ -1994,6 +2002,7 @@ function coMelUI(D,key,mel){
     const dn=dnDe(p.y); pintaF(k,dn); return {k,dn}; };
   svg.addEventListener('pointermove',ev=>{ if(bloq||rev) return;
     if(dedo){ if(ev.pointerId!==dedo.id) return; const p=punto(ev);
+      if(dedo.soloSel) return;   /* el primer toque en otra franja solo la elige */
       if(dedo.num&&Math.abs(p.y-dedo.y0)<6) return;   /* en el número, sin moverse todavía */
       dedo.f={k:dedo.k,dn:dnDe(p.y)}; pintaF(dedo.k,dedo.f.dn); return; }
     fantasma(ev); });
@@ -2008,8 +2017,11 @@ function coMelUI(D,key,mel){
     if(ev.pointerType!=='mouse'&&!num){
       /* (19-nov 22:19, Iago: «se me queda en la nota 2») tocas en OTRA columna: si ya tiene nota, solo pasa a ser la elegida
          (no se mueve nada); si está vacía, la nota se escribe ahí. En la columna elegida, la mueves a donde toques/arrastres. */
-      if(k!==sel&&ans[k]){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,y0:p.y,f:null}; ev.preventDefault(); return; }
+      /* (19-nov 22:22, Iago) cada nota tiene su franja vertical: el primer toque en otra franja SOLO la elige (azul claro);
+         en la franja elegida, tocar o arrastrar escribe. Mientras suena, la elegida es la que está sonando. */
+      if(k!==sel){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,soloSel:true,y0:p.y,f:null}; ev.preventDefault(); return; }
       dedo={id:ev.pointerId,k,num:false,y0:p.y,f:{k,dn:dnDe(p.y)},tactil:true}; pintaF(k,dedo.f.dn); ev.preventDefault(); return; }
+    if(ev.pointerType!=='mouse'&&num){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,soloSel:k!==sel,y0:p.y,f:null}; ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
     ev.preventDefault(); });
   const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;

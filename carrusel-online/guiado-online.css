@@ -710,3 +710,6 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 .co-rit.rev{padding-top:30px}
 .co-rit:not(.rev) .co-pool{margin-top:-14px}
 .co-card{min-height:calc(var(--fig-h) + 18px)}
+
+/* (19-nov 22:22, Iago) con el ratón, la franja de cada nota se ilumina al pasar por encima */
+#pcg .co-col-hov{fill:rgba(91,157,255,.10);pointer-events:none}
