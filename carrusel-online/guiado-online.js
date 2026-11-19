@@ -2403,11 +2403,15 @@ async function coCad(b){
    PREPARACIÓN, PARTIDA Y FINAL
    ============================================================================ */
 async function coPrep(finOff){
-  EJ_ACT=-1; ESC=null; fondo('multi'); STAGE.innerHTML='';
-  const p=el('div','pcg-prep');
-  p.innerHTML='<div class="t">El carrusel empezará en…</div><div class="reloj">0:00</div><div class="sub">Sube el volumen: vas a necesitar el oído</div>';
-  STAGE.appendChild(p); const r=$('.reloj',p);
-  const iv=setInterval(()=>{ const s=Math.max(0,Math.ceil((CO.inicio+finOff*1000-CO.now())/1000)); r.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); },200);
+  EJ_ACT=-1; ESC=null; fondo('multi');
+  /* si ya está la cuenta atrás provisional (partida individual), se aprovecha: sin volver a aparecer */
+  let p=STAGE.querySelector('.pcg-prep.co-previa');
+  if(!p){ STAGE.innerHTML=''; p=el('div','pcg-prep');
+    p.innerHTML='<div class="t">El carrusel empezará en…</div><div class="reloj">0:00</div><div class="sub">Sube el volumen: vas a necesitar el oído</div>';
+    STAGE.appendChild(p); }
+  p.classList.remove('co-previa'); const r=$('.reloj',p);
+  const tic=()=>{ const s=Math.max(0,Math.ceil((CO.inicio+finOff*1000-CO.now())/1000)); r.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+  tic(); const iv=setInterval(tic,200);   /* (19-nov 22:31, Iago) sin el «0:00» de un instante */
   /* (19-nov, Iago) la música de la previa, como en clase: suena el final de su crescendo, a tempo con el reloj */
   let mus=true;
   (async()=>{ try{
@@ -2529,6 +2533,10 @@ async function coJugar(cfg){
 }
 
 window.PCOnline={ jugar:coJugar, parar:coParar, piano:()=>PIANO_EST,
+  /* (19-nov 22:31, Iago: «unos frames de pantalla extraña antes de la cuenta atrás») mientras se crea la partida individual,
+     ya se ve la pantalla de la cuenta atrás (con el remolino), y la partida entra encima sin saltos */
+  previa(seg){ if(CO) return; if(!ROOT) montar(); ROOT.classList.add('online'); ROOT.classList.remove('lobby','en-portada','quieto'); MODO='lobby'; ESC=null; fondo('multi');
+    STAGE.innerHTML='<div class="pcg-prep co-previa"><div class="t">El carrusel empezará en…</div><div class="reloj">0:'+String(seg||10).padStart(2,'0')+'</div><div class="sub">Sube el volumen: vas a necesitar el oído</div></div>'; },
   logo:id=>logoSVG(id),   // la espiral multicolor de la portada del aula (para el lobby)
   fondoLobby(on){ if(CO) return;   // el remolino multicolor de la portada, por detrás del lobby
     if(on){ if(!ROOT) montar(); ROOT.classList.add('online','en-portada','lobby'); ROOT.classList.remove('quieto'); MODO='lobby'; ESC=null; fondo('multi'); STAGE.innerHTML=''; }

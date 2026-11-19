@@ -104,7 +104,7 @@ async function refrescaLista(){
 
 function pintaLobby(){
   if(ST.vista!=='lobby') return;
-  try{ PCOnline.fondoLobby(true); }catch(e){}
+  if(raiz.style.visibility!=='hidden'){ try{ PCOnline.fondoLobby(true); }catch(e){} }   /* con la cuenta atrás de la individual a la vista, no se toca */
   const act=document.activeElement, enInput=act&&act.id==='hora', valorHora=enInput?act.value:null;
   const lista=ST.lista.map(p=>{
     const abierta=p.lobby_abierto, mia=p.soy_creador;
@@ -144,9 +144,9 @@ function pintaTiempos(){ /* los textos de «cuándo» no cambian cada segundo; r
 
 function enlaza(){
   pintaPiano();
-  const solo=async(bt)=>{ audioListo(); bt.disabled=true; const r=await cr('crear');
+  const solo=async(bt)=>{ audioListo(); bt.disabled=true; raiz.style.visibility='hidden'; try{ PCOnline.previa(10); }catch(e){} const r=await cr('crear');
     if(r&&r.ok){ ST.soloId=r.id; if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
-    else { ST.aviso=r&&r.error==='aun_no'?'El carrusel online se abre '+ABRE_TXT+'.':r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
+    else { raiz.style.visibility=''; try{ PCOnline.fondoLobby(true); }catch(e){} ST.aviso=r&&r.error==='aun_no'?'El carrusel online se abre '+ABRE_TXT+'.':r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
   const ah=document.getElementById('bAhora'); if(ah) ah.onclick=()=>solo(ah);
   const bso=document.getElementById('bSolo'); if(bso) bso.onclick=()=>solo(bso);
   const bns=document.getElementById('bNoSolo'); if(bns) bns.onclick=()=>{ ST.solo=false; pintaLobby(); };
@@ -197,7 +197,7 @@ async function refrescaSala(){
 }
 function pintaSala(){
   if(ST.vista!=='sala'||!ST.est) return;
-  try{ PCOnline.fondoLobby(true); }catch(e){}
+  if(raiz.style.visibility!=='hidden'){ try{ PCOnline.fondoLobby(true); }catch(e){} }   /* con la cuenta atrás de la individual a la vista, no se toca */
   const e=ST.est, p=e.p, js=e.jugadores||[];
   const dentro=js.filter(j=>j.dentro), pend=js.filter(j=>!j.dentro&&j.resp==='si');
   const hostDentro=p.anfitrion_id && dentro.some(j=>j.id===p.anfitrion_id);
@@ -280,15 +280,17 @@ addEventListener('resize',ajustaLobby); ajustaLobby();
 window.LobbyOnline={ arranca:async function(){
   document.documentElement.classList.add('co-on');
   if(!CUENTA){ sinCuenta(); return; }
+  if(QS.get('solo')==='1'){ raiz.style.visibility='hidden'; try{ PCOnline.previa(10); }catch(e){} }   /* (19-nov 22:31) la cuenta atrás desde el primer instante */
   { const r0=await cr('lista'); if(r0&&r0.ok){ ST.abierto=r0.abierto; ST.tester=r0.tester; } }
   if(QS.get('solo')==='1'&&!cerrado()){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}
     raiz.style.visibility='hidden';   /* (19-nov 22:24, Iago) de «Jugar ahora» directo a la cuenta atrás, sin ver el lobby */
     audioListo(); const r=await cr('crear');
     if(r&&r.ok){ ST.soloId=r.id; if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
-    raiz.style.visibility='';
+    raiz.style.visibility=''; try{ PCOnline.fondoLobby(true); }catch(e){}
     ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida individual.';
   }
+  if(QS.get('solo')==='1'&&raiz.style.visibility==='hidden'&&ST.vista!=='juego'&&!ST.soloId){ raiz.style.visibility=''; try{ PCOnline.fondoLobby(true); }catch(e){} }
   const QP=QS.get('p');
   if(QP&&/^[0-9a-f-]{36}$/i.test(QP)){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}
