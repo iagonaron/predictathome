@@ -985,7 +985,7 @@ function dibujaArmonico(host,a,b){
     sv('path',{d:'M'+xF+' '+y1+' L'+xF+' '+y2+' M'+(xF-5.5)+' '+(y2-6.5*s)+' L'+xF+' '+y2+' L'+(xF+5.5)+' '+(y2-6.5*s)},g); return g; };
   const fAbajo=flechaV(yM+3,yM+GAP+RH-1), fArriba=flechaV(yM-3,yM-GAP-RH+1);
   return {
-    p1,p2, fila, svg2, st2, cxM, yM, ops1:$('.arm-ops',p1), ops2:$('.arm-ops',p2), acorde1:A1.g, acorde2:Afull.g, central:Asol.g, parentesis:par, ord,
+    p1,p2, fila, svg2, st2, cxM, yM, xL, xR, cxO:Aord.cx, ops1:$('.arm-ops',p1), ops2:$('.arm-ops',p2), acorde1:A1.g, acorde2:Afull.g, central:Asol.g, parentesis:par, ord,
     // (30-sep-2026) ilumina en morado el acorde 1 entero ('todo'), una de sus notas (0 = la más grave) o ninguna (null)
     luz1(k){ const hs=[...A1.g.querySelectorAll('.vf-notehead')].sort((p,q)=>q.getBBox().y-p.getBBox().y);
       hs.forEach((h,i)=>h.classList.toggle('pcg-luz',k==='todo'||k===i)); },
@@ -1025,7 +1025,16 @@ function dibujaArmonico(host,a,b){
     // (6-oct-2026, Iago) la nota del BAJO del acorde del ejercicio se duplica y se desliza hacia la derecha, paralela a las
     // líneas, hasta coincidir con su nota en el acorde ordenado; deja un hilo fino para que se vea que no cambia de altura.
     // (Antes era al revés: la nota del acorde ordenado bajaba hasta el bajo.)
-    viaja(seg){ const hs=[...Afull.g.querySelectorAll('.vf-notehead')].sort((p,q)=>q.getBBox().y-p.getBBox().y), h=hs[0]; if(!h) return;
+    viaja(seg){ if(MODO==='online'){   /* (19-nov-2026, Iago) online: la nota viaja del acorde ORDENADO (derecha) al bajo del real (izquierda) */
+        const hsO=[...Aord.g.querySelectorAll('.vf-notehead')].sort((p,q)=>q.getBBox().y-p.getBBox().y), hO=hsO[b.inv]; if(!hO) return;
+        const dx=Afull.cx-Aord.cx, dy=yb-yo, x1=Aord.x1-3, x2=Afull.x2+3, L=Math.hypot(x2-x1,dy);
+        const hilo=sv('line',{class:'pcg-hilo',x1:x1,y1:yo,x2:x2,y2:yb},svg2);
+        hilo.style.strokeDasharray=L; hilo.style.strokeDashoffset=L; hilo.style.transition='stroke-dashoffset '+seg+'s cubic-bezier(.45,0,.25,1)';
+        const cl=hO.cloneNode(true); cl.removeAttribute('id'); cl.classList.add('pcg-luz','pcg-viaja'); svg2.appendChild(cl);
+        cl.style.transition='transform '+seg+'s cubic-bezier(.45,0,.25,1)';
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{ cl.style.transform='translate('+dx+'px,'+dy+'px)'; hilo.style.strokeDashoffset='0'; }));
+        return; }
+      const hs=[...Afull.g.querySelectorAll('.vf-notehead')].sort((p,q)=>q.getBBox().y-p.getBBox().y), h=hs[0]; if(!h) return;
       let xo=Aord.x1; try{ xo=Math.min(xo,Aord.g.getBBox().x); }catch(e){}   // si el acorde ordenado lleva alteraciones, el hilo acaba antes de ellas
       const dx=Aord.cx-Afull.cx, dy=yo-yb, x1=Afull.x2+3, x2=xo-3, L=Math.hypot(x2-x1,dy);
       const hilo=sv('line',{class:'pcg-hilo',x1:x1,y1:yb,x2:x2,y2:yo},svg2);
@@ -1624,7 +1633,7 @@ function coSchedTon(){ const T=datosToncom, key={tpc:TONIC_PC[T.key.tonic],mode:
   const dict=genTonDictadoG(key,compas,mulberry32(((Number(SEMILLA)||0)*31+7)>>>0)), pt=(compas.comp?1.5:1)*(60/compas.bpm);
   const Dt=dict.events.reduce((a,e)=>a+e.durSec,0), PT=3.5+0.3+5*pt+Dt+0.5, pc=42, fin=pc+PT;
   return {key,dict,pt,pc,fin,velo:fin+7,corr:fin+12,end:fin+12+9}; }
-function coSchedArm(){ const fin=66; return {fin,velo:fin+7,corr:fin+12,end:fin+12+14}; }
+function coSchedArm(){ const fin=66; return {fin,velo:fin+7,corr:fin+12,end:fin+12+18}; }
 /* bonus · cadencias: el guion es el del aula (3 escuchas, letrero «¿A qué te suena?», bajo en amarillo, 4 opciones); aquí, además, se elige */
 function coSchedCad(){ const gen=cadenciaDe(SEMILLA), spb=60/84, N=gen.ev.length, Dq=gen.ev.reduce((a,e)=>a+e.q,0)*spb, L2=(gen.ev[N-2].q+gen.ev[N-1].q)*spb;
   let t=2.7+1.4+0.6; t+=0.1+Dq+0.5; const ops=t; t+=0.8+0.1+Dq+0.4; const fin=t+4;
@@ -2089,10 +2098,19 @@ function coArmUI(A,a,bb){
     const AG={'♭':'accidentalFlat','♮':'accidentalNatural','♯':'accidentalSharp'}[alt]; if(AG) coGlyph(g,AG,h.x0-3,y,col,'r'); };
   const pintaVoz=()=>{ gA.innerHTML='';
     ['tiple','bajo'].forEach(k=>{ const r=resp[k]; voz[k].classList.toggle('co-sel',k===selV&&!b2); voz[k].classList.toggle('co-llena',!!r.l);
-      voz[k].querySelector('text').textContent=r.l?'':(k==='tiple'?'tiple':'bajo');
       if(r.l) cabeza(gA,yDn(r.dn),'#16132b',true,ALT[String(r.a)]); });
     keys.querySelectorAll('[data-a]').forEach(x=>x.classList.toggle('sel',!!resp[selV].l&&Number(x.dataset.a)===resp[selV].a));
     keys.querySelector('.etq').textContent=resp[selV].l?('Alteración de la nota '+(selV==='tiple'?'de arriba':'de abajo')):'Escribe con la nota fantasma la de arriba y la de abajo'; };
+  /* (19-nov, Iago) «tiple» y «bajo», a la IZQUIERDA de su recuadro (no tapan donde se escribe); y a la derecha, el paréntesis
+     para ordenar el acorde si quieres (no puntúa): tocas para poner o quitar notas */
+  ['tiple','bajo'].forEach(k=>{ const rc=voz[k].querySelector('rect'), tx=voz[k].querySelector('text');
+    if(rc&&tx){ tx.setAttribute('x',(+rc.getAttribute('x')-6)); tx.setAttribute('text-anchor','end'); tx.classList.add('co-etq-izq'); } });
+  try{ A.verParentesis(); }catch(e){}
+  const gO=sv('g',{class:'co-ord'},svg), ordN=new Set();
+  const pintaOrd=()=>{ gO.innerHTML=''; ordN.forEach(dn=>{ const y=yDn(dn);
+      for(let yy=yL0-10;yy>=y-1;yy-=10) sv('line',{x1:A.cxO-13,x2:A.cxO+13,y1:yy,y2:yy,stroke:'#16132b','stroke-width':1.6},gO);
+      for(let yy=yL4+10;yy<=y+1;yy+=10) sv('line',{x1:A.cxO-13,x2:A.cxO+13,y1:yy,y2:yy,stroke:'#16132b','stroke-width':1.6},gO);
+      coGlyph(gO,'noteheadWhole',A.cxO,y,'#16132b'); }); };
   const keys=el('div','co-keys','<div class="etq"></div><div class="fl"></div>'); A.p2.insertBefore(keys,A.ops2);
   const fl=keys.querySelector('.fl');
   [['-1','♭'],['0','♮'],['1','♯']].forEach(([v,h])=>{ const bt=el('button','co-k acc',h); bt.dataset.a=v;
@@ -2103,12 +2121,15 @@ function coArmUI(A,a,bb){
   svg.style.touchAction='none';
   /* (19-nov, Iago) la fantasma sigue al dedo y la nota se escribe AL SOLTAR */
   let dedoA=null;
-  const fantA=ev=>{ gG.innerHTML=''; if(b2) return null; const z=zona(ev); if(!z) return null; cabeza(gG,yDn(z.dn),VIO,false,''); return z; };
+  const zonaOrd=ev=>{ const p=punto(ev); if(p.x<A.xL-6||p.x>A.xR+6) return null; const dn=dnM-Math.round((p.y-yM)/5); if(Math.abs(dn-dnM)>9) return null; return {ord:true,dn}; };
+  const fantA=ev=>{ gG.innerHTML=''; if(b2) return null; const zo=zonaOrd(ev);
+    if(zo){ const y=yDn(zo.dn); coGlyph(gG,'noteheadBlack',A.cxO,y,VIO); return zo; }
+    const z=zona(ev); if(!z) return null; cabeza(gG,yDn(z.dn),VIO,false,''); return z; };
   svg.addEventListener('pointermove',ev=>{ const z=fantA(ev); if(dedoA) dedoA.z=z; });
   svg.addEventListener('pointerleave',()=>{ if(!dedoA) gG.innerHTML=''; });
   svg.addEventListener('pointerdown',ev=>{ if(b2) return; try{ svg.setPointerCapture(ev.pointerId); }catch(_){} dedoA={id:ev.pointerId,z:fantA(ev)}; ev.preventDefault(); });
   svg.addEventListener('pointerup',ev=>{ if(!dedoA||ev.pointerId!==dedoA.id) return; const z=fantA(ev)||dedoA.z; dedoA=null; gG.innerHTML='';
-    if(!z||b2) return; const r=resp[z.k]; const nl=LET[((z.dn%7)+7)%7]; if(r.l!==nl) r.a=0; r.l=nl; r.dn=z.dn; selV=z.k; pintaVoz(); coTic(); });
+    if(!z||b2) return; if(z.ord){ if(ordN.has(z.dn)) ordN.delete(z.dn); else ordN.add(z.dn); pintaOrd(); return; } const r=resp[z.k]; const nl=LET[((z.dn%7)+7)%7]; if(r.l!==nl) r.a=0; r.l=nl; r.dn=z.dn; selV=z.k; pintaVoz(); coTic(); });
   svg.addEventListener('pointercancel',()=>{ dedoA=null; gG.innerHTML=''; });
   pintaVoz();
   return {
@@ -2122,7 +2143,7 @@ function coArmUI(A,a,bb){
       if(resp.inv===sol.inv) p+=300;
       return {puntos:p,detalle:{resp,sol}}; },
     marcaInv(){ const s=A.ops2.querySelector('[data-i="'+resp.inv+'"]'); if(s&&resp.inv!==sol.inv) s.classList.add('ko'); },
-    revelaVoces(){ gA.innerHTML=''; keys.classList.remove('off'); keys.innerHTML=['tiple','bajo'].map(k=>{ const ok=resp[k].l===sol[k].l&&resp[k].a===sol[k].a;
+    revelaVoces(){ gA.innerHTML=''; gO.innerHTML=''; keys.classList.remove('off'); keys.innerHTML=['tiple','bajo'].map(k=>{ const ok=resp[k].l===sol[k].l&&resp[k].a===sol[k].a;
       return '<div class="co-res '+(ok?'ok':'ko')+'">'+(k==='tiple'?'Tiple':'Bajo')+': '+(ok?CO_OK+nom(sol[k]):CO_KO+'tú '+nom(resp[k])+' → '+nom(sol[k]))+'</div>'; }).join(''); }
   };
 }

@@ -653,3 +653,9 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 .co-slot{position:absolute}
 .co-x{position:absolute;right:-6px;top:-8px;width:30px;height:30px;border-radius:50%;background:#dc2626;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:3;cursor:pointer}
 .co-x .co-ic{margin:0;width:16px;height:16px;stroke-width:3.4}
+
+/* acorde 2: etiquetas a la izquierda */
+#pcg .pcg-voz text.co-etq-izq{fill:#7c3aed;font-weight:800}
+#pcg .pcg-voz text.co-etq-izq,#pcg .pcg-slots.foco .pcg-voz text.co-etq-izq{opacity:1!important;fill:#7c3aed;font-size:12.5px}
+#pcg .pcg-voz rect,#pcg .pcg-slots.foco .pcg-voz:not(.luz) rect{opacity:.10}
+#pcg .pcg-voz.luz rect{opacity:.22}
