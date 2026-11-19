@@ -717,3 +717,6 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 /* (19-nov 22:27) ▲ ▼ para afinar la nota elegida (cómodos con el dedo) */
 .co-tools .co-ud{min-width:64px;justify-content:center}
 .co-tools .co-ud b{font-size:22px}
+
+/* (19-nov 22:33, Iago) online: nunca el velo oscuro de «Solución en»; la cuenta va abajo y se puede seguir respondiendo */
+#pcg.online .pcg-velo{display:none!important}

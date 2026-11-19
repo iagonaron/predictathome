@@ -1639,9 +1639,9 @@ function coMidiDn(m,key){
 }
 
 /* ---------- el horario de la partida (sale de los propios ejercicios: todos los clientes calculan lo mismo) ---------- */
-function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=0.3+5*pr+R+0.5, p1=3, p2=p1+P+6, fin=p2+P, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
+function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=0.3+5*pr+R+0.5, p1=3, p2=p1+P+9, fin=p2+P, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
   return {M,R,pr,P,p1,p2,fin,velo:fin,corr:fin+5,end:fin+5+tot}; }   /* (19-nov 21:21, Iago) sin pausa antes del 5·4·3·2·1 de la 2.ª escucha y solo los 5 s de «Solución en» */
-function coSchedMel(){ const P1=0.3+5+0.15+(10*4-2+0.4), P2=0.3+5+0.15+(10*3-1.5+0.4), p1=3, p2=p1+P1+6, fin=p2+P2;   /* (19-nov 21:27, Iago) ya escrito todo lo dado: directamente el 5·4·3·2·1 */
+function coSchedMel(){ const P1=0.3+5+0.15+(10*4-2+0.4), P2=0.3+5+0.15+(10*3-1.5+0.4), p1=3, p2=p1+P1+9, fin=p2+P2;   /* (19-nov 21:27, Iago) ya escrito todo lo dado: directamente el 5·4·3·2·1 */
   return {p1,p2,fin,velo:fin,corr:fin+5,end:fin+5+22}; }
 function coSchedTon(){ const T=datosToncom, key={tpc:TONIC_PC[T.key.tonic],mode:T.key.mode,sig:T.key.sig}, compas=TON_COMPAS_G[T.compas]||TON_COMPAS_G['2/4'];
   const dict=genTonDictadoG(key,compas,mulberry32(((Number(SEMILLA)||0)*31+7)>>>0)), pt=(compas.comp?1.5:1)*(60/compas.bpm);
