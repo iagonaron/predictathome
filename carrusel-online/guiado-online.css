@@ -648,3 +648,8 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 .co-rank:has(.lista .fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .fila .nom i{font-size:17px}
 .co-rank:has(.lista .fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .fila .del{font-size:22px}
 .co-rank:has(.lista .fila ~ .fila ~ .fila ~ .fila ~ .fila ~ .fila) .cab{padding-bottom:2px;font-size:15px}
+
+/* ✕ para borrar la figura del pulso elegido */
+.co-slot{position:absolute}
+.co-x{position:absolute;right:-6px;top:-8px;width:30px;height:30px;border-radius:50%;background:#dc2626;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:3;cursor:pointer}
+.co-x .co-ic{margin:0;width:16px;height:16px;stroke-width:3.4}

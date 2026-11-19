@@ -1570,7 +1570,7 @@ function abrir(){ if(abierto) return; abierto=true; montar(); portada(); }
    armónico: opciones) y, entre ejercicio y ejercicio, la clasificación de la partida.
    Todo va anclado al reloj del servidor: cada ejercicio empieza en un instante fijo desde «inicio».
    ============================================================================ */
-const CO_PREP=15, CO_RANK=10, CO_FINAL=25;   // preparación · clasificación tras cada ejercicio · pantalla final
+const CO_PREP=15, CO_RANK=17, CO_FINAL=25;   /* (19-nov 20:41, Iago) la clasificación, más larga: que se vea moverse */   // preparación · clasificación tras cada ejercicio · pantalla final
 const CO_NOM=['Rítmico','Melódico','TonCom','Armónico','Cadencias'];
 let CO=null;      // la partida en curso: {id,inicio,now(),cr(fn,args),onFin(),est,mias:{},...}
 const coEsc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1617,18 +1617,18 @@ function coMidiDn(m,key){
 
 /* ---------- el horario de la partida (sale de los propios ejercicios: todos los clientes calculan lo mismo) ---------- */
 function coSchedRit(){ const M=modeloRitmo(), R=M.totalQ*M.spq, pr=M.spq*M.beatQ, P=2.3+5*pr+R+0.5, p1=6, p2=p1+P+10, fin=p2+P, tot=Math.ceil(R+0.4+1.5)+1;   /* (19-nov, Iago) online: corregido y adelante, sin tiempo de libreta */
-  return {M,R,pr,P,p1,p2,fin,velo:fin+1.5,corr:fin+3,end:fin+3+tot}; }
+  return {M,R,pr,P,p1,p2,fin,velo:fin+7,corr:fin+12,end:fin+12+tot}; }
 function coSchedMel(){ const P1=2.0+0.3+5+0.15+(10*4-2+0.4), P2=2.0+0.3+5+0.15+(10*3-1.5+0.4), p1=11, p2=p1+P1+10, fin=p2+P2;
-  return {p1,p2,fin,velo:fin+1.5,corr:fin+3,end:fin+3+22}; }
+  return {p1,p2,fin,velo:fin+7,corr:fin+12,end:fin+12+22}; }
 function coSchedTon(){ const T=datosToncom, key={tpc:TONIC_PC[T.key.tonic],mode:T.key.mode,sig:T.key.sig}, compas=TON_COMPAS_G[T.compas]||TON_COMPAS_G['2/4'];
   const dict=genTonDictadoG(key,compas,mulberry32(((Number(SEMILLA)||0)*31+7)>>>0)), pt=(compas.comp?1.5:1)*(60/compas.bpm);
   const Dt=dict.events.reduce((a,e)=>a+e.durSec,0), PT=3.5+0.3+5*pt+Dt+0.5, pc=42, fin=pc+PT;
-  return {key,dict,pt,pc,fin,velo:fin+1.5,corr:fin+3,end:fin+3+9}; }
-function coSchedArm(){ const fin=66; return {fin,velo:fin+1.5,corr:fin+3,end:fin+3+14}; }
+  return {key,dict,pt,pc,fin,velo:fin+7,corr:fin+12,end:fin+12+9}; }
+function coSchedArm(){ const fin=66; return {fin,velo:fin+7,corr:fin+12,end:fin+12+14}; }
 /* bonus · cadencias: el guion es el del aula (3 escuchas, letrero «¿A qué te suena?», bajo en amarillo, 4 opciones); aquí, además, se elige */
 function coSchedCad(){ const gen=cadenciaDe(SEMILLA), spb=60/84, N=gen.ev.length, Dq=gen.ev.reduce((a,e)=>a+e.q,0)*spb, L2=(gen.ev[N-2].q+gen.ev[N-1].q)*spb;
   let t=2.7+1.4+0.6; t+=0.1+Dq+0.5; const ops=t; t+=0.8+0.1+Dq+0.4; const fin=t+4;
-  return {gen,ops,fin,velo:fin+1.5,corr:fin+3,end:fin+3+Math.ceil(L2+2.5)}; }
+  return {gen,ops,fin,velo:fin+7,corr:fin+12,end:fin+12+Math.ceil(L2+2.5)}; }
 
 /* ---------- envío de la respuesta y clasificación ---------- */
 /* (19-nov, Iago) a igualdad de puntos gana quien contestó antes: el tiempo es el de tu último cambio */
@@ -1699,21 +1699,21 @@ async function coRanking(i,finOff){
     const L=$('.lista',c), filas={};
     ini.forEach((q,k)=>{ const f=q.f, d=el('div','fila'+(f.yo?' yo':''),'<span class="pos">'+(k+1)+'</span><span class="nom">'+coEsc(f.nombre)+' <i>'+coEsc(coGrupo(f.grupo))+'</i></span><span class="del">–</span><span class="pts">'+q.p0+'</span>');
       L.appendChild(d); filas[f.id]={d,f,p0:q.p0}; });
-    await new Promise(r=>setTimeout(r,900));
+    await new Promise(r=>setTimeout(r,1500));
     /* 1) los puntos suben contando */
-    const dur=1.4, t0=performance.now(), maxD=Math.max(1,...ver.map(f=>f.delta||0)); let ult=-1;
+    const dur=2.4, t0=performance.now(), maxD=Math.max(1,...ver.map(f=>f.delta||0)); let ult=-1;
     await new Promise(res=>{ (function paso(){ const k=Math.min(1,(performance.now()-t0)/(dur*1000)), e=1-Math.pow(1-k,3);
       Object.values(filas).forEach(o=>{ const dl=Math.round((o.f.delta||0)*e); o.d.querySelector('.del').textContent=dl?'+'+dl:'–'; o.d.querySelector('.pts').textContent=Math.round(o.p0+(o.f.pts-o.p0)*e); });
-      const step=Math.floor(k*14); if(step!==ult&&k<1&&maxD>1){ ult=step; coBlip(520+step*45,ahora()+0.01,0.06,0.05,'triangle'); }
+      const step=Math.floor(k*20); if(step!==ult&&k<1&&maxD>1){ ult=step; coBlip(520+step*32,ahora()+0.01,0.06,0.05,'triangle'); }
       if(k<1) requestAnimationFrame(paso); else res(); })(); });
     coBlip(1046,ahora()+0.02,0.25,0.07,'sine');
-    await new Promise(r=>setTimeout(r,500));
+    await new Promise(r=>setTimeout(r,900));
     /* 2) se reordenan deslizándose (FLIP) */
     const y0={}; Object.values(filas).forEach(o=>{ y0[o.f.id]=o.d.getBoundingClientRect().top; });
     const orden=ver.slice().sort((a,b)=>a.pos-b.pos);
     const susp=yoN&&yoN.pos>N; orden.forEach((f,k)=>{ if(susp&&f.yo) L.appendChild(el('div','puntos-susp','…')); const o=filas[f.id]; L.appendChild(o.d); o.d.querySelector('.pos').textContent=f.pos; });
     let mov=false; Object.values(filas).forEach(o=>{ const dy=y0[o.f.id]-o.d.getBoundingClientRect().top; if(Math.abs(dy)>2){ mov=true;
-      o.d.style.transition='none'; o.d.style.transform='translateY('+dy+'px)'; o.d.getBoundingClientRect(); o.d.style.transition='transform .75s cubic-bezier(.2,.8,.2,1)'; o.d.style.transform=''; } });
+      o.d.style.transition='none'; o.d.style.transform='translateY('+dy+'px)'; o.d.getBoundingClientRect(); o.d.style.transition='transform 1.3s cubic-bezier(.25,.8,.25,1)'; o.d.style.transform=''; } });
     if(mov){ coSwoosh(ahora()+0.01); }
     const yoA=yoN&&ini.findIndex(q=>q.f.yo), sube=yoN&&yoA>=0&&yoN.pos-1<yoA;
     if(sube){ [0,0.09,0.18].forEach((d,k)=>coBlip([784,988,1318][k],ahora()+0.35+d,0.22,0.08,'triangle')); filas[yoN.id].d.classList.add('sube'); }
@@ -1767,10 +1767,13 @@ function coRitmoUI(D,M){
   const pal=el('div','co-pool'); wrap.appendChild(pal);
   let sel=0, bloq=false;
   const pinta=s=>{ s.el.innerHTML=''; if(s.ans) coMini(s.el,s.ans,spec.compound); };
-  const marca=()=>{ slots.forEach((s,i)=>s.el.classList.toggle('sel',i===sel&&!bloq)); if(slots[sel]) fl.style.left=slots[sel].cx+'%'; };
+  /* (19-nov, Iago) para cambiar algo: tocas la figura puesta → sale una ✕ encima; la ✕ la borra y ese pulso queda listo para otra */
+  const marca=()=>{ slots.forEach((s,i)=>{ const on=i===sel&&!bloq; s.el.classList.toggle('sel',on);
+      let x=s.el.querySelector('.co-x'); if(on&&s.ans){ if(!x){ x=el('span','co-x',CO_KO); x.onclick=e=>{ e.stopPropagation(); if(bloq) return; s.ans=null; pinta(s); coTic(); marca(); }; s.el.appendChild(x); } } else if(x) x.remove(); });
+    if(slots[sel]) fl.style.left=slots[sel].cx+'%'; };
   const siguienteLibre=desde=>{ for(let k=1;k<=slots.length;k++){ const j=(desde+k)%slots.length; if(!slots[j].ans) return j; } return Math.min(slots.length-1,desde+1); };
   const pon=(i,cell)=>{ if(bloq) return; const s=slots[i]; s.ans=cell; pinta(s); coTic(); sel=siguienteLibre(i); marca(); };
-  slots.forEach((s,i)=>{ s.el.onclick=()=>{ if(bloq) return; if(sel===i&&s.ans){ s.ans=null; pinta(s); coTic(); } sel=i; marca(); }; });
+  slots.forEach((s,i)=>{ s.el.onclick=()=>{ if(bloq) return; sel=i; marca(); }; });
   pool.forEach(cell=>{
     const b=el('button','co-card'); coMini(b,cell,spec.compound);
     let ini=null, fan=null, sobre=-1;
@@ -1790,7 +1793,7 @@ function coRitmoUI(D,M){
   const ajusta=()=>{ const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
     pal.querySelectorAll('.co-mini').forEach(coRecorta);
     const rmax=Math.max.apply(null,[...pal.querySelectorAll('.co-mini svg')].map(v=>{ const b=v.viewBox.baseVal; return b&&b.height?b.width/b.height:1; }));
-    const h=Math.max(54,Math.min(122,sw*1.0/rmax)); wrap.style.setProperty('--fig-h',h.toFixed(1)+'px');
+    const h=Math.max(28,Math.min(122,sw*0.95/rmax));   /* (19-nov) ninguna figura pisa la barra de compás */ wrap.style.setProperty('--fig-h',h.toFixed(1)+'px');
     /* las cabezas, sobre la línea: centro de las barras de compás frente al centro del hueco */
     try{ const sr=slots[0].el.getBoundingClientRect(), esc=sr.height/slots[0].el.offsetHeight||1;
       const bar=[...nota.querySelectorAll('svg line, svg rect, svg path')].map(e=>e.getBoundingClientRect()).find(r=>r.height>25*esc&&r.width<6*esc);
@@ -1875,16 +1878,39 @@ function coMelUI(D,key,mel){
   function punto(ev){ const p=svg.createSVGPoint(); p.x=ev.clientX; p.y=ev.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
   function col(x){ let k=-1,bd=1e9; for(let i=1;i<=8;i++){ const d=Math.abs(P[i].cx-x); if(d<bd){ bd=d; k=i; } } return bd<(P[2].cx-P[1].cx)*0.55?k:-1; }
   svg.style.touchAction='none';
-  svg.addEventListener('pointermove',ev=>{ if(bloq||rev){ gG.innerHTML=''; return; }
-    const p=punto(ev), k=col(p.x), r=gG.parentNode; gG.innerHTML=''; if(k<0||p.y<P[0].cy-90||p.y>P[0].cy+110) return;
-    const dn=Math.max(topdn-13,Math.min(topdn+5,dnY(p.y)));
-    const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,false,false,true); });
-  svg.addEventListener('pointerleave',()=>{ gG.innerHTML=''; });
+  /* (19-nov, Iago: en el iPad la nota se quedaba donde empezabas a arrastrar) la fantasma sigue al dedo o al ratón y la nota
+     se escribe AL SOLTAR, en la columna y la altura donde está la fantasma */
+  let dedo=null;
+  /* (19-nov, Iago) en el iPad: tocas una columna (o su número) y la columna queda fijada; arrastras arriba/abajo y la fantasma
+     sube y baja; al soltar, se escribe. Con el ratón, la fantasma sigue al puntero y el clic escribe. Tocar el número sin
+     arrastrar solo elige esa nota. */
+  const dnDe=y=>Math.max(topdn-13,Math.min(topdn+5,dnY(y)));
+  const pintaF=(k,dn)=>{ gG.innerHTML=''; const cl=sv('g',{},gG); cabeza(cl,P[k].cx,yDn(dn),AZUL,false,false,true); };
+  const fantasma=ev=>{ gG.innerHTML=''; if(bloq||rev) return null;
+    const p=punto(ev), k=col(p.x); if(k<0||p.y<P[0].cy-90||p.y>P[0].cy+110) return null;
+    const dn=dnDe(p.y); pintaF(k,dn); return {k,dn}; };
+  svg.addEventListener('pointermove',ev=>{ if(bloq||rev) return;
+    if(dedo){ if(ev.pointerId!==dedo.id) return; const p=punto(ev);
+      if(dedo.num&&Math.abs(p.y-dedo.y0)<6) return;   /* en el número, sin moverse todavía */
+      dedo.f={k:dedo.k,dn:dnDe(p.y)}; pintaF(dedo.k,dedo.f.dn); return; }
+    fantasma(ev); });
+  svg.addEventListener('pointerleave',()=>{ if(!dedo) gG.innerHTML=''; });
   svg.addEventListener('pointerdown',ev=>{ if(bloq||rev) return; if(ev.target.closest&&ev.target.closest('.co-x')) return;
-    const p=punto(ev), k=col(p.x); if(k<0||p.y<P[0].cy-90||p.y>P[0].cy+110) return;
+    const p=punto(ev), k=col(p.x); if(k<0||p.y<P[0].cy-90) return;
     if(ev.button===2){ borra(k); return; }
-    const dn=dnY(p.y); if(ans[k]&&coDnMidi(ans[k].dn,ans[k].sharp,key)===coDnMidi(dn,ans[k].sharp,key)&&sel!==k){ sel=k; dibuja(); return; }
-    pon(k,dn); });
+    try{ svg.setPointerCapture(ev.pointerId); }catch(_){}
+    const num=p.y>P[0].cy+110;
+    dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
+    ev.preventDefault(); });
+  const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; const f=dedo.f, k=dedo.k; dedo=null;
+    if(ev.pointerType!=='mouse') gG.innerHTML='';
+    if(bloq||rev) return;
+    if(!f){ sel=k; dibuja(); return; }
+    const dn=f.dn;
+    if(ans[k]&&coDnMidi(ans[k].dn,ans[k].sharp,key)===coDnMidi(dn,ans[k].sharp,key)&&sel!==k){ sel=k; dibuja(); return; }
+    pon(k,dn); };
+  svg.addEventListener('pointerup',suelta);
+  svg.addEventListener('pointercancel',()=>{ dedo=null; gG.innerHTML=''; });
   svg.addEventListener('contextmenu',e=>e.preventDefault());
   // ♯ y borrar
   const tools=el('div','co-tools'); ESC.hoja.appendChild(tools);
@@ -1902,6 +1928,7 @@ function coMelUI(D,key,mel){
   document.addEventListener('keydown',onKey);
   dibuja();
   return {
+    intOk(i){ const a=midiDe(ans[i]), pa=midiDe(ans[i-1]); return a!=null&&pa!=null&&(a-pa)===(mel.seq[i]-mel.seq[i-1]); },
     bloquea(){ bloq=true; gG.innerHTML=''; dibuja(); tools.classList.add('off'); document.removeEventListener('keydown',onKey); },
     cierra(){ const e=errores(); return {puntos:Math.round(1000*Math.max(0,8-e)/8),detalle:{errores:e,resp:ans.map(midiDe)}}; },
     empiezaRev(){ rev=true; dibuja(); },
@@ -1932,7 +1959,10 @@ async function coMel(b){
   I.empiezaRev();
   const PASO=2.0;
   await coCorreccion(()=>{ cartel('Solución',(8-res.detalle.errores)+' de 8 notas · '+res.puntos+' puntos'); const t=ahora()+0.35;
-    mel.seq.forEach((m,i)=>{ const ti=t+S(i*PASO); nota(ti,m,0.95,S(1.3)); enTiempo(ti,()=>{ D.verNota(i); D.marca(i); if(i>0) D.intervalo(i); }); });
+    mel.seq.forEach((m,i)=>{ const ti=t+S(i*PASO); nota(ti,m,0.95,S(1.3)); enTiempo(ti,()=>{ D.verNota(i); D.marca(i); if(i>0){ D.intervalo(i);
+      /* (19-nov, Iago) el intervalo que acertaste (aunque la nota no), con el nombre en verde */
+      if(I.intOk(i)){ const ts=D.svg.querySelectorAll('.pcg-int-t'), bs=D.svg.querySelectorAll('.pcg-int-b'), t2=ts[ts.length-1], b2=bs[bs.length-1];
+        if(t2) t2.style.fill='#15803d'; if(b2){ b2.style.stroke='#22c55e'; b2.style.strokeWidth='2'; b2.style.fill='#ecfdf3'; } } } }); });
     enTiempo(t+S(9*PASO+1.3),()=>D.marca(-1)); return 0.35+9*PASO+1.3; },0,5);
   await coRanking(1,b+CO.slot[1]);
 }
@@ -2071,10 +2101,15 @@ function coArmUI(A,a,bb){
   const zona=ev=>{ const p=punto(ev); if(Math.abs(p.x-cx)>46) return null; const dn=dnM-Math.round((p.y-yM)/5);
     if(dn>dnM&&dn<=dnM+7) return {k:'tiple',dn}; if(dn<dnM&&dn>=dnM-7) return {k:'bajo',dn}; return null; };
   svg.style.touchAction='none';
-  svg.addEventListener('pointermove',ev=>{ gG.innerHTML=''; if(b2) return; const z=zona(ev); if(!z) return; cabeza(gG,yDn(z.dn),VIO,false,''); });
-  svg.addEventListener('pointerleave',()=>{ gG.innerHTML=''; });
-  svg.addEventListener('pointerdown',ev=>{ if(b2) return; const z=zona(ev); if(!z) return; const r=resp[z.k];
-    const nl=LET[((z.dn%7)+7)%7]; if(r.l!==nl) r.a=0; r.l=nl; r.dn=z.dn; selV=z.k; gG.innerHTML=''; pintaVoz(); coTic(); });
+  /* (19-nov, Iago) la fantasma sigue al dedo y la nota se escribe AL SOLTAR */
+  let dedoA=null;
+  const fantA=ev=>{ gG.innerHTML=''; if(b2) return null; const z=zona(ev); if(!z) return null; cabeza(gG,yDn(z.dn),VIO,false,''); return z; };
+  svg.addEventListener('pointermove',ev=>{ const z=fantA(ev); if(dedoA) dedoA.z=z; });
+  svg.addEventListener('pointerleave',()=>{ if(!dedoA) gG.innerHTML=''; });
+  svg.addEventListener('pointerdown',ev=>{ if(b2) return; try{ svg.setPointerCapture(ev.pointerId); }catch(_){} dedoA={id:ev.pointerId,z:fantA(ev)}; ev.preventDefault(); });
+  svg.addEventListener('pointerup',ev=>{ if(!dedoA||ev.pointerId!==dedoA.id) return; const z=fantA(ev)||dedoA.z; dedoA=null; gG.innerHTML='';
+    if(!z||b2) return; const r=resp[z.k]; const nl=LET[((z.dn%7)+7)%7]; if(r.l!==nl) r.a=0; r.l=nl; r.dn=z.dn; selV=z.k; pintaVoz(); coTic(); });
+  svg.addEventListener('pointercancel',()=>{ dedoA=null; gG.innerHTML=''; });
   pintaVoz();
   return {
     cierra1(){ b1=true; A.ops1.classList.add('bloq'); const s=A.ops1.querySelector('[data-q="'+resp.tipo+'"]'); if(s&&resp.tipo!==sol.tipo) s.classList.add('ko'); },
