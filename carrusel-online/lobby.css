@@ -137,3 +137,13 @@ html.co-on,html.co-on body{overflow:hidden}
 #co .logo .tt .car{font-size:60px;transform:rotate(-6deg) translateY(-2px);padding:0 .12em 0 .02em}
 #co .logo .tt .onl{font-size:54px;font-weight:300;color:#e2ddff;letter-spacing:-.02em}
 #co .logo .kick{margin-top:12px}
+
+/* (19-nov 21:47, Iago) el hueco de día y hora, vacío, invita a pulsar */
+#co .fh{position:relative;display:inline-flex}
+#co .fh .ph{position:absolute;inset:0;display:flex;align-items:center;gap:9px;padding:0 14px;pointer-events:none;font-weight:700;color:var(--ama);white-space:nowrap}
+#co .fh:not(.vacio) .ph{display:none}
+#co .fh.vacio input{color:transparent;border-style:dashed;border-color:rgba(255,210,63,.85);cursor:pointer}
+#co .fh.vacio input::-webkit-datetime-edit{opacity:0}
+#co .fh.vacio input::-webkit-calendar-picker-indicator{opacity:0}
+#co .fh.vacio:hover input{background:rgba(255,210,63,.1)}
+#co .fh .ph svg{width:19px;height:19px;flex:none}

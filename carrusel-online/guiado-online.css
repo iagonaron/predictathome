@@ -427,7 +427,7 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 #pcg.online #pcgBCasa,#pcg.online #pcgBRep,#pcg.online #pcgBSig{display:none}
 #pcg.online .pcg-pausa-tag{display:none}
 #pcg.online.quieto{cursor:auto}
-#pcg.online .pcg-ctrl #pcgBPausa{display:none}
+#pcg.online:not(.co-solo) .pcg-ctrl #pcgBPausa{display:none}
 
 /* ---------- rítmico: huecos sobre el tablero del aula + cartas ---------- */
 .co-rit{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -500,7 +500,8 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 /* ---------- armónico: botones del aula, ahora pulsables + teclas de notas ---------- */
 .arm-ops>span.co-clic{cursor:pointer;user-select:none}
 .arm-ops>span.co-clic:hover{border-color:var(--c2)}
-.arm-ops>span.sel{border-color:var(--c2);background:rgba(var(--rgb),.2);color:#3a1d82}
+.arm-ops>span.sel{border-color:var(--c2);background:var(--c2);color:#fff}   /* (19-nov 21:53, Iago) lo que eliges, relleno (opaco) */
+.arm-ops>span.sel .cifras{color:#fff}
 .arm-ops>span.ko{border-color:#dc2626;background:#fee2e2;color:#b91c1c}
 .arm-ops.bloq>span.co-clic{cursor:default}
 .co-keys{display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -694,3 +695,4 @@ html.pc-pantalla #pcgBonusIpad{display:none}
   80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-560px) scale(.95) rotate(var(--r))}}
 
 html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente en…» sube */
+.arm-ops.resuelto>span.ko{opacity:.8}   /* tu respuesta equivocada se sigue viendo, en rojo */

@@ -326,7 +326,7 @@ function montar(){
   pintaRemolino($('.f-multi .giro',ROOT));
   document.addEventListener('fullscreenchange',pintaPC); document.addEventListener('webkitfullscreenchange',pintaPC);
   escalar(); addEventListener('resize',escalar);
-  $('#pcgBPausa').onclick=e=>{ e.currentTarget.blur(); if(MODO==='carrusel') pausa(); };
+  $('#pcgBPausa').onclick=e=>{ e.currentTarget.blur(); if(MODO==='carrusel') pausa(); else if(MODO==='online') coPausa(); };
   $('#pcgBRep').onclick=e=>{ e.currentTarget.blur(); repetir(); };
   $('#pcgBSig').onclick=e=>{ e.currentTarget.blur(); siguiente(); };
   $('#pcgBCasa').onclick=e=>{ e.currentTarget.blur(); aPortada(); };
@@ -579,7 +579,7 @@ function dibujaRitmo(host,M){
 /* «Piensa en los ritmos típicos de este compás»: una nube de pensamiento con TODAS las células del motor
    de ese compás apareciendo y desvaneciéndose deprisa (ayudita fugaz; solo opacidad y posición) */
 function celdaVF(host,cell,compound){
-  const VF=Vex.Flow, n=cell.notes.length, W=Math.max(74,44+n*25), H=100;
+  const VF=Vex.Flow, n=cell.notes.length, W=(host.dataset&&host.dataset.apretado)?Math.max(48,24+n*14):Math.max(74,44+n*25), H=100;
   const box=el('div','celda-svg'); host.appendChild(box);
   const ren=new VF.Renderer(box,VF.Renderer.Backends.SVG); ren.resize(W,H);
   const ctx=ren.getContext(); ctx.setFont('Arial',10);
@@ -1798,7 +1798,7 @@ function coPoolRitmo(spec){
   return out;
 }
 function coMini(host,cell,compound){
-  host.innerHTML=''; const m=el('div','co-mini'); host.appendChild(m);
+  host.innerHTML=''; const m=el('div','co-mini'); m.dataset.apretado='1'; host.appendChild(m);   /* (19-nov 21:48, Iago: en 6/8 se veía muy pequeño) notas más juntas, como en la solución */
   try{ celdaVF(m,cell,compound); }catch(e){}
   const svg=m.querySelector('svg'); if(svg){ svg.style.width='auto'; svg.style.height='var(--fig-h)'; }   /* misma altura en todas las figuras (celdaVF deja viewBox W×90) */
   if(host.isConnected) coRecorta(m);
@@ -1911,7 +1911,7 @@ function coMelUI(D,key,mel){
   function dibuja(){
     gA.innerHTML=''; gS.innerHTML='';
     for(let i=1;i<=8;i++){ const a=ans[i]; if(!a) continue;
-      let col='#16132b';
+      let col=(!bloq&&!rev&&i===sel)?'#2563eb':'#16132b';   /* (19-nov 21:50, Iago) la nota que estás cambiando, en azul */
       if(rev){ const ok=midiDe(a)===mel.seq[i]; if(ok) continue; col='#dc2626'; }
       cabeza(gA,P[i].cx,yDn(a.dn),col,true,coAltGlyph(a.dn,a.sharp,key),true); }
     if(!bloq&&!rev&&ans[sel]){ const a=ans[sel], x=P[sel].cx, y=yDn(a.dn);
@@ -1960,15 +1960,22 @@ function coMelUI(D,key,mel){
     if(ev.button===2){ borra(k); return; }
     try{ svg.setPointerCapture(ev.pointerId); }catch(_){}
     const num=p.y>P[0].cy+110;
+    /* (19-nov 21:50, Iago, iPad) con el dedo se cambia SIEMPRE la nota azul (la elegida); para ir a otra, tocas su número o la
+       propia nota si ya estaba puesta. Con el ratón, como antes: la fantasma sigue al puntero y el clic escribe ahí. */
+    if(ev.pointerType!=='mouse'&&!num){
+      const sobreNota=k!==sel&&ans[k]&&Math.abs(p.y-yDn(ans[k].dn))<16;
+      if(sobreNota){ sel=k; dibuja(); dedo={id:ev.pointerId,k,num:true,y0:p.y,f:null}; ev.preventDefault(); return; }
+      dedo={id:ev.pointerId,k:sel,num:false,y0:p.y,f:{k:sel,dn:dnDe(p.y)},tactil:true}; pintaF(sel,dedo.f.dn); ev.preventDefault(); return; }
     dedo={id:ev.pointerId,k,num,y0:p.y,f:num?null:{k,dn:dnDe(p.y)}}; if(dedo.f) pintaF(k,dedo.f.dn); else { sel=k; dibuja(); }
     ev.preventDefault(); });
-  const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; const f=dedo.f, k=dedo.k; dedo=null;
+  const suelta=ev=>{ if(!dedo||ev.pointerId!==dedo.id) return; const f=dedo.f, k=dedo.k, tactil=!!dedo.tactil; dedo=null;
     if(ev.pointerType!=='mouse') gG.innerHTML='';
     if(bloq||rev) return;
     if(!f){ sel=k; dibuja(); return; }
     const dn=f.dn;
     if(ans[k]&&coDnMidi(ans[k].dn,ans[k].sharp,key)===coDnMidi(dn,ans[k].sharp,key)&&sel!==k){ sel=k; dibuja(); return; }
-    pon(k,dn); };
+    const nueva=!ans[k]; pon(k,dn);
+    if(tactil&&nueva&&k<8&&!ans[k+1]){ sel=k+1; dibuja(); } };   /* con el dedo, tras una nota NUEVA pasa a la siguiente vacía */
   svg.addEventListener('pointerup',suelta);
   svg.addEventListener('pointercancel',()=>{ dedo=null; gG.innerHTML=''; });
   svg.addEventListener('contextmenu',e=>e.preventDefault());
@@ -2216,7 +2223,7 @@ async function coArm(b){
   let t=ahora()+0.1; enTiempo(t,()=>A.enciende(0)); bloque(t,m1,2.4); await hasta(t+S(3.1));
   A.texto('<span class="sil">Ar</span><i>-</i><span class="sil">pe</span><i>-</i><span class="sil">gio</span>','',{titulo:true}); await espera(0.6);
   t=ahora()+0.05; await hasta(arpegio(t,m1,0.7,1.3,0.7,i=>A.enciende(i))+S(0.4));
-  A.parpadea(1,true);
+  /* (19-nov 21:53, Iago) sin parpadeo: parecía que señalaba la correcta */
   sonidoUI('escribe'); await escribir(6,'¿Qué tipo de acorde es?','Elígelo debajo');
   A.parpadea(1,false); I.cierra1();
   A.ok1(); A.luz1('todo'); bloque(ahora()+0.05,m1,2.0);
@@ -2242,7 +2249,7 @@ async function coArm(b){
   A.flecha(null); A.luz([]);
   sonidoUI('atencion'); cartel('Otra vez, el acorde entero','Comprueba tus notas'); await espera(0.5);
   t=ahora()+0.1; A.luz([0,1,2]); await hasta(bloque(t,m2,2.2)+S(0.6)); A.luz([]);
-  A.parpadea(2,true);
+  /* sin parpadeo */
   sonidoUI('escribe'); cartel('Decide en qué estado está','Fíjate en la nota del bajo');
   await coEn(b+fin); coAvisaTarde('arm fin',b+fin);
   A.parpadea(2,false);
@@ -2404,9 +2411,16 @@ function coDesbloquea(){
 function coVigilaAudio(){
   let capa=null;
   return setInterval(()=>{ let mudo=true; try{ mudo=ac().state!=='running'; }catch(e){}
-    if(mudo&&CO&&!capa){ capa=el('div','co-tapa','<div><b>Toca la pantalla</b><span>para activar el sonido y seguir jugando</span></div>');
+    if(mudo&&CO&&!capa&&!CO.pausaT){ capa=el('div','co-tapa','<div><b>Toca la pantalla</b><span>para activar el sonido y seguir jugando</span></div>');
       document.body.appendChild(capa); }
-    if(!mudo&&capa){ capa.remove(); capa=null; } },400);
+    if((!mudo||(CO&&CO.pausaT))&&capa){ capa.remove(); capa=null; } },400);
+}
+async function coPausa(){
+  if(!CO||!CO.solo||MODO!=='online') return;
+  if(!CO.pausaT){ CO.pausaT=Date.now(); await pausa(true); return; }
+  const seg=(Date.now()-CO.pausaT)/1000; CO.pausaT=null; CO.inicio+=seg*1000;
+  await pausa(false);
+  try{ CO.cr('pausa',{p_partida:CO.id,p_seg:Math.round(seg)}).then(r=>console.log('[online] pausa',JSON.stringify(r))).catch(()=>{}); }catch(e){}
 }
 async function coJugar(cfg){
   if(CO) return;
@@ -2414,6 +2428,11 @@ async function coJugar(cfg){
   /* (19-nov 20:55, Iago) en la partida individual, cuenta atrás de 10 s en total (6 del servidor + 4); con más gente, 15 */
   CO.prep=cfg.solo?4:CO_PREP;
   CO.vigila=coVigilaAudio();
+  /* (19-nov 21:48, Iago) en la partida individual se puede pausar (botón «Pausa» o barra espaciadora): se para todo y, al
+     seguir, la partida se corre lo que duró la pausa (también en el servidor: no cuenta para la actitud) */
+  ROOT&&ROOT.classList.toggle('co-solo',!!cfg.solo);
+  if(cfg.solo){ CO.solo=true; if(!window.__coTeclaPausa){ window.__coTeclaPausa=true;
+      document.addEventListener('keydown',e=>{ if(CO&&CO.solo&&MODO==='online'&&(e.key===' '||e.code==='Space')&&!/INPUT|TEXTAREA|BUTTON/.test((document.activeElement||{}).tagName||'')){ e.preventDefault(); coPausa(); } },true); } }
   CO.bots=cfg.bots?coBots(cfg.bots,Number(cfg.semilla)||1,cfg.est):[];
   const run=++RUN; MODO='online';
   document.documentElement.classList.add('co-jugando');
