@@ -10,7 +10,7 @@ const QS=new URLSearchParams(location.search);
 let SALTO=Number(QS.get('salto'))||0;              // solo para probar deprisa (desplaza el reloj de ESTA pantalla)
 window.__coSalto=v=>{ SALTO=v; };
 const SV=(d,x)=>'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>';
-const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>')};
+const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>'),cor:SV('<path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/>')};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function pintaPiano(){ const p=document.getElementById('estPiano'); const e=PCOnline.piano(); if(p) p.textContent=e==='listo'?'♪ Piano listo':(e==='error'?'♪ Sin piano de muestras (suena uno sencillo)':(e==='cargando'?'♪ Cargando el piano…':'')); }
@@ -100,7 +100,8 @@ function pintaLobby(){
   const def=(document.getElementById('hora')||{}).value||new Date(manana.getTime()-manana.getTimezoneOffset()*6e4).toISOString().slice(0,16);
   const lista=ST.lista.map(p=>{
     const abierta=p.lobby_abierto, mia=p.soy_creador;
-    const quien=esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span>';
+    const quien=mia?I.cor+'Tu partida':esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span>';
+    const conf=Math.max(0,(p.apuntados||0)-1), confTxt=conf===0?'sin confirmados':conf+(conf===1?' confirmado':' confirmados');
     const cabecera=abierta
       ? '<span class="dot live"></span>Abierta ahora'
       : '<span class="dot nar"></span>Anunciada';
@@ -108,20 +109,21 @@ function pintaLobby(){
     const resp=p.yo;
     const botones=abierta
       ? '<button class="btn pri" data-a="entrar" data-id="'+p.id+'">Entrar</button>'
+      : mia ? (p.anfitrion_cancelo?'<span class="muted">La cancelaste</span>':'<button class="btn ko" data-a="cancelar" data-id="'+p.id+'">'+I.x+'Cancelar partida</button>')
       : '<button class="btn pri'+(resp==='si'?' sel':'')+'" data-a="si" data-id="'+p.id+'">'+(resp==='si'?I.ok+'Me apunto':'Me apunto')+'</button>'+
         (resp==='quiza'?'':'<button class="btn peq" data-a="'+(resp==='si'?'no':'quiza')+'" data-id="'+p.id+'" title="'+(resp==='si'?'Quitarme de la partida':'Marcar como visto')+'">'+I.x+'</button>');
-    return '<div class="partida"><div class="info"><div class="quien">'+quien+cancel+'</div>'+
+    return '<div class="partida'+(mia?' mia':'')+'"><div class="info"><div class="quien">'+quien+cancel+'</div>'+
       '<div class="cuando">'+cabecera+' · <span data-t="'+p.programada+'">'+cuando(p.programada)+'</span></div>'+
-      '<div class="cuando">'+p.apuntados+' apuntado'+(p.apuntados==1?'':'s')+(p.dentro>0?' · '+p.dentro+' en el lobby':'')+'</div></div>'+
+      '<div class="cuando">'+(mia?confTxt:p.apuntados+' apuntado'+(p.apuntados==1?'':'s'))+(p.dentro>0?' · '+p.dentro+' en el lobby':'')+'</div></div>'+
       '<div class="row">'+botones+'</div></div>';
   }).join('');
   app.innerHTML=
     (ST.aviso?'<div class="banner">'+esc(ST.aviso)+'</div>':'')+
     (ST.errNo?'<div class="banner ko">No consigo conectar con el servidor. Reintento solo.</div>':'')+
     '<div class="cols"><div class="card"><h2>Jugar ahora</h2><p class="muted" style="margin-top:0">Abre un lobby y empieza con quien entre en los próximos 5 minutos.</p><button class="btn pri gr" id="bAhora">'+I.play+'Jugar ahora</button></div>'+
-    '<div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora; todo el curso lo verá en el botón de PreDict 15 minutos antes.</p><div class="row"><input type="datetime-local" id="hora" value="'+def+'"><button class="btn" id="bAnunciar">'+I.cal+'Anunciar</button></div></div></div>'+
+    '<div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora: tu curso la verá en el botón del carrusel del portal. El lobby se abre 15 minutos antes.</p><div class="row"><input type="datetime-local" id="hora" value="'+def+'"><button class="btn" id="bAnunciar">'+I.cal+'Anunciar</button></div></div></div>'+
     '<div class="card"><h2>Partidas del curso</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. Abre una con «Jugar ahora» o anuncia una para más tarde.</p>')+'</div>'+
-    '<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 11 minutos y tiene cinco partes; la última son las cadencias.</p>';
+    '<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias.</p>';
   if(enInput){ const h=document.getElementById('hora'); if(h&&valorHora) h.value=valorHora; }
   enlaza();
 }
@@ -133,7 +135,7 @@ function enlaza(){
   const an=document.getElementById('bAnunciar'); if(an) an.onclick=async()=>{
     const v=(document.getElementById('hora')||{}).value; if(!v) return;
     const d=new Date(v);
-    if(!await confirma('¿Anunciar esta partida?','Serás el anfitrión. Si no asistes al carrusel, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.','Sí, anunciar')) return;
+    if(!await confirma('¿Anunciar esta partida?','Serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.','Sí, anunciar')) return;
     an.disabled=true;
     const r=await cr('crear',{p_programada:d.toISOString()});
     if(r&&r.ok){ ST.aviso='Partida anunciada para '+cuando(d.toISOString())+'. Te has apuntado automáticamente.'; await refrescaLista(); }
@@ -144,6 +146,11 @@ function enlaza(){
     const a=bt.dataset.a, id=bt.dataset.id, P=ST.lista.find(x=>x.id===id);
     if(a==='si'&&P&&P.tipo==='anunciada'&&P.yo!=='si'){ if(!await confirma('¿Estás seguro?','Si luego no asistes, perderás 0,1 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.','Sí, me apunto')) return; }
     if((a==='no'||a==='quiza')&&P&&P.yo==='si'&&!P.soy_creador&&tarde(P)){ if(!await confirma('Ya es tarde para quitarte','Quitarte ahora cuenta como no asistir: perderás 0,1 de actitud. ¿Quieres quitarte igualmente?','Sí, quitarme','No, me quedo')) return; }
+    if(a==='cancelar'&&P){
+      const pen=tarde(P)&&(P.apuntados||0)>1;
+      if(!await confirma(pen?'Cancelar ahora cuenta como no asistir':'¿Cancelar tu partida?',pen?'Hay gente apuntada y faltan menos de 5 minutos: perderás 0,25 de actitud. ¿Cancelar igualmente?':(tarde(P)?'No pierdes actitud porque no hay nadie apuntado.':'No pierdes actitud porque faltan más de 5 minutos.'),'Sí, cancelar','No, la mantengo')) return;
+      bt.disabled=true; const r=await cr('cancelar',{p_partida:id}); ST.aviso=r&&r.ok?'Has cancelado la partida.':'No he podido cancelar la partida.'; await refrescaLista(); pintaLobby(); return;
+    }
     bt.disabled=true;
     if(a==='entrar'){ audioListo(); const r=await cr('entrar',{p_partida:id}); if(r&&r.ok) await entraEnSala(id); else { ST.aviso='No he podido entrar: la partida ya no está abierta.'; await refrescaLista(); pintaLobby(); } return; }
     await cr('apuntar',{p_partida:id,p_resp:a}); await refrescaLista(); pintaLobby();
@@ -195,7 +202,8 @@ function pintaSala(){
   const bh=document.getElementById('bHeredar'); if(bh) bh.onclick=async()=>{ bh.disabled=true; await cr('heredar',{p_partida:ST.partida}); await refrescaSala(); pintaSala(); };
   const be=document.getElementById('bEmpezar'); if(be) be.onclick=async()=>{ be.disabled=true; audioListo(); await cr('empezar',{p_partida:ST.partida,p_duracion:700}); await refrescaSala(); pintaSala(); };
   const bc=document.getElementById('bCancelar'); if(bc) bc.onclick=async()=>{
-    const ok=await confirma(tarde(p)?'Cancelar ahora cuenta como no asistir':'¿Cancelar la partida?',tarde(p)?'Perderás 0,25 de actitud por cancelar con menos de 5 minutos de margen. ¿Cancelar la partida igualmente?':'No pasa nada: cancelando hasta 5 minutos antes no pierdes actitud. Los demás podrán seguir si alguien quiere ser anfitrión.','Sí, cancelar','No, sigo');
+    const otros=((ST.est&&ST.est.jugadores)||[]).filter(j=>!j.yo&&j.resp==='si').length, pen=tarde(p)&&otros>0;
+    const ok=await confirma(pen?'Cancelar ahora cuenta como no asistir':'¿Cancelar la partida?',pen?'Hay gente apuntada: perderás 0,25 de actitud por cancelar con menos de 5 minutos de margen. ¿Cancelar la partida igualmente?':'No pierdes actitud. Los demás podrán seguir si alguien quiere ser anfitrión.','Sí, cancelar','No, sigo');
     if(!ok) return;
     await cr('cancelar',{p_partida:ST.partida}); ST.aviso='Has cancelado la partida.'; arrancaLobby();
   };

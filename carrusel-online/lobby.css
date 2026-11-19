@@ -99,3 +99,5 @@ html.co-on,html.co-on body{overflow:hidden}
 #co .btn.gr svg.ic{width:20px;height:20px}
 #co #bSonido{padding:8px 14px;font-size:13px;white-space:nowrap}
 #co #bSonido svg.ic{width:16px;height:16px}
+#co .partida.mia .quien svg.ic{width:17px;height:17px;vertical-align:-3px;margin-right:6px}
+#co .partida.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}
