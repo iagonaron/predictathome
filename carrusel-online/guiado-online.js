@@ -70,7 +70,7 @@ const CAD_TON={C:['C',0,'C','Do M'],G:['G',1,'G','Sol M'],F:['F',-1,'F','Fa M'],
 function mulb(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 function cadenciaDe(semilla){
   const R=mulb(((Number(semilla)||0)*17+3)>>>0);
-  const c=CAD4[Math.floor(R()*4)], vs=CAD_VAR[c.id], v=vs[Math.floor(R()*vs.length)], kt=v.t[Math.floor(R()*v.t.length)];
+  const c=CAD4[(typeof CO!=='undefined'&&CO&&CO.cadIdx!=null)?CO.cadIdx:Math.floor(R()*4)], vs=CAD_VAR[c.id], v=vs[Math.floor(R()*vs.length)], kt=v.t[Math.floor(R()*v.t.length)];
   const K=CAD_TON[kt[0]], d=kt[1];
   const ev=v.ev.map((m,i)=>({midi:m.map(x=>x+d),q:v.q[i]}));
   return {id:c.id,nom:c.nom,rn:c.rn,gr:v.gr,expl:c.expl,modo:v.m==='M'?'major':'minor',tonica:K[0],sharps:K[1],vexKey:K[2],
@@ -1027,7 +1027,7 @@ function dibujaArmonico(host,a,b){
     // (Antes era al revés: la nota del acorde ordenado bajaba hasta el bajo.)
     viaja(seg){ if(MODO==='online'){   /* (19-nov-2026, Iago) online: la nota viaja del acorde ORDENADO (derecha) al bajo del real (izquierda) */
         const hsO=[...Aord.g.querySelectorAll('.vf-notehead')].map(h=>{ const bb=h.getBBox(); return {h,d:Math.abs(bb.y+bb.height/2-yo)}; }).sort((p,q)=>p.d-q.d), hO=hsO.length?hsO[0].h:null; if(!hO) return;   /* (19-nov 21:33, Iago: viajaba el si♭ y decía re) la que está a la altura del bajo */
-        const dx=Afull.cx+30-Aord.cx, dy=yb-yo, x1=Aord.x1-3, x2=Afull.x2+16, L=Math.hypot(x2-x1,dy);
+        const dx=Afull.cx+30-Aord.cx, dy=yb-yo, x1=Aord.x1-3, x2=Afull.cx+13, L=Math.hypot(x2-x1,dy);
         const hilo=sv('line',{class:'pcg-hilo',x1:x1,y1:yo,x2:x2,y2:yb},svg2);
         hilo.style.strokeDasharray=L; hilo.style.strokeDashoffset=L; hilo.style.transition='stroke-dashoffset '+seg+'s cubic-bezier(.45,0,.25,1)';
         const cl=hO.cloneNode(true); cl.removeAttribute('id'); cl.classList.add('pcg-luz','pcg-viaja'); svg2.appendChild(cl);
@@ -2272,7 +2272,9 @@ function coArmUI(A,a,bb){
   const pintaOrd=()=>{ gO.innerHTML=''; ordN.forEach((a,dn)=>{ const y=yDn(dn), col=(!b2&&foco==='ord'&&dn===selO)?VIO:'#16132b';
       for(let yy=yL0-10;yy>=y-1;yy-=10) sv('line',{x1:A.cxO-13,x2:A.cxO+13,y1:yy,y2:yy,stroke:'#16132b','stroke-width':1.6},gO);
       for(let yy=yL4+10;yy<=y+1;yy+=10) sv('line',{x1:A.cxO-13,x2:A.cxO+13,y1:yy,y2:yy,stroke:'#16132b','stroke-width':1.6},gO);
-      const h=coGlyph(gO,'noteheadWhole',A.cxO,y,col); const AG={'-1':'accidentalFlat','0':'','1':'accidentalSharp','2':'accidentalNatural'}[String(a)]; if(AG) coGlyph(gO,AG,h.x0-3,y,col,'r'); }); };
+      /* (19-nov 23:03, Iago) cabezas pequeñas, rellenas y en cursiva, como la fantasma: es un borrador */
+      const gg=sv('g',{transform:'translate('+A.cxO+','+y+') scale(.78) skewX(-12) translate('+(-A.cxO)+','+(-y)+')'},gO);
+      const h=coGlyph(gg,'noteheadBlack',A.cxO,y,col); const AG={'-1':'accidentalFlat','0':'','1':'accidentalSharp','2':'accidentalNatural'}[String(a)]; if(AG) coGlyph(gg,AG,h.x0-3,y,col,'r'); }); };
   const keys=el('div','co-keys','<div class="etq"></div><div class="fl"></div>'); A.p2.insertBefore(keys,A.ops2);
   const fl=keys.querySelector('.fl');
   [['-1','♭'],['0','♮'],['1','♯']].forEach(([v,h])=>{ const bt=el('button','co-k acc',h); bt.dataset.a=v;
@@ -2285,7 +2287,7 @@ function coArmUI(A,a,bb){
   let dedoA=null;
   const zonaOrd=ev=>{ const p=punto(ev); if(p.x<A.xL-6||p.x>A.xR+6) return null; const dn=dnM-Math.round((p.y-yM)/5); if(Math.abs(dn-dnM)>9) return null; return {ord:true,dn}; };
   const fantA=ev=>{ gG.innerHTML=''; if(b2) return null; const zo=zonaOrd(ev);
-    if(zo){ const y=yDn(zo.dn); coGlyph(gG,'noteheadBlack',A.cxO,y,VIO); return zo; }
+    if(zo){ const y=yDn(zo.dn); const gg=sv('g',{transform:'translate('+A.cxO+','+y+') scale(.78) skewX(-12) translate('+(-A.cxO)+','+(-y)+')'},gG); coGlyph(gg,'noteheadBlack',A.cxO,y,VIO); return zo; }
     const z=zona(ev); if(!z) return null; cabeza(gG,yDn(z.dn),VIO,false,''); return z; };
   svg.addEventListener('pointermove',ev=>{ const z=fantA(ev); if(dedoA) dedoA.z=z; });
   svg.addEventListener('pointerleave',()=>{ if(!dedoA) gG.innerHTML=''; });
@@ -2301,8 +2303,8 @@ function coArmUI(A,a,bb){
     bloquea(){ b1=true; b2=true; keys.classList.add('off'); },
     cierra(){
       let p=0; if(resp.tipo===sol.tipo) p+=400;
-      if(resp.tiple.l===sol.tiple.l&&resp.tiple.a===sol.tiple.a) p+=150;
-      if(resp.bajo.l===sol.bajo.l&&resp.bajo.a===sol.bajo.a) p+=150;
+      /* (19-nov 23:03, Iago) acorde 2: el acorde escrito (tiple Y bajo, los dos bien) es la mitad; el estado, la otra mitad */
+      if(resp.tiple.l===sol.tiple.l&&resp.tiple.a===sol.tiple.a&&resp.bajo.l===sol.bajo.l&&resp.bajo.a===sol.bajo.a) p+=300;
       if(resp.inv===sol.inv) p+=300;
       return {puntos:p,detalle:{resp,sol}}; },
     marcaInv(){ const s=A.ops2.querySelector('[data-i="'+resp.inv+'"]'); if(s&&resp.inv!==sol.inv) s.classList.add('ko'); },
@@ -2349,12 +2351,11 @@ async function coArm(b){
   A.flecha(null); A.luz([]);
   sonidoUI('atencion'); cartel('Otra vez, el acorde entero','Comprueba tus notas'); await espera(0.5);
   t=ahora()+0.1; A.luz([0,1,2]); await hasta(bloque(t,m2,2.2)+S(0.6)); A.luz([]);
-  /* sin parpadeo */
-  sonidoUI('escribe'); cartel('Decide en qué estado está','Fíjate en la nota del bajo');
-  await coEn(b+fin); coAvisaTarde('arm fin',b+fin);
-  A.parpadea(2,false);
+  /* (19-nov 23:03, Iago) sin textos ni esperas «medio quietas»: solo el tiempo hasta la solución (se puede seguir cambiando) */
+  cartel('',''); A.parpadea(2,false);
   enTiempo(coT(b+corr-0.15),()=>I.bloquea());
-  await coFinEjercicio('','',true);
+  { const q=coHasta(b+corr), t0=ahora()+S(Math.max(0,q-5)); for(let k=0;k<5;k++) sonidoUI(k%2?'tac':'tic',t0+S(k)+0.01);
+    await escribir(q,'','','Solución en'); }
   const res=I.cierra(); coEnvia(3,res);
   await coEn(b+corr);
   const INV=['Estado fundamental','1ª inversión','2ª inversión'], ROLN=['la fundamental','la tercera','la quinta'];
@@ -2545,6 +2546,12 @@ async function coJugar(cfg){
   const sem=Number(cfg.semilla)||0;
   IV_LECCION=Math.floor(sem/1e6)||null; SEMILLA=sem%1e6;
   try{ renderConSemilla(SEMILLA); }catch(e){ console.error('[online] renderConSemilla',e); }
+  /* (19-nov 23:03, Iago: «siempre me tocan cadencias rotas») en la partida individual, la cadencia se elige entre las que no te
+     han salido en tus dos últimas partidas (se guarda en este dispositivo; si recargas, la misma) */
+  if(cfg.solo){ try{ const kp='co_cad_'+cfg.id; let ix=localStorage.getItem(kp);
+      if(ix==null){ const h=JSON.parse(localStorage.getItem('co_cads')||'[]'), libres=[0,1,2,3].filter(x=>h.slice(-2).indexOf(x)<0);
+        ix=libres[Math.floor(Math.random()*libres.length)]; localStorage.setItem(kp,ix); localStorage.setItem('co_cads',JSON.stringify(h.concat([+ix]).slice(-6))); }
+      CO.cadIdx=+ix; }catch(e){} }
   CO.sch=[coSchedRit(),coSchedMel(),coSchedTon(),coSchedArm(),coSchedCad()];
   CO.slot=CO.sch.map((s,i)=>Math.ceil(s.end+CO_RANK-(i===4?2:0)));   /* (19-nov 21:35, Iago) antes del podio, 2 s menos */ CO.base=[]; { let acc=CO.prep; CO.slot.forEach(s=>{ CO.base.push(acc); acc+=s; }); CO.fin=acc; CO.tot=acc+CO_FINAL; }
   console.log('[online] horario',JSON.stringify({base:CO.base,slot:CO.slot,total:CO.tot,sch:CO.sch.map(x=>({p1:x.p1,p2:x.p2,pc:x.pc,fin:x.fin,velo:x.velo,corr:x.corr,end:x.end}))}));
