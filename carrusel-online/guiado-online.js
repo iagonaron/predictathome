@@ -1700,12 +1700,10 @@ function coSwoosh(t){ try{ const c=ac(), n=Math.floor(c.sampleRate*0.5), bf=c.cr
 /* (19-nov 20:57, Iago) online: 4 s para terminar (se puede cambiar) + 5 s de velo (bloqueado): 9 s en vez de 12+5 */
 async function coFinEjercicio(sub,pieTexto,soloVelo){
   if(!soloVelo){ sonidoUI('escribe'); await escribir(9,'Termina de completar el ejercicio',sub||'',pieTexto,null,5); }
-  cartel('','');
-  const V=ESC.velo, n=$('.n',V); n.textContent='5'; V.classList.add('on');
+  /* (19-nov 22:26, Iago) los 5 s finales, SIN oscurecer y sin bloquear: «Solución en 5…1» abajo y se puede seguir cambiando */
   const t0=ahora();
   for(let k=0;k<5;k++) sonidoUI(k%2?'tac':'tic',t0+S(k)+0.01);
-  for(let k=1;k<5;k++){ await hasta(t0+S(k)); n.textContent=String(5-k); }
-  await hasta(t0+S(5)); V.classList.remove('on');
+  await escribir(5,'Últimos segundos','Aún puedes cambiar tu respuesta','Solución en');
 }
 async function coCorreccion(mostrar){
   cartel('Solución',''); ding(); coRx(true);
@@ -1891,7 +1889,7 @@ function coRitmoUI(D,M){
     pal.appendChild(b);
   });
   /* mismo tamaño arriba y abajo: el que permite que la figura más ancha quepa en un pulso */
-  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h',spec.compound?'66px':'90px'); return;   /* (19-nov 22:18, Iago) en 2/4 y 3/4 caben en una fila: más grandes */
+  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h',spec.compound?'78px':'90px'); if(spec.compound) pal.style.width='1180px'; return;   /* (19-nov 22:18, Iago) en 2/4 y 3/4 caben en una fila: más grandes */
     const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
     pal.querySelectorAll('.co-mini').forEach(coRecorta);
     const rmax=Math.max.apply(null,[...pal.querySelectorAll('.co-mini svg')].map(v=>{ const b=v.viewBox.baseVal; return b&&b.height?b.width/b.height:1; }));
@@ -1921,7 +1919,7 @@ async function coRit(b){
   await coEn(b+p2); coAvisaTarde('rít 2ª',b+p2);
   await pase('2ª escucha','',t=>tocaRitmo(t,M,D,false),0.01);   /* (19-nov, Iago) sin «Escribe» */
   await coEn(b+fin);
-  enTiempo(coT(b+velo),()=>I.bloquea());
+  enTiempo(coT(b+corr-0.15),()=>I.bloquea());
   await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(0,res);
   await coEn(b+corr);
@@ -2073,7 +2071,7 @@ async function coMel(b){
   await coEn(b+p2); coAvisaTarde('mel 2ª',b+p2);
   await coPaseMel(D,mel.seq,1.5,1.5,'2ª escucha','');
   await coEn(b+fin);
-  enTiempo(coT(b+velo),()=>I.bloquea());
+  enTiempo(coT(b+corr-0.15),()=>I.bloquea());
   await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(1,res);
   await coEn(b+corr);
@@ -2180,7 +2178,7 @@ async function coTon(b){
   await pase('Ahora, céntrate en el compás','Vas a escuchar un dictado completo: fíjate en el acento',t=>tocaTon(t,dict.events),3.5);
   B.foco(null);
   await coEn(b+fin);
-  enTiempo(coT(b+velo),()=>I.bloquea());
+  enTiempo(coT(b+corr-0.15),()=>I.bloquea());
   await coFinEjercicio('Tonalidad, armadura y compás','',true);
   const res=I.cierra(); coEnvia(2,res);
   await coEn(b+corr);
@@ -2309,7 +2307,7 @@ async function coArm(b){
   sonidoUI('escribe'); cartel('Decide en qué estado está','Fíjate en la nota del bajo');
   await coEn(b+fin); coAvisaTarde('arm fin',b+fin);
   A.parpadea(2,false);
-  enTiempo(coT(b+velo),()=>I.bloquea());
+  enTiempo(coT(b+corr-0.15),()=>I.bloquea());
   await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(3,res);
   await coEn(b+corr);
@@ -2381,7 +2379,7 @@ async function coCad(b){
   B.marco(); B.bajos(true); sonidoUI('escribe'); cartel('¿Qué cadencia es?','Ahora con la partitura: fíjate en el bajo'); coAvisaTarde('cad ops',b+sc.ops);
   await espera(0.8); await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.4));
   await coEn(b+sc.fin); coAvisaTarde('cad fin',b+sc.fin);
-  enTiempo(coT(b+sc.velo),()=>I.bloquea());
+  enTiempo(coT(b+sc.corr-0.15),()=>I.bloquea());
   await coFinEjercicio('','',true);
   const res=I.cierra(); coEnvia(4,res);
   await coEn(b+sc.corr);

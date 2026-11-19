@@ -252,7 +252,7 @@ function avisoSonido(){
 ['pointerdown','keydown','touchstart','touchend','click','pointerup'].forEach(ev=>document.addEventListener(ev,()=>{ try{ audioListo(); }catch(e){} const d=document.getElementById('coSonido'); if(d) d.remove(); },true));
 function empiezaJuego(est){
   const p=est.p; clearInterval(POLL); clearInterval(TIC); ST.vista='juego';
-  raiz.style.display='none';
+  raiz.style.display='none'; raiz.style.visibility='';
   try{ localStorage.setItem('co_partida',p.id); }catch(e){}
   PCOnline.jugar({id:p.id,inicio:new Date(p.inicio).getTime(),semilla:p.semilla,now:sNow,cr:cr,est:est,
     bots:(ST.tester&&ST.bots===p.id)?8:0, solo:ST.soloId===p.id,   /* (19-nov, Iago) el Tester juega su partida individual con 8 compañeros inventados */
@@ -283,8 +283,10 @@ window.LobbyOnline={ arranca:async function(){
   { const r0=await cr('lista'); if(r0&&r0.ok){ ST.abierto=r0.abierto; ST.tester=r0.tester; } }
   if(QS.get('solo')==='1'&&!cerrado()){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}
+    raiz.style.visibility='hidden';   /* (19-nov 22:24, Iago) de «Jugar ahora» directo a la cuenta atrás, sin ver el lobby */
     audioListo(); const r=await cr('crear');
     if(r&&r.ok){ ST.soloId=r.id; if(ST.tester) ST.bots=r.id; await cr('empezar',{p_partida:r.id,p_duracion:700}); await entraEnSala(r.id); return; }
+    raiz.style.visibility='';
     ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida individual.';
   }
   const QP=QS.get('p');
