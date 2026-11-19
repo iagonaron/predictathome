@@ -10,7 +10,7 @@ const QS=new URLSearchParams(location.search);
 let SALTO=Number(QS.get('salto'))||0;              // solo para probar deprisa (desplaza el reloj de ESTA pantalla)
 window.__coSalto=v=>{ SALTO=v; };
 const SV=(d,x)=>'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+d+'</svg>';
-const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>'),cor:SV('<path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/>')};
+const I={play:SV('<path d="M8 5.5v13l10-6.5z"/>'),cal:SV('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),spk:SV('<path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6"/>'),ok:SV('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),x:SV('<path d="M6 6l12 12M18 6L6 18"/>'),cor:SV('<path d="M4 8l4 4 4-7 4 7 4-4-2 11H6z"/>'),per:SV('<circle cx="12" cy="7.5" r="3.6"/><path d="M4.8 20.5c0-4 3.2-7.1 7.2-7.1s7.2 3.1 7.2 7.1"/>')};
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function pintaPiano(){ const p=document.getElementById('estPiano'); const e=PCOnline.piano(); if(p) p.textContent=e==='listo'?'♪ Piano listo':(e==='error'?'♪ Sin piano de muestras (suena uno sencillo)':(e==='cargando'?'♪ Cargando el piano…':'')); }
@@ -96,12 +96,10 @@ function pintaLobby(){
   if(ST.vista!=='lobby') return;
   try{ PCOnline.fondoLobby(true); }catch(e){}
   const act=document.activeElement, enInput=act&&act.id==='hora', valorHora=enInput?act.value:null;
-  const manana=new Date(Date.now()+864e5); manana.setHours(17,0,0,0);
-  const def=(document.getElementById('hora')||{}).value||new Date(manana.getTime()-manana.getTimezoneOffset()*6e4).toISOString().slice(0,16);
   const lista=ST.lista.map(p=>{
     const abierta=p.lobby_abierto, mia=p.soy_creador;
     const quien=mia?I.cor+'Tu partida':esc(p.creador)+' <span class="muted">('+esc(grupoTxt(p.grupo))+')</span>';
-    const conf=Math.max(0,(p.apuntados||0)-1), confTxt=conf===0?'sin confirmados':conf+(conf===1?' confirmado':' confirmados');
+    const conf=Math.max(0,(p.apuntados||0)-1), confTxt=conf===0?'sin confirmados todavía':'<span class="mon">'+I.per.repeat(Math.min(conf,5))+(conf>5?'+'+(conf-5):'')+'</span> '+conf+(conf===1?' confirmado':' confirmados');
     const cabecera=abierta
       ? '<span class="dot live"></span>Abierta ahora'
       : '<span class="dot nar"></span>Anunciada';
@@ -120,25 +118,34 @@ function pintaLobby(){
   app.innerHTML=
     (ST.aviso?'<div class="banner">'+esc(ST.aviso)+'</div>':'')+
     (ST.errNo?'<div class="banner ko">No consigo conectar con el servidor. Reintento solo.</div>':'')+
-    '<div class="cols"><div class="card"><h2>Jugar ahora</h2><p class="muted" style="margin-top:0">Abre un lobby y empieza con quien entre en los próximos 5 minutos.</p><button class="btn pri gr" id="bAhora">'+I.play+'Jugar ahora</button></div>'+
-    '<div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora: tu curso la verá en el botón del carrusel del portal. El lobby se abre 15 minutos antes.</p><div class="row"><input type="datetime-local" id="hora" value="'+def+'"><button class="btn" id="bAnunciar">'+I.cal+'Anunciar</button></div></div></div>'+
-    '<div class="card"><h2>Partidas del curso</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. Abre una con «Jugar ahora» o anuncia una para más tarde.</p>')+'</div>'+
-    '<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias.</p>';
+    (ST.solo?'<div class="card solo"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Pon el volumen y pulsa «Empezar»: juegas tú solo, ahora mismo. Son unos 10 minutos y cinco partes.</p><div class="row"><button class="btn pri gr" id="bSolo">'+I.play+'Empezar</button><button class="btn" id="bNoSolo">Ver partidas anunciadas</button></div></div>':
+    '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora. <b style="color:#fff">Serás el anfitrión.</b></p><div class="row"><input type="datetime-local" id="hora" min="'+minHora()+'" value="'+esc(ST.hora||'')+'"><button class="btn pri" id="bAnunciar"'+(ST.hora?'':' disabled')+'>'+I.cal+'Anunciar</button></div></div>'+
+    '<div class="card"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Empieza una partida tú solo, ahora mismo.</p><button class="btn" id="bAhora">'+I.play+'Jugar ahora</button></div></div>'+
+    '<div class="card"><h2>Partidas anunciadas</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</p>')+'</div>')+
+    (ST.solo?'':'<p class="muted" style="font-size:13px">Mientras juegas, el tiempo se suma solo a tu actitud (mismos topes de siempre). Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias.</p>');
   if(enInput){ const h=document.getElementById('hora'); if(h&&valorHora) h.value=valorHora; }
   enlaza();
 }
+function minHora(){ const d=new Date(Date.now()+11*6e4); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16); }
 function pintaTiempos(){ /* los textos de «cuándo» no cambian cada segundo; reservado */ }
 
 function enlaza(){
   pintaPiano();
-  const ah=document.getElementById('bAhora'); if(ah) ah.onclick=async()=>{ audioListo(); ah.disabled=true; const r=await cr('crear'); if(r&&r.ok){ await entraEnSala(r.id); } else { ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes un lobby abierto.':'No he podido crear la partida.'; ah.disabled=false; pintaLobby(); } };
+  const solo=async(bt)=>{ audioListo(); bt.disabled=true; const r=await cr('crear');
+    if(r&&r.ok){ await cr('empezar',{p_partida:r.id,p_duracion:700}); ST.solo=false; await entraEnSala(r.id); }
+    else { ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes una partida abierta: espera a que termine.':'No he podido empezar la partida.'; bt.disabled=false; pintaLobby(); } };
+  const ah=document.getElementById('bAhora'); if(ah) ah.onclick=()=>solo(ah);
+  const bso=document.getElementById('bSolo'); if(bso) bso.onclick=()=>solo(bso);
+  const bns=document.getElementById('bNoSolo'); if(bns) bns.onclick=()=>{ ST.solo=false; pintaLobby(); };
+  const hi=document.getElementById('hora'), ban=document.getElementById('bAnunciar');
+  if(hi&&ban) hi.oninput=hi.onchange=()=>{ ST.hora=hi.value; ban.disabled=!hi.value; };
   const an=document.getElementById('bAnunciar'); if(an) an.onclick=async()=>{
     const v=(document.getElementById('hora')||{}).value; if(!v) return;
     const d=new Date(v);
-    if(!await confirma('¿Anunciar esta partida?','Serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.','Sí, anunciar')) return;
+    if(!await confirma('¿Anunciar esta partida?','Será '+cuando(d.toISOString())+' y serás el anfitrión. Si alguien se apunta y luego no asistes, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.','Sí, anunciar')) return;
     an.disabled=true;
     const r=await cr('crear',{p_programada:d.toISOString()});
-    if(r&&r.ok){ ST.aviso='Partida anunciada para '+cuando(d.toISOString())+'. Te has apuntado automáticamente.'; await refrescaLista(); }
+    if(r&&r.ok){ ST.aviso='Partida anunciada para '+cuando(d.toISOString())+'.'; ST.hora=''; await refrescaLista(); }
     else ST.aviso=r&&r.error==='hora'?'La hora debe estar entre 10 minutos y 14 días desde ahora.':'No he podido anunciar la partida.';
     pintaLobby();
   };
@@ -230,6 +237,7 @@ function empiezaJuego(est){
 window.LobbyOnline={ arranca:async function(){
   document.documentElement.classList.add('co-on');
   if(!CUENTA){ sinCuenta(); return; }
+  if(QS.get('solo')==='1'){ ST.solo=true; try{ history.replaceState(null,'',location.pathname); }catch(e){} }
   const QP=QS.get('p');
   if(QP&&/^[0-9a-f-]{36}$/i.test(QP)){
     try{ history.replaceState(null,'',location.pathname); }catch(e){}

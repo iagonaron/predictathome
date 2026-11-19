@@ -101,3 +101,6 @@ html.co-on,html.co-on body{overflow:hidden}
 #co #bSonido svg.ic{width:16px;height:16px}
 #co .partida.mia .quien svg.ic{width:17px;height:17px;vertical-align:-3px;margin-right:6px}
 #co .partida.mia{box-shadow:inset 3px 0 0 #fff;padding-left:12px}
+#co .mon svg.ic{width:15px;height:15px;margin-right:0;vertical-align:-3px}
+#co .card.solo{max-width:640px;margin:20px auto}
+#co .btn:disabled{opacity:.45}
