@@ -1609,7 +1609,7 @@ function coSchedTon(){ const T=datosToncom, key={tpc:TONIC_PC[T.key.tonic],mode:
 function coSchedArm(){ const fin=66; return {fin,velo:fin+7,corr:fin+12,end:fin+12+20}; }
 /* bonus · cadencias: el guion es el del aula (3 escuchas, letrero «¿A qué te suena?», bajo en amarillo, 4 opciones); aquí, además, se elige */
 function coSchedCad(){ const gen=cadenciaDe(SEMILLA), spb=60/84, N=gen.ev.length, Dq=gen.ev.reduce((a,e)=>a+e.q,0)*spb, L2=(gen.ev[N-2].q+gen.ev[N-1].q)*spb;
-  let t=2.7+1.6+0.8; t+=0.1+Dq+0.8; t+=1.2+0.1+L2+0.6; t+=0.8+0.5; t+=0.6+0.1+Dq+0.6; t+=2.3; const ops=t+0.5; const fin=ops+9;
+  let t=2.7+1.4+0.6; t+=0.1+Dq+0.5; const ops=t; t+=0.8+0.1+Dq+0.4; const fin=t+4;
   return {gen,ops,fin,velo:fin+7,corr:fin+12,end:fin+12+13+Math.ceil(L2+0.8)}; }
 
 /* ---------- envío de la respuesta y clasificación ---------- */
@@ -2004,6 +2004,12 @@ async function coArm(b){
 /* ============================================================================
    5 · BONUS · CADENCIAS — el del aula, más 4 opciones para pulsar
    ============================================================================ */
+const CO_CAD_TXT={autentica:['Cadencia auténtica','Final conclusivo'],plagal:['Cadencia plagal','Final suave'],semicadencia:['Semicadencia','Final sin terminar'],rota:['Cadencia rota','Final inesperado']};
+function coCadOpciones(B){
+  const ops=$('.bon-ops',ESC.hoja);
+  ops.querySelectorAll('.op').forEach(o=>{ const id=o.dataset.id, c=CAD4.find(x=>x.id===id), t=CO_CAD_TXT[id]; o.classList.add('nv');
+    o.innerHTML='<b>'+t[0]+'</b><i>'+t[1]+'</i><span>'+c.rn+'</span>'; });
+}
 function coCadUI(B,gen){
   let resp=null, bloq=false; const ops=[...B.ops.querySelectorAll('.op')];
   ops.forEach(o=>{ o.onclick=()=>{ if(bloq) return; resp=o.dataset.id; ops.forEach(x=>x.classList.toggle('sel',x===o)); sonidoUI('tic'); }; });
@@ -2017,17 +2023,13 @@ async function coCad(b){
   escena(BONUS); await pianoListo();
   const sc=CO.sch[4], gen=sc.gen, N=gen.ev.length, B=dibujaBonus(ESC.hoja,gen); B.ops=$('.bon-ops',ESC.hoja); const I=coCadUI(B,gen);
   const L2=(gen.ev[N-2].q+gen.ev[N-1].q)*60/84;
+  coCadOpciones(B);
   B.verTonalidad(true);
-  sonidoUI('inicio'); cartel('¿Qué cadencia es?','Bonus: escucha y elige la cadencia'); await espera(1.6);
-  cartel('Escucha la cadencia',''); B.marco(); await espera(0.8);
-  await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.8));
-  cartel('',''); sonidoUI('atencion'); B.letrero(true); await espera(1.2);
-  await hasta(tocaCadencia(ahora()+0.1,gen,B,N-2)+S(0.6));
-  await espera(0.8); B.letrero(false); await espera(0.5);
-  cartel('Escúchala otra vez',''); await espera(0.6);
-  await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.6));
-  B.bajos(true); cartel('Fíjate en el bajo','¿Qué grados son?'); await espera(2.3);
-  B.verOpciones(); sonidoUI('escribe'); cartel('¿Qué cadencia es?','Elige una opción'); coAvisaTarde('cad ops',b+sc.ops);
+  sonidoUI('inicio'); cartel('¿Qué cadencia es?','Bonus: escucha y elige'); await espera(1.4);
+  cartel('Escucha la cadencia',''); B.marco(); await espera(0.6);
+  await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.5));
+  B.bajos(true); B.verOpciones(); sonidoUI('escribe'); cartel('¿Qué cadencia es?','Fíjate en el bajo y elige'); coAvisaTarde('cad ops',b+sc.ops);
+  await espera(0.8); await hasta(tocaCadencia(ahora()+0.1,gen,B)+S(0.4));
   await coEn(b+sc.fin); coAvisaTarde('cad fin',b+sc.fin);
   enTiempo(coT(b+sc.velo),()=>I.bloquea());
   await finEjercicio('Elige la cadencia');

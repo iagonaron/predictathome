@@ -85,3 +85,11 @@ html.co-on,html.co-on body{overflow:hidden}
   #co .grande{font-size:34px}
 }
 #co .cols .card{margin-top:0}
+
+/* ventana de confirmación */
+#co .comodal{position:fixed;inset:0;z-index:5;background:rgba(6,4,24,.66);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(3px)}
+#co .cm-caja{max-width:470px;background:rgba(18,13,52,.96);border:1.5px solid rgba(255,255,255,.34);border-radius:22px;padding:22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+#co .cm-caja h3{margin:0 0 6px;font-size:22px;font-weight:900}
+#co .cm-caja h3::after{content:"";display:block;width:44px;height:4px;border-radius:4px;margin-top:8px;background:linear-gradient(90deg,#5bd0ff,#ffd23f,#ff9a3c,#bd92ff)}
+#co .cm-caja p{margin:12px 0 18px;color:#e8e4ff;font-size:16px}
+#co .cm-caja .row{justify-content:flex-end}

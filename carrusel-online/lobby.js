@@ -47,6 +47,18 @@ function grupoTxt(g){ return g?String(g).replace(/ge$/i,'').toUpperCase().replac
 const ESPIRAL=c=>'<svg viewBox="0 0 44 44"><g fill="none" stroke="'+c+'" stroke-linecap="round"><path d="M22 4 a18 18 0 1 0 18 18" stroke-width="3"/><path d="M22 10 a12 12 0 1 1 -12 12" stroke-width="2.4" opacity=".7"/></g><circle cx="40" cy="22" r="3" fill="'+c+'"/></svg>';
 const CABECERA='<div class="top"><div class="logo"><div class="lg" id="coLogo"></div><div class="nm"><div class="tt"><span class="pre">Pre</span><span class="dict">Dict</span><span class="car">Carrusel</span></div><div class="kick">Online · Grado Elemental</div></div></div><div class="sp"></div><span class="tag" id="estPiano"></span><button class="btn peq" id="bSonido" title="Comprobar el sonido">🔊 Probar sonido</button></div>';
 
+/* ---------- ventana de confirmación (estética PreDict) ---------- */
+function confirma(titulo,texto,okTxt,noTxt){
+  return new Promise(res=>{
+    const m=document.createElement('div'); m.className='comodal';
+    m.innerHTML='<div class="cm-caja" role="dialog" aria-modal="true"><h3>'+titulo+'</h3><p>'+texto+'</p><div class="row"><button class="btn" data-r="0">'+(noTxt||'Mejor no')+'</button><button class="btn pri" data-r="1">'+okTxt+'</button></div></div>';
+    raiz.appendChild(m);
+    const fin=v=>{ m.remove(); res(v); };
+    m.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) fin(b.dataset.r==='1'); else if(e.target===m) fin(false); });
+  });
+}
+const tarde=p=>p&&p.tipo==='anunciada'&&sNow()>new Date(p.programada).getTime()-5*60e3;
+
 /* ---------- audio: se desbloquea con un clic ---------- */
 function audioListo(){ PCOnline.audioListo(); }
 function probarSonido(){ PCOnline.probar(); }
@@ -119,14 +131,19 @@ function enlaza(){
   const ah=document.getElementById('bAhora'); if(ah) ah.onclick=async()=>{ audioListo(); ah.disabled=true; const r=await cr('crear'); if(r&&r.ok){ await entraEnSala(r.id); } else { ST.aviso=r&&r.error==='ya_tienes_una'?'Ya tienes un lobby abierto.':'No he podido crear la partida.'; ah.disabled=false; pintaLobby(); } };
   const an=document.getElementById('bAnunciar'); if(an) an.onclick=async()=>{
     const v=(document.getElementById('hora')||{}).value; if(!v) return;
-    const d=new Date(v); an.disabled=true;
+    const d=new Date(v);
+    if(!await confirma('¿Anunciar esta partida?','Serás el anfitrión. Si no asistes al carrusel, perderás 0,25 de actitud. Puedes evitarlo cancelando la partida hasta 5 minutos antes de su inicio.','Sí, anunciar')) return;
+    an.disabled=true;
     const r=await cr('crear',{p_programada:d.toISOString()});
     if(r&&r.ok){ ST.aviso='Partida anunciada para '+cuando(d.toISOString())+'. Te has apuntado automáticamente.'; await refrescaLista(); }
     else ST.aviso=r&&r.error==='hora'?'La hora debe estar entre 10 minutos y 14 días desde ahora.':'No he podido anunciar la partida.';
     pintaLobby();
   };
   app.querySelectorAll('button[data-a]').forEach(bt=>bt.onclick=async()=>{
-    const a=bt.dataset.a, id=bt.dataset.id; bt.disabled=true;
+    const a=bt.dataset.a, id=bt.dataset.id, P=ST.lista.find(x=>x.id===id);
+    if(a==='si'&&P&&P.tipo==='anunciada'&&P.yo!=='si'){ if(!await confirma('¿Estás seguro?','Si luego no asistes, perderás 0,1 de actitud. Puedes evitarlo quitándote de la partida hasta 5 minutos antes de que empiece.','Sí, me apunto')) return; }
+    if((a==='no'||a==='quiza')&&P&&P.yo==='si'&&!P.soy_creador&&tarde(P)){ if(!await confirma('Ya es tarde para quitarte','Quitarte ahora cuenta como no asistir: perderás 0,1 de actitud. ¿Quieres quitarte igualmente?','Sí, quitarme','No, me quedo')) return; }
+    bt.disabled=true;
     if(a==='entrar'){ audioListo(); const r=await cr('entrar',{p_partida:id}); if(r&&r.ok) await entraEnSala(id); else { ST.aviso='No he podido entrar: la partida ya no está abierta.'; await refrescaLista(); pintaLobby(); } return; }
     await cr('apuntar',{p_partida:id,p_resp:a}); await refrescaLista(); pintaLobby();
   });
@@ -177,8 +194,8 @@ function pintaSala(){
   const bh=document.getElementById('bHeredar'); if(bh) bh.onclick=async()=>{ bh.disabled=true; await cr('heredar',{p_partida:ST.partida}); await refrescaSala(); pintaSala(); };
   const be=document.getElementById('bEmpezar'); if(be) be.onclick=async()=>{ be.disabled=true; audioListo(); await cr('empezar',{p_partida:ST.partida,p_duracion:700}); await refrescaSala(); pintaSala(); };
   const bc=document.getElementById('bCancelar'); if(bc) bc.onclick=async()=>{
-    const tarde=p.tipo==='anunciada' && sNow()>new Date(p.programada).getTime()-5*60e3;
-    if(!confirm(tarde?'Cancelar ahora cuenta como no presentarte (−0,25 de actitud). ¿Cancelar la partida igualmente?':'¿Cancelar la partida? Los demás podrán seguir si alguien quiere ser anfitrión.')) return;
+    const ok=await confirma(tarde(p)?'Cancelar ahora cuenta como no asistir':'¿Cancelar la partida?',tarde(p)?'Perderás 0,25 de actitud por cancelar con menos de 5 minutos de margen. ¿Cancelar la partida igualmente?':'No pasa nada: cancelando hasta 5 minutos antes no pierdes actitud. Los demás podrán seguir si alguien quiere ser anfitrión.','Sí, cancelar','No, sigo');
+    if(!ok) return;
     await cr('cancelar',{p_partida:ST.partida}); ST.aviso='Has cancelado la partida.'; arrancaLobby();
   };
   const bs=document.getElementById('bSalir'); if(bs) bs.onclick=async()=>{ await cr('salir',{p_partida:ST.partida}); arrancaLobby(); };
