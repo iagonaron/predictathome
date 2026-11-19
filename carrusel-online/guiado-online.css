@@ -709,3 +709,4 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 .co-card{padding:8px 16px!important}
 .co-rit.rev{padding-top:30px}
 .co-rit:not(.rev) .co-pool{margin-top:-14px}
+.co-card{min-height:calc(var(--fig-h) + 18px)}

@@ -1891,7 +1891,7 @@ function coRitmoUI(D,M){
     pal.appendChild(b);
   });
   /* mismo tamaño arriba y abajo: el que permite que la figura más ancha quepa en un pulso */
-  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h','66px'); return;
+  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h',spec.compound?'66px':'90px'); return;   /* (19-nov 22:18, Iago) en 2/4 y 3/4 caben en una fila: más grandes */
     const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
     pal.querySelectorAll('.co-mini').forEach(coRecorta);
     const rmax=Math.max.apply(null,[...pal.querySelectorAll('.co-mini svg')].map(v=>{ const b=v.viewBox.baseVal; return b&&b.height?b.width/b.height:1; }));
