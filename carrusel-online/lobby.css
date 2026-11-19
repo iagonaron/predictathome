@@ -156,3 +156,11 @@ html.co-on,html.co-on body{overflow:hidden}
 #co .card .row:has(.fh) .btn{flex:none}
 #co .meg{display:inline-flex;vertical-align:-3px;margin-left:7px;color:#fff}
 #co .meg svg{width:19px;height:19px}
+/* (20-nov-2026) en el móvil (≤ 480 px) el título y la fila de «Anunciar» no cabían: más pequeño y la fila se parte */
+@media (max-width:480px){
+  #co .logo .tt{gap:7px;flex-wrap:wrap;row-gap:0}
+  #co .logo .tt .car{font-size:34px}
+  #co .logo .tt .onl{font-size:29px}
+  #co .card .row:has(.fh){flex-wrap:wrap}
+  #co .card .row:has(.fh) .fh{flex:1 1 100%}
+}

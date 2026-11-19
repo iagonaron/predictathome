@@ -1886,6 +1886,7 @@ function coRitmoUI(D,M){
   const siguienteLibre=desde=>{ for(let k=1;k<=slots.length;k++){ const j=(desde+k)%slots.length; if(!slots[j].ans) return j; } return Math.min(slots.length-1,desde+1); };
   const pon=(i,cell)=>{ if(bloq) return; const s=slots[i]; s.ans=cell; pinta(s); coTic(); sel=siguienteLibre(i); marca(); };
   slots.forEach((s,i)=>{ s.el.onclick=()=>{ if(bloq) return; sel=i; marca(); }; });
+  try{ if(window.__CO) window.__ritUI={slots,pon}; }catch(e){}   /* solo en la copia de pruebas */
   pool.forEach(cell=>{
     const b=el('button','co-card'); coMini(b,cell,spec.compound);
     let ini=null, fan=null, sobre=-1;
@@ -2011,6 +2012,7 @@ function coMelUI(D,key,mel){
   }
   function pon(i,dn){ if(bloq||rev||i<1||i>8) return; dn=Math.max(topdn-13,Math.min(topdn+5,dn)); const a=ans[i]||{dn,sharp:false}; a.dn=dn; ans[i]=a; sel=i; dibuja(); coTic(); }
   function borra(i){ if(bloq||rev||i<1||i>8) return; ans[i]=null; dibuja(); }
+  try{ if(window.__CO) window.__melUI={pon:(i,dn)=>pon(i,dn),mel,topdn,key,ans,midi:(dn,sh)=>coDnMidi(dn,sh,key)}; }catch(e){}
   function punto(ev){ return coPuntoSVG(svg,ev); }
   function col(x){ let k=-1,bd=1e9; for(let i=1;i<=8;i++){ const d=Math.abs(P[i].cx-x); if(d<bd){ bd=d; k=i; } } return bd<(P[2].cx-P[1].cx)*0.55?k:-1; }
   svg.style.touchAction='none';
