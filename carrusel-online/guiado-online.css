@@ -703,3 +703,9 @@ html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente e
 .co-slots{z-index:2}
 .co-pool{gap:12px 14px!important;width:1300px}
 .co-card{padding:6px 14px!important}
+
+/* (19-nov 22:13, Iago) tarjetas con su anchura normal y bien separadas (dos filas si hace falta); en la solución, las ✓/✕ dentro */
+.co-pool{gap:12px 20px!important;width:1340px}
+.co-card{padding:8px 16px!important}
+.co-rit.rev{padding-top:30px}
+.co-rit:not(.rev) .co-pool{margin-top:-14px}

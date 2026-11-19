@@ -1798,7 +1798,7 @@ function coPoolRitmo(spec){
   return out;
 }
 function coMini(host,cell,compound){
-  host.innerHTML=''; const m=el('div','co-mini'); m.dataset.apretado='1'; host.appendChild(m);   /* (19-nov 21:48, Iago: en 6/8 se veía muy pequeño) notas más juntas, como en la solución */
+  host.innerHTML=''; const m=el('div','co-mini'); host.appendChild(m);   /* (19-nov 21:48, Iago: en 6/8 se veía muy pequeño) notas más juntas, como en la solución */
   try{ celdaVF(m,cell,compound); }catch(e){}
   const svg=m.querySelector('svg'); if(svg){ svg.style.width='auto'; svg.style.height='var(--fig-h)'; }   /* misma altura en todas las figuras (celdaVF deja viewBox W×90) */
   if(host.isConnected) coRecorta(m);
@@ -1891,7 +1891,7 @@ function coRitmoUI(D,M){
     pal.appendChild(b);
   });
   /* mismo tamaño arriba y abajo: el que permite que la figura más ancha quepa en un pulso */
-  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h','92px'); return;
+  const ajusta=()=>{ pal.querySelectorAll('.co-mini').forEach(coRecorta); wrap.style.setProperty('--fig-h','66px'); return;
     const sw=slots[0].el.offsetWidth; if(!(sw>0)) return;
     pal.querySelectorAll('.co-mini').forEach(coRecorta);
     const rmax=Math.max.apply(null,[...pal.querySelectorAll('.co-mini svg')].map(v=>{ const b=v.viewBox.baseVal; return b&&b.height?b.width/b.height:1; }));
