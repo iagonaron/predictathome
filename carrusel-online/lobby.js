@@ -266,10 +266,10 @@ async function muestraActitud(p){
   const d=document.createElement('div'); d.id='coAct';
   let t;
   if(r&&r.ok&&r.practicas) t='<b>Partida terminada</b><span>Cuenta de prácticas: no suma actitud</span>';
-  else if(r&&r.ok){ const m=Math.max(1,Math.round((r.segundos||0)/60)); t='<b>+'+m+' min de actitud</b><span>'+(r.ya?'Ya estaban sumados':'Sumados por terminar el carrusel')+'</span>'; }
+  else if(r&&r.ok){ const m=Math.max(1,Math.round((r.segundos||0)/60)); t='<b>Tus '+m+' minutos trabajados ya han llegado a Iago</b><span>para que los valide en tu actitud</span>'; }   /* (19-nov 21:35, Iago) */
   else if(r&&r.error==='sin_terminar') t='<b>Esta vez no suma actitud</b><span>Para sumar, juega hasta la cadencia final</span>';
   else t='<b>Partida terminada</b><span>No se ha podido comprobar la actitud</span>';
-  d.innerHTML='<div class="ic">'+(r&&r.ok&&!r.practicas?'★':'·')+'</div><div class="tx">'+t+'</div><button aria-label="Cerrar">✕</button>';
+  d.innerHTML='<div class="ic">'+(r&&r.ok&&!r.practicas?'<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>':'·')+'</div><div class="tx">'+t+'</div><button aria-label="Cerrar">✕</button>';
   d.querySelector('button').onclick=()=>d.remove();
   raiz.appendChild(d); setTimeout(()=>d.classList.add('on'),30); setTimeout(()=>{ d.classList.remove('on'); setTimeout(()=>d.remove(),500); },9000);
 }

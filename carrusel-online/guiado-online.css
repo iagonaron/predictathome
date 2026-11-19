@@ -672,3 +672,25 @@ html.pc-pantalla #pcgBonusIpad{display:none}
 .co-player .pista{z-index:1}
 /* el reloj de abajo, legible aunque quede encima de la tarjeta blanca */
 .pcg-pie .pcg-reloj{background:rgba(14,10,42,.9);border-radius:50%}
+
+/* (19-nov 21:29, Iago) las notas fantasma, sin contorno */
+#pcg .co-ghost,#pcg .co-sel,#pcg .co-ans{stroke:none}   /* sin el contorno de 0,3 que hereda del <svg> de VexFlow */
+
+/* (19-nov 21:30, Iago) emojis de la corrección */
+.co-rx-bar{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:60;display:flex;gap:6px;padding:8px 10px;border-radius:14px;
+  background:rgba(14,10,42,.78);border:1.5px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);animation:coRxIn .35s ease-out}
+.co-rx-bar button{width:58px;height:58px;border:0;border-radius:10px;background:transparent;font-size:36px;line-height:1;cursor:pointer;padding:0;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;transition:transform .12s,background .12s;touch-action:manipulation}
+.co-rx-bar button:hover{background:rgba(255,255,255,.12);transform:translateY(-3px)}
+.co-rx-bar button.pop{animation:coRxPop .3s ease-out}
+@keyframes coRxPop{40%{transform:scale(1.35)}}
+@keyframes coRxIn{from{opacity:0;transform:translate(-50%,20px)}}
+.co-rx-capa{position:absolute;inset:0;pointer-events:none;z-index:59;overflow:hidden}
+.co-rx-f{position:absolute;bottom:90px;display:flex;flex-direction:column;align-items:center;gap:2px;animation:coRxSube 3.3s cubic-bezier(.2,.6,.35,1) forwards}
+.co-rx-f .e{font-size:64px;line-height:1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35))}
+.co-rx-f .n{font:800 17px/1 "Helvetica Neue",Arial,sans-serif;color:#fff;background:rgba(14,10,42,.8);padding:4px 9px;border-radius:7px;white-space:nowrap}
+.co-rx-f.yo .n{background:#ffd23f;color:#1a1238}
+@keyframes coRxSube{0%{opacity:0;transform:translate(0,20px) scale(.6) rotate(0)}12%{opacity:1;transform:translate(0,0) scale(1.08) rotate(0)}
+  80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-560px) scale(.95) rotate(var(--r))}}
+
+html.co-rx #pcg .pcg-pie{bottom:96px}   /* con la barra de emojis, «Siguiente en…» sube */
