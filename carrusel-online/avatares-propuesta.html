@@ -78,6 +78,10 @@ h1{font-size:26px;margin:0 0 4px}p.sub{margin:0 0 18px;color:var(--mu)}
 </style></head><body><div class="w">
 <h1>Tu avatar · busto, versión 2</h1>
 <p class="sub">Cambios que pediste: la cabeza va pegada al tronco, sin cuello. El instrumento va fuera, en un círculo pegado abajo a la derecha, con el anillo del color del personaje. Los fondos ahora son escenas musicales suaves. Toca cualquier opción para probarla: así sería el editor de «Personalizar».</p>
+<div class="card" style="margin-bottom:16px;--c:#f1c6a1"><div class="h">Tu personaje, Iago: skin propia, como los compositores</div>
+ <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div id="iagoGr" style="width:210px"></div>
+  <div><div style="font-weight:800;font-size:20px">Iago</div><div style="color:var(--mu);font-size:13px;margin-bottom:8px">Color carne, calvo, tu barba, gafas de sol, fondo del aula (pizarra), piano y sello PROFE</div>
+  <div class="bocadillo" style="display:inline-block;--c:#f1c6a1">¡Buen trabajo!</div><div class="peq" style="margin-top:10px" id="iagoMini"></div></div></div></div>
 <div class="card" style="margin-bottom:16px"><div class="h">Así reaccionan a lo que pasa alrededor (lobby, mensajes, clasificación)</div><div class="evento" id="evt"></div><div class="escena" id="esc"></div></div>
 <div class="lay">
  <div class="card prev" id="prev"></div>
@@ -110,6 +114,12 @@ const NEB={nebulosa:['#1b1440','#7c3aed','#ec4899','#3b82f6'],aurora:['#071a24',
   oceano:['#06243a','#0ea5e9','#22d3ee','#1e40af'],lavanda:['#241a3a','#c4b5fd','#f0abfc','#818cf8'],menta:['#0d2a26','#5eead4','#a3e635','#34d399'],
   lava:['#2a0b0b','#ef4444','#f97316','#fbbf24'],galaxia:['#090b1c','#4338ca','#be185d','#0ea5e9'],bokeh:['#151a2e','#f472b6','#60a5fa','#facc15'],seda:['#1e1b4b','#a78bfa','#f472b6','#38bdf8']};
 function fondo(f,b,c,id){
+  if(f==='aula'){ let s='<rect width="200" height="200" fill="#1f3d33"/><rect width="200" height="200" fill="#2b5245" opacity=".35"/>';
+    for(let k=0;k<5;k++) s+='<path d="M8 '+(34+k*9)+' H192" stroke="#fff" stroke-width="1.4" opacity=".28"/>';
+    s+='<g fill="#fff" opacity=".42" font-family="serif" font-weight="700"><text x="16" y="70" font-size="26">♪</text><text x="160" y="64" font-size="24">♫</text><text x="40" y="58" font-size="18">♩</text></g>';
+    s+='<path d="M14 120 q20 -8 40 0" stroke="#fff" stroke-width="5" opacity=".07" stroke-linecap="round"/><path d="M140 110 q24 -6 46 4" stroke="#fff" stroke-width="6" opacity=".06" stroke-linecap="round"/>';
+    s+='<rect x="0" y="176" width="200" height="24" fill="#7a5134"/><rect x="0" y="176" width="200" height="4" fill="#9b6b45"/><rect x="30" y="171" width="16" height="6" rx="2" fill="#f8fafc"/><rect x="150" y="172" width="12" height="5" rx="2" fill="#facc15"/>';
+    return s; }
   if(f==='liso'||!NEB[f]) return '<rect width="200" height="200" fill="'+b+'"/>';
   const P=NEB[f], bl='<filter id="nb'+id+'" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="'+(f==='bokeh'?3:20)+'"/></filter>';
   let s='<defs>'+bl+'</defs><rect width="200" height="200" fill="'+P[0]+'"/>';
@@ -165,6 +175,8 @@ function generoDe(nom){ const n=String(nom||'').trim().split(/\s+/)[0].normalize
   const chicos=['luca','borja','andrea_m','jose maria','nicola','joshua','elias','matias','tobias','ezra','noa_m'];
   if(chicas.indexOf(n)>=0) return 'chica'; if(chicos.indexOf(n)>=0) return 'chico'; return /a$/.test(n)?'chica':'chico'; }
 const NOMBRE='Lucía';
+/* (22:57, Iago) su propio personaje: color carne, calvo con brillo, su barba, gafas de sol, fondo del aula, piano y sello PROFE */
+const IAGO={color:'#f1c6a1',pelo:'ninguno',comp:'barba',peloC:'#3a2a22',gafas:'sol',cara:'sonrisa',prenda:'camiseta',ropa:'#111827',fondo:'aula',fondoC:'#1f3d33',ins:'piano',profe:true,brillo:true};
 const NOMG=n=>{ const q=n.split('|'); return q.length>1?(generoDe(NOMBRE)==='chico'?q[0]:q[1]):n; };
 function cara(k,gesto,dir){ const t='#1c1530', ey=90, ex=15; let o='',b='',ex2='';
   const dot=(x)=>'<circle cx="'+x+'" cy="'+ey+'" r="4.6" fill="'+t+'"/>', arcoA=(x)=>'<path d="M'+(x-5)+' '+(ey+2)+' q5 -7 10 0" stroke="'+t+'" stroke-width="3.4" fill="none" stroke-linecap="round"/>', arcoB=(x)=>'<path d="M'+(x-5)+' '+ey+' q5 5 10 0" stroke="'+t+'" stroke-width="3.4" fill="none" stroke-linecap="round"/>';
@@ -242,12 +254,13 @@ function avatar(o,extra){ o=Object.assign({},S,o||{},extra||{}); const id=++UID,
   const peloDe=conGorro?'':h.de;   /* (22:47, Iago) con gorro, nada de pelo delante (nada de «patillas») */
   const peloAt=(conGorro&&o.pelo==='afro')?'<circle cx="100" cy="96" r="58" fill="'+o.peloC+'"/>':(conGorro&&o.pelo==='mono'?'':h.at);
   const rp=ropa(o.prenda,R,AL_CUELLO.indexOf(o.comp)>=0?o.comp:'nada'), cuerpo=rp.at+rp.de;
-  const cabeza='<circle cx="100" cy="94" r="46" fill="'+c+'"/>';   /* (22:38, Iago) sin orejas */
+  const cabeza='<circle cx="100" cy="94" r="46" fill="'+c+'"/>'+(o.brillo?'<ellipse cx="84" cy="62" rx="12" ry="6" fill="#fff" opacity=".35" transform="rotate(-24 84 62)"/>':'');   /* (22:38, Iago) sin orejas */
   return '<svg class="av '+(o.gesto||'')+(o.dir<0?' izq':'')+'" viewBox="'+(o.mini?'34 14 132 132':'0 0 216 216')+'"><defs><clipPath id="cp'+id+'"><circle cx="100" cy="100" r="96"/></clipPath></defs>'+
     '<g clip-path="url(#cp'+id+')">'+fondo(o.fondo,o.fondoC,c,id)+'<g class="resp"><g class="cab"><g transform="translate(100 90.5) scale(1.08) translate(-100 -94)">'+peloAt+g.at+'</g>'+cp.at+'</g>'+cuerpo+cp.cu+'<g class="cab">'+cabeza+cp.de.replace(/<path d="M58 96 C58 146[^>]*>/,'')+
     (o.comp==='barba'?'<path d="M58 96 C58 146 142 146 142 96 L134 98 C132 116 118 124 100 124 C82 124 68 116 66 98 Z" fill="'+o.peloC+'"/>':'')+
     cara(o.cara,o.gesto,o.dir)+gafas(o.gafas)+'<g transform="translate(100 90.5) scale(1.08) translate(-100 -94)">'+peloDe+g.de+'</g></g>'+brazos(o.gesto,R,c)+'</g></g>'+
-    '<circle cx="100" cy="100" r="95" fill="none" stroke="'+c+'" stroke-width="7"/>'+(o.sinIns?'':instr(o.ins,c,o.fondo,o.fondoC))+'</svg>'; }
+    '<circle cx="100" cy="100" r="95" fill="none" stroke="'+c+'" stroke-width="7"/>'+(o.sinIns?'':instr(o.ins,c,o.fondo,o.fondoC))+
+    (o.profe?'<g transform="rotate(-10 34 182)"><rect x="4" y="170" width="62" height="24" rx="6" fill="#ffd23f" stroke="#1c1530" stroke-width="2.5"/><text x="35" y="187.5" text-anchor="middle" font-family="Helvetica Neue,Arial" font-weight="900" font-size="15" letter-spacing="1" fill="#1c1530">PROFE</text></g>':'')+'</svg>'; }
 /* ---------------- EDITOR ---------------- */
 const TABS=[['color','Color'],['fondo','Fondo'],['cara','Cara base'],['pelo','Peinado'],['gorro','Gorro'],['gafas','Gafas'],['ropa','Ropa'],['comp','Complementos']];
 let TAB='color';
@@ -293,5 +306,8 @@ let EI=0; function escena(){ const e=EV[EI++%EV.length], box=document.getElement
   document.getElementById('evt').textContent='▶ '+e[0];
   box.innerHTML=J.map((j,k)=>'<div class="j" style="--c:'+(j.o.color||S.color)+'">'+avatar(k?j.o:{},{gesto:e[1][k][0]==='reposo'?'':e[1][k][0],dir:e[1][k][1]||1})+'<b>'+j.n+'</b><div class="bo'+(e[2]&&e[2][0]===k?' on':'')+'">'+(e[2]&&e[2][0]===k?e[2][1]:'')+'</div></div>').join(''); }
 setInterval(escena,2600);
+function pintaIago(g){ const e=document.getElementById('iagoGr'); if(e) e.innerHTML=avatar(IAGO,{gesto:g||''}); }
+(function(){ const m=document.getElementById('iagoMini'); if(m) m.innerHTML=[['','Reposo'],['sorpresa','Sorpresa'],['celebrar','Celebrar'],['sospechar','Sospechar'],['llorar','Llorar']].map(([g,n])=>'<div>'+avatar(IAGO,{gesto:g}).replace('<svg ','<svg width="72" height="72" ').replace('class="av ','class="av quieto ')+n+'</div>').join('');
+  pintaIago(); let k=0; setInterval(()=>{ const G=['mirar','celebrar','','pensar','sorpresa','','saludar',''][k++%8]; pintaIago(G); },2400); })();
 pintaPrev(); pintaPanel(); escena();
 </script></body></html>
