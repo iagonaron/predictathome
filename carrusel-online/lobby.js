@@ -23,7 +23,7 @@ function cuentaId(){
 }
 const CUENTA=cuentaId();
 /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 17:30 (cambiado el 20-nov 08:40; antes 19:00); el servidor también lo impide. Tester/Protester siempre. */
-const ABRE=Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT='hoy viernes a las 17:30', VIDEO_URL='';
+const ABRE=Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT='hoy viernes a las 17:30', VIDEO_URL=/(^|\.)gp\.lmathome\.es$/i.test(location.hostname)?'':'https://ge.lmathome.es/piel/carrusel/carrusel-online-ge.mp4?v=4';   /* (20-nov-2026 12:58, Iago) el tráiler, con un botón discreto «Ver vídeo» */
   /* (20-nov-2026, Iago) Selector propio de DÍA y HORA para anunciar partidas (el mismo en ordenador, iPad y móvil):
      calendario del mes con los días pasados apagados y HOY marcado; la hora con DOS RUEDAS verticales como en el iPhone
      (horas 8–22 y minutos de 5 en 5), que se arrastran con el dedo o el ratón, giran con la rueda del ratón o se tocan.
@@ -303,9 +303,10 @@ function pintaLobby(){
     '<div class="cols"><div class="card"><h2>Anunciar partida</h2><p class="muted" style="margin-top:0">Elige día y hora. <b style="color:#fff">Serás el anfitrión</b><span class="meg">'+I.cal+'</span></p><div class="row"><button type="button" class="fh'+(ST.hora?'':' vacio')+'" id="fhBtn"><input type="hidden" id="hora" value="'+esc(ST.hora||'')+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="ph">Elige día y hora</span><span class="vl">'+esc(lmfTexto(ST.hora||''))+'</span></button><button class="btn pri" id="bAnunciar"'+(ST.hora?'':' disabled')+'>'+I.cal+'Anunciar</button></div></div>'+
     '<div class="card"><h2>Partida individual</h2><p class="muted" style="margin-top:0">Empieza una partida tú solo, ahora mismo.</p><button class="btn" id="bAhora">'+I.play+'Jugar ahora</button></div></div>'+
     '<div class="card"><h2>Partidas anunciadas</h2>'+(lista||'<p class="muted" style="margin:6px 0">Ahora mismo no hay ninguna. ¡Anuncia tú la primera!</p>')+'</div>')+
-    (ST.solo||cerrado()?'':'<p class="muted" style="font-size:13px">Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias. Si la terminas, su tiempo se suma a tu actitud (mismos topes de siempre).</p>');
+    (ST.solo||cerrado()?'':'<p class="muted" style="font-size:13px">Cada partida dura unos 10 minutos y tiene cinco partes; la última son las cadencias. Si la terminas, su tiempo se suma a tu actitud (mismos topes de siempre).'+(VIDEO_URL?' <button type="button" class="btn peq vvb" id="bVid">'+I.play+(ST.vid?'Ocultar vídeo':'Ver vídeo')+'</button>':'')+'</p>'+(ST.vid&&VIDEO_URL?'<div class="card">'+videoHTML(VIDEO_URL)+'</div>':''));
   if(enInput){ const h=document.getElementById('hora'); if(h&&valorHora) h.value=valorHora; }
   enlaza();
+  const bv=document.getElementById('bVid'); if(bv) bv.onclick=()=>{ ST.vid=!ST.vid; pintaLobby(); if(ST.vid) setTimeout(()=>{ const v=document.querySelector('#co .vid'); if(v) v.scrollIntoView({behavior:'smooth',block:'center'}); },60); };
 }
 function minHora(){ const d=new Date(Date.now()+11*6e4); return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16); }
 function pintaTiempos(){ /* los textos de «cuándo» no cambian cada segundo; reservado */ }
