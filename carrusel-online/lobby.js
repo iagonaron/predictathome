@@ -23,7 +23,7 @@ function cuentaId(){
 }
 const CUENTA=cuentaId();
 /* apertura (19-nov-2026, Iago): elemental desde el viernes 20-nov a las 17:30 (cambiado el 20-nov 08:40; antes 19:00); el servidor también lo impide. Tester/Protester siempre. */
-const ABRE=Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT='hoy viernes a las 17:30', VIDEO_URL='https://'+'ge.lmathome.es/piel/carrusel/'+(/(^|\.)gp\.lmathome\.es$/i.test(location.hostname)?'carrusel-pro-online-1080.mp4':'carrusel-online-ge-1080.mp4')+'?v=1';   /* (24-nov-2026 17:09, Iago: «todos los vídeos que se vean, que sean el mismo, que esté cargado») el MP4 1080p del portal, cargado entero antes de verse; deshacer: lobby.js.bak60 */   /* (20-nov-2026 12:58, Iago) el tráiler, con un botón discreto «Ver vídeo» */
+const ABRE=Date.parse('2026-11-20T17:30:00+01:00'), ABRE_TXT='hoy viernes a las 17:30', VIDEO_URL='https://'+'ge.lmathome.es/piel/carrusel/'+(/(^|\.)gp\.lmathome\.es$/i.test(location.hostname)?'carrusel-pro-online-1080.mp4?v=2':'carrusel-online-ge-1080.mp4?v=1');   /* (24-nov-2026 17:09, Iago: «todos los vídeos que se vean, que sean el mismo, que esté cargado») el MP4 1080p del portal, cargado entero antes de verse; deshacer: lobby.js.bak60 */   /* (20-nov-2026 12:58, Iago) el tráiler, con un botón discreto «Ver vídeo» */
   /* (20-nov-2026, Iago) Selector propio de DÍA y HORA para anunciar partidas (el mismo en ordenador, iPad y móvil):
      calendario del mes con los días pasados apagados y HOY marcado; la hora con DOS RUEDAS verticales como en el iPhone
      (horas 8–22 y minutos de 5 en 5), que se arrastran con el dedo o el ratón, giran con la rueda del ratón o se tocan.
@@ -199,11 +199,11 @@ const cerrado=()=>ST.abierto===true?false:(Date.now()<ABRE&&!esTester());
 function abreMp4L(src0){
   if(!src0||document.getElementById('co-vidfull')) return;
   const ov=document.createElement('div'); ov.id='co-vidfull';
-  ov.style.cssText='position:fixed;inset:0;z-index:2147483646;background:#000;display:flex;align-items:center;justify-content:center';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483646;background:rgba(4,6,16,.9);display:flex;align-items:center;justify-content:center';   /* (24-nov 17:59, Iago) ventana centrada más pequeña */
   ov.innerHTML='<div class="cg" style="width:min(420px,80vw);text-align:center;color:#fff"><div style="font-size:18px;font-weight:700;margin-bottom:14px">Cargando vídeo</div>'+
     '<div style="height:8px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden"><div class="br" style="height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#f97316,#ec4899,#8b5cf6,#38bdf8);transition:width .25s linear"></div></div>'+
     '<div class="pc" style="margin-top:10px;font-size:13px;color:rgba(255,255,255,.6)">0 %</div></div>'+
-    '<video playsinline preload="auto" style="display:none;width:100%;height:100%;object-fit:contain;background:#000"></video>'+
+    '<video playsinline preload="auto" controlslist="nofullscreen" disablepictureinpicture style="display:none;width:min(1280px,72vw,calc((100vh - 140px)*16/9));height:auto;aspect-ratio:16/9;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.65);background:#000"></video>'+
     '<button type="button" class="go" style="display:none;position:absolute;padding:16px 28px;border-radius:12px;border:0;background:#f97316;color:#fff;font-weight:700;font-size:20px;font-family:inherit;cursor:pointer">▶ Reproducir</button>'+
     '<button type="button" class="x" aria-label="Cerrar el vídeo" title="Cerrar el vídeo" style="position:absolute;top:16px;right:16px;width:52px;height:52px;border-radius:12px;border:1.5px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;font-size:26px;line-height:1;cursor:pointer;z-index:2">✕</button>';
   document.body.appendChild(ov);
